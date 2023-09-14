@@ -1,0 +1,34 @@
+/* rpgle.css */
+
+/* Keyword style */
+.rpgle .keyword {
+    color: blue;
+    font-weight: bold;
+  }
+  
+  /* Comment style */
+  .rpgle .comment {
+    color: green;
+    font-style: italic;
+  }
+  
+  /* String style */
+  .rpgle .string {
+    color: orange;
+  }
+  
+  /* Operator style */
+  .rpgle .operator {
+    color: yellow;
+  }
+  
+  /* Number style */
+  .rpgle .number {
+    color: purple;
+  }
+  
+  /* Punctuation style */
+  .rpgle .punctuation {
+    color: pink;
+  }
+  
