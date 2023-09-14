@@ -1,0 +1,10 @@
+.mermaid{
+    /* border: 1.5px solid #9370DB; */
+    margin-top: 15px;
+    margin-bottom: 15px;
+    /* background: #EDEADE; */
+    display: flex;
+    justify-content: center;
+    overflow: scroll; 
+
+}
