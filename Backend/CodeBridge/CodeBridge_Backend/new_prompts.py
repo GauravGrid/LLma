@@ -1,13 +1,16 @@
 import os
 from pydantic import BaseModel
-from dotenv import load_dotenv
 from langchain import LLMChain, PromptTemplate
 from langchain.chat_models import ChatAnthropic
 from langchain.output_parsers import StructuredOutputParser,ResponseSchema
+from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1
+from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2
+from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3
+from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4
+import keys
 
 
-load_dotenv()
-ChatAnthropic.api_key=os.getenv("ANTHROPIC_API_KEY")
+# ChatAnthropic.api_key=keys.anthropic_key
 
 class LLM(BaseModel):
     role: str
@@ -17,29 +20,38 @@ class LLM(BaseModel):
 # java to python --java
 
 def code_to_business_logic(code,role):    
-    if role.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg"]:
+    if role.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas"]:
         return "Invalid role specified."
-
-    with open('prompt_code_to_business_logic.txt', 'r') as file:
-        examples = file.read().split('\n\n')
-        
-    example_code = ""
-    for example in examples:
-        if role.lower() in example.lower():
-            example_code = example.split(':')[1].strip()
-            break
     
+    example_code="" 
+    if(role.lower()=="java"):
+        example_code=java_example1   
+    elif(role.lower()=="python"):
+       example_code=python_example1
+    elif(role.lower()=="sql"):
+        example_code=sql_example1
+    elif(role.lower()=="mongodb"):
+        example_code=mongodb_example1
+    elif(role.lower()=="angular"):
+        example_code=angular_example1
+    elif(role.lower()=="react"):
+        example_code=react_example1
+    elif(role.lower()=="rpg"):
+        example_code=rpg_example1
+    elif(role.lower()=="sas"):
+        example_code=sas_example1
     
-    template='''Pretend like a {role} code expert and give full code logic of the User given {role} code so convert {role} Code to Business Logic.
-    I want only business logic from {role} code and remember don't give initial words and sentence like this here is buinsess logic extracted 
-    from this code and i want only buiness logic and your task also is to analyze the code, identify its core functionality, and express this functionality in a
-    clear and concise manner. Please ensure that the extracted business logic is well-documented.This is a multi-step process. 
-    Please follow these steps:
-        1. Analyze the provided {role} code and understand its purpose.
-        2. Identify and abstract the key algorithmic steps and logic used in the {role} code.
-        3. Represent this logic in a high-level, language-agnostic format.
-    Ensure that the output is a clear and concise representation of the business logic from the {role} code. If the {role} code is 
-    complex, please provide comments or explanations to clarify the logic.I am providing an example how to generate business logic 
+    template='''Pretend to be an expert in {role} code and provide a comprehensive explanation of the user-provided {role} code, converting it into
+    understandable business logic. If the variables in the code have values relevant to the business logic, please include them.I am interested 
+    solely in the business logic and do not require introductory statements such as 'Here is the business logic extracted from this code.'
+    Your task also involves analyzing the code, identifying its core functionality, and presenting this functionality clearly and concisely. 
+    Ensure that the extracted business logic is well-documented.
+    This process involves multiple steps:
+    1.Analyze the provided {role} code to comprehend its purpose.
+    2.Identify and abstract the key algorithmic steps and logic used in the {role} code.
+    3.Express this logic in a high-level, language-agnostic format.
+    Make sure that the output provides a clear and concise representation of the business logic within the {role} code. If the {role} code is complex,
+    please include comments or explanations to clarify the logic.I am providing an example how to generate business logic 
     using the {role} code as shown in the following example.
     
     Example:
@@ -52,7 +64,7 @@ def code_to_business_logic(code,role):
     Business_Logic:'''
 
     llm_chain = LLMChain(
-        llm = ChatAnthropic(temperature= 0.8,model = "claude-2.0",max_tokens_to_sample=100000),
+        llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
         prompt=PromptTemplate(input_variables=["input","role","example_code"], template=template),
         verbose=True,
     )
@@ -61,21 +73,30 @@ def code_to_business_logic(code,role):
 
 def business_logic_to_mermaid_diagram(logic,role):
     
-    if role.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg"]:
+    if role.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas"]:
         return "Invalid role specified."
 
-    with open('prompt_business_logic_to_mermaid_diagram.txt', 'r') as file:
-        examples = file.read().split('\n\n')
-        
-    example_code = ""
-    for example in examples:
-        if role.lower() in example.lower():
-            example_code = example.split(':')[1].strip()
-            break
+    example_code="" 
+    if(role.lower()=="java"):
+        example_code=java_example2   
+    elif(role.lower()=="python"):
+       example_code=python_example2
+    elif(role.lower()=="sql"):
+        example_code=sql_example2
+    elif(role.lower()=="mongodb"):
+        example_code=mongodb_example2
+    elif(role.lower()=="angular"):
+        example_code=angular_example2
+    elif(role.lower()=="react"):
+        example_code=react_example2
+    elif(role.lower()=="rpg"):
+        example_code=rpg_example2
+    elif(role.lower()=="sas"):
+        example_code=sas_example2
 
     var="" 
     if(role.lower()=="java"):
-        var = "Python"    
+        var == "Python"    
     elif(role.lower()=="python"):
         var="Java"
     elif(role.lower()=="sql"):
@@ -88,6 +109,8 @@ def business_logic_to_mermaid_diagram(logic,role):
         var="Angular"
     elif(role.lower()=="rpg"):
         var="Java"
+    elif(role.lower()=="sas"):
+        var="Python"
     
     classDiagram_schema = ResponseSchema(name='mermaid_class_diagram_code',description='This is the mermaid class diagram code which can be rendered by mermaidjs 8.11.0. , converted to a correct json string with new line replaced with \\n.')
     classDiagram_description_schema = ResponseSchema(name='mermaid_class_diagram_code_description',description='This is the description of the class diagram code generated')
@@ -114,31 +137,41 @@ def business_logic_to_mermaid_diagram(logic,role):
     {format_instructions}'''
 
     llm_chain = LLMChain(
-        llm = ChatAnthropic(temperature= 0.8,model = "claude-2.0",max_tokens_to_sample=100000),
+        llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
         prompt=PromptTemplate(input_variables=["input","example_code","var"],partial_variables={"format_instructions":format_instructions}, template=template),
         verbose=True,
     )
     
     mermaid_diagram= llm_chain.predict(input=logic,example_code=example_code,var=var)
-    return f"{mermaid_diagram}"
+    result=parser.parse(mermaid_diagram)
+    return result['mermaid_class_diagram_code']
 
 def business_logic_to_mermaid_flowchart(logic,role):
     
-    if role.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg"]:
+    if role.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas"]:
         return "Invalid role specified."
 
-    with open('prompt_business_logic_to_mermaid_flowchart.txt', 'r') as file:
-        examples = file.read().split('\n\n')
-        
-    example_code = ""
-    for example in examples:
-        if role.lower() in example.lower():
-            example_code = example.split(':')[1].strip()
-            break
+    example_code="" 
+    if(role.lower()=="java"):
+        example_code=java_example3   
+    elif(role.lower()=="python"):
+       example_code=python_example3
+    elif(role.lower()=="sql"):
+        example_code=sql_example3
+    elif(role.lower()=="mongodb"):
+        example_code=mongodb_example3
+    elif(role.lower()=="angular"):
+        example_code=angular_example3
+    elif(role.lower()=="react"):
+        example_code=react_example3
+    elif(role.lower()=="rpg"):
+        example_code=rpg_example3
+    elif(role.lower()=="sas"):
+        example_code=sas_example3
     
     var="" 
     if(role.lower()=="java"):
-        var = "Python"    
+        var == "Python"    
     elif(role.lower()=="python"):
         var="Java"
     elif(role.lower()=="sql"):
@@ -151,6 +184,8 @@ def business_logic_to_mermaid_flowchart(logic,role):
         var="Angular"
     elif(role.lower()=="rpg"):
         var="Java"
+    elif(role.lower()=="sas"):
+        var="Python"
         
     flowchart_schema = ResponseSchema(name='mermaid_flowchart_code',description='This is the mermaid flowchart code with properly linked nodes which can be rendered by mermaidjs 8.11.0. ,converted to a correct json string with new line replaced with \\n. Also all the nodes should contain strings so that any special characters do not cause problems')
     flowchart_description_schema = ResponseSchema(name='flowchart_code_description',description='This is the description of the flowchart code generated')
@@ -188,31 +223,41 @@ def business_logic_to_mermaid_flowchart(logic,role):
     {format_instructions}'''
 
     llm_chain = LLMChain(
-        llm = ChatAnthropic(temperature= 0.8,model = "claude-2.0",max_tokens_to_sample=100000),
+        llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
         prompt=PromptTemplate(input_variables=["input","example_code","var"],partial_variables={"format_instructions":format_instructions}, template=template),
         verbose=True,
     )
     
     mermaid_flowchart= llm_chain.predict(input=logic,example_code=example_code,var=var)
-    return f"{mermaid_flowchart}"
+    result=parser.parse(mermaid_flowchart)
+    return result['mermaid_flowchart_code']
 
 def business_logic_to_code(logic,role):
     
-    if role.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg"]:
+    if role.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas"]:
         return "Invalid role specified."
 
-    with open('prompt_business_logic_to_code.txt', 'r') as file:
-        examples = file.read().split('\n\n')
-        
-    example_code = ""
-    for example in examples:
-        if role.lower() in example.lower():
-            example_code = example.split(':')[1].strip()
-            break
+    example_code="" 
+    if(role.lower()=="java"):
+        example_code=java_example4   
+    elif(role.lower()=="python"):
+       example_code=python_example4
+    elif(role.lower()=="sql"):
+        example_code=sql_example4
+    elif(role.lower()=="mongodb"):
+        example_code=mongodb_example4
+    elif(role.lower()=="angular"):
+        example_code=angular_example4
+    elif(role.lower()=="react"):
+        example_code=react_example4
+    elif(role.lower()=="rpg"):
+        example_code=rpg_example4
+    elif(role.lower()=="sas"):
+        example_code=sas_example4
      
     var="" 
     if(role.lower()=="java"):
-        var = "Python"    
+        var == "Python"    
     elif(role.lower()=="python"):
         var="Java"
     elif(role.lower()=="sql"):
@@ -225,15 +270,16 @@ def business_logic_to_code(logic,role):
         var="Angular"
     elif(role.lower()=="rpg"):
         var="Java"
+    elif(role.lower()=="sas"):
+        var="Python"
     
-    java_code_schema = ResponseSchema(name='java_code',description='This is the java code generated compatible with latest java version converted to a correct json string without java backticks with new line replaced with \\n.')
-    java_code_description_schema = ResponseSchema(name='java_code_description',description='This is the description of the java code generated')
+    code_schema = ResponseSchema(name='code',description=f'This is the {var} code generated compatible with latest java version converted to a correct json string without {var} backticks with new line replaced with \\n.')
+    code_description_schema = ResponseSchema(name='code_description',description=f'This is the description of the {var} code generated')
 
-    response_schema = (java_code_schema,java_code_description_schema)
+    response_schema = (code_schema, code_description_schema)
     parser = StructuredOutputParser.from_response_schemas(response_schema)
     format_instructions = parser.get_format_instructions()
-    print(format_instructions)    
-           
+    prompt = PromptTemplate(
     template='''
     Convert Business logic to {var} Code:
     I want to generate a {var} code from a Business Logic of {role} code which is given in plain text and I don't want any initial 
@@ -251,31 +297,32 @@ def business_logic_to_code(logic,role):
     {example_code}
     
     Now the User will provide business logic , please generate correct {var} code for business logic as shown in above 
-    example without any initial text. Also include proper comments in the code. Don't give any initial words and sentence except 
-    {var} code.
+    example without any initial text. Also include proper comments in the code. 
     
     User: {input}
-    {var} Code:
-    {format_instructions}'''
+    Code:
 
-    llm_chain = LLMChain(
-        llm = ChatAnthropic(temperature= 0.8,model = "claude-2.0",max_tokens_to_sample=100000),
-        prompt=PromptTemplate(input_variables=["input","var","example_code","role"],partial_variables={"format_instructions":format_instructions}, template=template),
-        verbose=True,
+    {format_instructions}
+    ''',
+      input_variables=["input","var","example_code","role"],
+      partial_variables={"format_instructions":format_instructions},
     )
-
+    llm_chain = LLMChain(
+        llm = ChatAnthropic(temperature= 0.8 , anthropic_api_key=keys.anthropic_key, model = "claude-2.0",max_tokens_to_sample=100000),
+        prompt = prompt,
+        verbose = True
+    )
+    
     code= llm_chain.predict(input=logic,var=var,example_code=example_code,role=role)
-    return f"{code}"  
+    try:
+        print(code)
+        result = parser.parse(code)
+        print(result)
+        return result['code']
+    except:
+        return 'Error Parsing Output'  
 
-async def process(res: LLM):
-    role = res.role
-    code = res.message
 
-    logic=code_to_business_logic(code,role)
-    diagram=business_logic_to_mermaid_diagram(logic,role)
-    flow_chart=business_logic_to_mermaid_flowchart(logic,role)
-    code= business_logic_to_code(logic,role)
-    return {"Business_logic":logic,"Mermaid_Diagram":diagram,"Mermaid_Flowchart":flow_chart,"Code":code}
 
 
 

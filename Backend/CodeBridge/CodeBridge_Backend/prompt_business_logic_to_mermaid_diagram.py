@@ -1,4 +1,4 @@
-java_example:
+java_example2='''
     User=
         1. Initialize left to 0 and right to the length of the array minus one.
         2. Repeat the following steps while left is less than or equal to right:
@@ -9,39 +9,39 @@ java_example:
         3. If the loop exits without finding the target, return -1 to indicate that the element is not in the array.
     Mermaid_Code=
         classDiagram
-            class "BinarySearch" {
+            class "BinarySearch" {{
                 + binarySearch(arr: array, target: int): int
-            }
-            class "BinarySearch" {
+            }}
+            class "BinarySearch" {{
                 + left: int
                 + right: int
                 + mid: int
                 - binarySearch(arr: array, target: int): int
-            }
-            class "Array" {
+            }}
+            class "Array" {{
                 + length: int
                 + elementAt(index: int): int
-            }
-            class "Result" {
+            }}
+            class "Result" {{
                 + result: int
-            }
+            }}
             "BinarySearch" --|> "Array" : contains
             "BinarySearch" --|> "Result" : returns
             "BinarySearch" : + Initialize left to 0
             "BinarySearch" : + Initialize right to arr.length - 1
             "BinarySearch" : + binarySearch(arr, target)
-            "BinarySearch" : binarySearch(arr, target) {
+            "BinarySearch" : binarySearch(arr, target) {{
                 + Calculate mid as the average of left and right
                 + If elementAt(mid) equals target, return mid
                 + If elementAt(mid) < target, update left to mid + 1
                 + Else, update right to mid - 1
                 + If loop exits without finding target, return -1
-            }
+            }}
             "Array" : + length
             "Array" : + elementAt(index)
-            "Result" : + result
+            "Result" : + result'''
 
-python_example:
+python_example2='''
     User=
         1.Initialize variables to keep track of the current starting point (start), total petrol surplus/deficit (totalPetrol), and current
         petrol surplus/deficit (currentPetrol).
@@ -53,25 +53,25 @@ python_example:
         no valid starting point.
     Mermaid_Code=
         classDiagram
-            class "CircularRouteSolver" {
+            class "CircularRouteSolver" {{
                 +InitializeVariables()
                 +LoopThroughPumps()
                 +CheckCurrentPetrol()
                 +CheckTotalPetrol()
-            }
+            }}
             class "CircularRouteSolver" ..> "PetrolPump" : <<uses>>
-            class "PetrolPump" {
+            class "PetrolPump" {{
                 -calculateSurplusDeficit()
-            }
+            }}
             class "CircularRouteSolver" -- "CircularRouteSolver" : <<calls>>
             "CircularRouteSolver" --|> "Java Code" : <<converts>>
-            class "Java Code" {
+            class "Java Code" {{
                 +int start
                 +int totalPetrol
                 +int currentPetrol
-            }
+            }}'''
 
-sql_example:
+sql_example2='''
     User=
         1. Data Sources- The query retrieves data from three main tables: `products`, `order_items`, and `product_categories`. These tables likely represent products, individual sales transactions, and product categories, respectively.
         2. Product Metrics- For each product, the query calculates the average unit price (`avg_price`), total quantity sold (`total_quantity_sold`), and total revenue (`total_revenue`) generated from all sales.
@@ -82,7 +82,7 @@ sql_example:
     Mermaid_Code=
         classDiagram
             classDef table fill:#f9f,stroke:#333,stroke-width:2px;
-            class Products {
+            class Products {{
                 `products`
                 --
                 `product_id: string`
@@ -90,23 +90,23 @@ sql_example:
                 `product_category_id: string`
                 `unit_price: decimal`
                 `...other_fields`
-            }
-            class OrderItems {
+            }}
+            class OrderItems {{
                 `order_items`
                 --
                 `order_id: string`
                 `product_id: string`
                 `quantity_sold: int`
                 `...other_fields`
-            }
-            class ProductCategories {
+            }}
+            class ProductCategories {{
                 `product_categories`
                 --
                 `category_id: string`
                 `category_name: string`
                 `...other_fields`
-            }
-            class Query {
+            }}
+            class Query {{
                 `SQL Query`
                 --
                 `SELECT pc.category_name, p.product_name,`
@@ -119,7 +119,7 @@ sql_example:
                 `GROUP BY pc.category_name, p.product_name`
                 `HAVING total_revenue > 10000`
                 `ORDER BY pc.category_name ASC, total_revenue DESC`
-            }
+            }}
             Products --> OrderItems : `product_id`
             Products --> ProductCategories : `product_category_id`
             Products ..|> table
@@ -127,9 +127,9 @@ sql_example:
             ProductCategories ..|> table
             Query --> Products : `products`
             Query --> OrderItems : `order_items`
-            Query --> ProductCategories : `product_categories`
+            Query --> ProductCategories : `product_categories`'''
 
-mongodb_example:
+mongodb_example2='''
     User=
         The provided code appears to be an aggregation pipeline for querying and aggregating data from a MongoDB database, likely related to orders, products, and product categories.
         Here's a breakdown of the business logic behind this code:
@@ -166,9 +166,9 @@ mongodb_example:
             Note over aggregationPipeline: MongoDB Aggregation Pipeline
             Note over operation: MongoDB Aggregation Operation
             aggregationPipeline --|> stage
-            stage --|> operation
+            stage --|> operation'''
 
-react_example:
+react_example2='''
     User=
         The provided React code defines a functional component called `Counter` that implements a simple counter application. The core functionality 
         of this code can be broken down into the following steps:
@@ -195,12 +195,52 @@ react_example:
         state management to keep track of the count and re-renders the component when the count changes, ensuring the UI reflects the current count 
         value.
     Mermaid_Code=
+        classDiagram
+        class Counter {{
+            - count: Number = 0
+            + increment(): void
+            + decrement(): void
+        }}
+        class ReactComponent {{
+            + render(): JSX
+        }}
+        Counter --|> ReactComponent : extends
+'''
 
-angular_example:
+angular_example2='''
     User=
+        Business Logic Extracted from the Angular Code:
+        1. Purpose:
+        - The provided Angular code defines a `CounterComponent` that represents a simple counter with an initial count value of 0.
+        - It offers the functionality to increment the count when a button is clicked.
+        2. Key Algorithmic Steps:
+        - Initialize the `count` variable to 0 when the `CounterComponent` is created.
+        - Provide an HTML template that displays the current count and a button to increment it.
+        - Implement the `incrementCount()` method that increases the `count` by 1 when the button is clicked.
+        3. High-Level Logic:
+        - Upon initialization, the counter starts at 0.
+        - The template displays the current count, and when the "Increment" button is clicked, the count increases by 1.
+        4. Code Comments (for clarification):
+        - The Angular `@Component` decorator is used to define the component's metadata.
+        - The `count` variable represents the current count value.
+        - The `incrementCount()` method increases the count by 1 when called.
+        - The HTML template displays the current count using interpolation: {{ count }}.
+        - The button element has a click event binding that triggers the `incrementCount()` method when clicked.
+        5. Business-Relevant Variables:
+        - `count` (number): Represents the current count value in the business logic.
+        Overall, this Angular component provides a straightforward counter feature, allowing users to see the current count and increment it with a button click.
     Mermaid_Code=
+        classDiagram
+        class CounterComponent {{
+            +count: number
+            +incrementCount(): void
+        }}
+        class Angular {{
+            +@Component
+        }}
+        CounterComponent --|> Angular'''
 
-rpg_example:
+rpg_example2='''
     User=
         The following piece of code declares two data structures, families and people, and then sets up a family with two people. The families data structure is qualified, meaning that it is an array of structures, with each element of the array being a structure. The families data structure has three fields: address, numPeople, and people. The address field is a character field of length 50, and is used to store the address of the family. The numPeople field is an unsigned integer field of length 3, and is used to store the number of people in the family. The people field is an array of structures, with each element of the array being a structure. The people data structure has two fields: name and age. The name field is a character field of length 25, and is used to store the name of the person. The age field is a packed decimal field of length 5, and is used to store the age of the person.
         The code then sets up a family with two people. The address of the family is set to '10 Mockingbird Lane', and the two people are named 'Alice' and 'Bill', with ages of 3 and 15 respectively. The number of people in the family is set to 2. The number of families is set to 1.
@@ -229,5 +269,30 @@ rpg_example:
             }}
             Families --> People
             Main --> Families
-            Families "1" o-- "*" People : contains
+            Families "1" o-- "*" People : contains'''
 
+sas_example2='''
+    User=
+        The high-level business logic of the provided SAS code involves visually representing and analyzing data in the form of a bar chart.
+        The data preparation step involves reading in data with two variables: "category" and "count." The "category" variable contains categorical 
+        values (in this case, likely words or labels like A, B, C, D), while the "count" variable contains numeric values associated with each category.
+        The main objective of the code is to create a vertical bar chart where these categorical values (words or labels) are displayed on the x-axis, 
+        and the numeric values (counts) are represented as the heights of the bars on the y-axis. This visual representation allows business users to
+        quickly and intuitively compare and analyze the distribution of counts across different categories, aiding in data-driven decision-making.
+        In summary, the code's business logic involves transforming data with word-based categories and their corresponding numeric values into a visual
+        format (bar chart) to facilitate the easy interpretation and analysis of the data's distribution by business stakeholders.  
+    Mermaid_Code=
+    classDiagram
+    class Category {{
+        - value: string
+    }}
+    class Count {{
+        - value: number
+    }}
+    Category -- Count : 1..* Contains
+    class BusinessLogic {{
+        - description: string
+        + generateChart(): void
+    }}
+    Category -- BusinessLogic : 1..1 Has
+    Count -- BusinessLogic : 1..1 Has'''

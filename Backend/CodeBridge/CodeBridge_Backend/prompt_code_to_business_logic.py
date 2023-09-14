@@ -1,22 +1,22 @@
-java_example:   
+java_example1='''   
     User=   
-    public class BinarySearch {{
-            public static int binarySearch(int[] arr, int target) {{
-                int left = 0;
-                int right = arr.length - 1;
-                while (left <= right) {{
-                    int mid = left + (right - left) / 2;
-                    if (arr[mid] == target) {{
-                        return mid;
-                    }} else if (arr[mid] < target) {{
-                        left = mid + 1;
-                    }} else {{
-                        right = mid - 1;
+        public class BinarySearch {{
+                public static int binarySearch(int[] arr, int target) {{
+                    int left = 0;
+                    int right = arr.length - 1;
+                    while (left <= right) {{
+                        int mid = left + (right - left) / 2;
+                        if (arr[mid] == target) {{
+                            return mid;
+                        }} else if (arr[mid] < target) {{
+                            left = mid + 1;
+                        }} else {{
+                            right = mid - 1;
+                        }}
                     }}
+                    return -1; // Element not found
                 }}
-                return -1; // Element not found
             }}
-        }}
     Business_Logic=
             1. Initialize two pointers, left and right, to the start and end of the array.
             2. Enter a loop that continues as long as left is less than or equal to right.
@@ -26,9 +26,9 @@ java_example:
             b. If it is not equal:
                 i. If the element at index mid is less than the target, update left to mid + 1 to search in the right half of the current range.
                 ii. If the element at index mid is greater than the target, update right to mid - 1 to search in the left half of the current range.
-            5. If the loop completes without finding the target, return -1 as the result, indicating that the target is not in the array.
+            5. If the loop completes without finding the target, return -1 as the result, indicating that the target is not in the array.'''
     
-python_example:
+python_example1='''
     User=    
         class PetrolPump:
             def __init__(self, petrol, distance):
@@ -57,9 +57,9 @@ python_example:
             3.If at any point during the loop, currentPetrol becomes negative, reset it to zero and update the start index to the next pump.
             4.After processing all petrol pumps, check if the totalPetrol is greater than or equal to zero. If it is, return the start index as
             the starting point where the car can complete the circular route. If totalPetrol is negative, return -1, indicating that there is
-            no valid starting point.
+            no valid starting point.'''
             
-sql_example:
+sql_example1='''
     User=
         SELECT 
             pc.category_name,
@@ -85,9 +85,9 @@ sql_example:
         3. Grouping- The results are grouped by product category (`category_name`) and product name (`product_name`). This grouping allows us to see how products in each category are performing.
         4. Filtering (HAVING clause)- To focus on significant product performance, the query filters out products with total revenue less than or equal to $10,000. This helps identify products that are contributing substantially to revenue.
         5. Sorting (ORDER BY clause)- The final result set is sorted first by product category in ascending order (`pc.category_name`) and then by total revenue in descending order (`total_revenue DESC`). This arrangement provides a clear view of how products within each category rank in terms of revenue generation.
-        Overall, this SQL code is designed to provide a meaningful analysis of product performance within different categories, highlighting top-performing products that have generated significant revenue, while also showing average pricing and quantity sold. This information can be valuable for strategic business decisions, inventory management, and marketing efforts.
+        Overall, this SQL code is designed to provide a meaningful analysis of product performance within different categories, highlighting top-performing products that have generated significant revenue, while also showing average pricing and quantity sold. This information can be valuable for strategic business decisions, inventory management, and marketing efforts.'''
 
-mongodb_example:
+mongodb_example1='''
     User=
         db.orders.aggregate([
             {{
@@ -151,9 +151,9 @@ mongodb_example:
         4. $match Stage: The `$match` stage filters the results to include only those documents where `total_revenue` is greater than 10,000. This step effectively filters out 
         categories and products that haven't generated substantial revenue.
         5. $sort Stage: Finally, the `$sort` stage sorts the results in ascending order of `category_name` and descending order of `total_revenue`. This sorting helps in presenting
-        the data in a meaningful and organized way, with the highest revenue categories listed first within each category group.
+        the data in a meaningful and organized way, with the highest revenue categories listed first within each category group.'''
 
-react_example:
+react_example1='''
     User=
         import React, {{ useState }} from 'react';
         function Counter() {{
@@ -198,13 +198,50 @@ react_example:
                  - The current value of `count` is displayed within the `<p>` element in the JSX.
             In summary, this React code creates a simple counter application with buttons to increment and decrement a counter value. It uses React's
             state management to keep track of the count and re-renders the component when the count changes, ensuring the UI reflects the current count 
-            value.
+            value.'''
 
-angular_example: 
+angular_example1='''
     User=
-    Business_Logic= 
+        import {{ Component }} from '@angular/core';
+        @Component({{
+        selector: 'app-counter',
+        template: `
+            <div>
+            <p>Count: {{{{ count }}}}</p>
+            <button (click)="incrementCount()">Increment</button>
+            </div>
+        `
+        }})
+        export class CounterComponent {{
+        count: number = 0;
 
-rpg_example:
+        incrementCount() {{
+            this.count++;
+        }}
+        }}
+    Business_Logic= 
+        Business Logic Extracted from the Angular Code:
+        1. Purpose:
+        - The provided Angular code defines a `CounterComponent` that represents a simple counter with an initial count value of 0.
+        - It offers the functionality to increment the count when a button is clicked.
+        2. Key Algorithmic Steps:
+        - Initialize the `count` variable to 0 when the `CounterComponent` is created.
+        - Provide an HTML template that displays the current count and a button to increment it.
+        - Implement the `incrementCount()` method that increases the `count` by 1 when the button is clicked.
+        3. High-Level Logic:
+        - Upon initialization, the counter starts at 0.
+        - The template displays the current count, and when the "Increment" button is clicked, the count increases by 1.
+        4. Code Comments (for clarification):
+        - The Angular `@Component` decorator is used to define the component's metadata.
+        - The `count` variable represents the current count value.
+        - The `incrementCount()` method increases the count by 1 when called.
+        - The HTML template displays the current count using interpolation: {{ count }}.
+        - The button element has a click event binding that triggers the `incrementCount()` method when clicked.
+        5. Business-Relevant Variables:
+        - `count` (number): Represents the current count value in the business logic.
+        Overall, this Angular component provides a straightforward counter feature, allowing users to see the current count and increment it with a button click.'''
+
+rpg_example1='''
     User=
         dcl-c MAX_ELEMS 100;
         dcl-c default_city_name 'London';
@@ -219,4 +256,30 @@ rpg_example:
         that represents a city name.The dsply statements are used to display the values of these constants to the user. This could
         be useful for testing or debugging purposes.Finally, the return statement indicates the end of the program.In summary, this
         code sets up two constants and displays their values, which could be useful for setting default values or limiting the
-        size of data structures.
+        size of data structures.'''
+
+sas_example1='''
+    User=
+        /* Sample data for a bar chart */
+        data mydata;
+        input category $ count;
+        datalines;
+        A 10
+        B 15
+        C 20
+        D 12
+        ;
+        run;
+        /* Create a bar chart */
+        proc sgplot data=mydata;
+        vbar category / response=count;
+        run;
+    Business_logic=
+        The high-level business logic of the provided SAS code involves visually representing and analyzing data in the form of a bar chart.
+        The data preparation step involves reading in data with two variables: "category" and "count." The "category" variable contains categorical 
+        values (in this case, likely words or labels like A, B, C, D), while the "count" variable contains numeric values associated with each category.
+        The main objective of the code is to create a vertical bar chart where these categorical values (words or labels) are displayed on the x-axis, 
+        and the numeric values (counts) are represented as the heights of the bars on the y-axis. This visual representation allows business users to
+        quickly and intuitively compare and analyze the distribution of counts across different categories, aiding in data-driven decision-making.
+        In summary, the code's business logic involves transforming data with word-based categories and their corresponding numeric values into a visual
+        format (bar chart) to facilitate the easy interpretation and analysis of the data's distribution by business stakeholders.'''  

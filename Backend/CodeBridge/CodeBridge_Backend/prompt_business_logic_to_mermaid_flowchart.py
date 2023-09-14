@@ -1,4 +1,4 @@
-java_example:
+java_example3='''
     User=
         1. Initialize left to 0 and right to the length of the array minus one.
         2. Repeat the following steps while left is less than or equal to right:
@@ -16,9 +16,9 @@ java_example:
             E --> B
             D --> F[iv. Otherwise, update right to mid - 1.]
             F --> B
-            B --> G[If the loop exits without finding the target, return -1 to indicate that the element is not in the array.]
+            B --> G[If the loop exits without finding the target, return -1 to indicate that the element is not in the array.]'''
 
-python_example:
+python_example3='''
     User=
         1.Initialize variables to keep track of the current starting point (start), total petrol surplus/deficit (totalPetrol), and current
         petrol surplus/deficit (currentPetrol).
@@ -48,9 +48,9 @@ python_example:
             G --> B
             B --> H
             H --> I
-            E --> H
+            E --> H'''
 
-sql_example:
+sql_example3='''
     User=
         1. Data Sources- The query retrieves data from three main tables: `products`, `order_items`, and `product_categories`. These tables likely represent products, individual sales transactions, and product categories, respectively.
         2. Product Metrics- For each product, the query calculates the average unit price (`avg_price`), total quantity sold (`total_quantity_sold`), and total revenue (`total_revenue`) generated from all sales.
@@ -89,9 +89,9 @@ sql_example:
             C --> G
             A --> I
             H --> J
-            K --> J
+            K --> J'''
 
-mongodb_example:
+mongodb_example3='''
     User=
         The provided code appears to be an aggregation pipeline for querying and aggregating data from a MongoDB database, likely related to orders, products, and product categories.
         Here's a breakdown of the business logic behind this code:
@@ -123,9 +123,9 @@ mongodb_example:
             end
             subgraph Output
                 sorted_data
-            end
+            end'''
 
-react_example:
+react_example3='''
     User=
         The provided React code defines a functional component called `Counter` that implements a simple counter application. The core functionality 
         of this code can be broken down into the following steps:
@@ -152,12 +152,112 @@ react_example:
         state management to keep track of the count and re-renders the component when the count changes, ensuring the UI reflects the current count 
         value.
     Mermaid_Flowchart_Code=
+        graph TD
+        subgraph Initialization
+            A[Initialize State]
+        end
+        subgraph Core Functionality
+            B[Define increment Function]
+            C[Define decrement Function]
+        end
+        subgraph Rendering
+            D[Render Function]
+            E[Return JSX]
+            F[Display "Counter"]
+            G[Display count]
+            H[Display "Increment" Button]
+            I[Display "Decrement" Button]
+            J[Handle onClick Events]
+        end
+        subgraph User Interaction
+            K[User Clicks "Increment" Button]
+            L[User Clicks "Decrement" Button]
+        end
+        subgraph State Management
+            M[Manage count State]
+            N[Update count State]
+            O[Re-render Component]
+        end
+        subgraph Displaying Count
+            P[Display count Value]
+        end
+        A --> M
+        B --> M
+        C --> M
+        D --> E
+        E --> F
+        E --> G
+        E --> H
+        E --> I
+        E --> J
+        K --> J
+        L --> J
+        M --> N
+        N --> O
+        O --> D
+        G --> P
+        O --> P
+'''
 
-angular_example:
+angular_example3='''
     User=
+        Business Logic Extracted from the Angular Code:
+        1. Purpose:
+        - The provided Angular code defines a `CounterComponent` that represents a simple counter with an initial count value of 0.
+        - It offers the functionality to increment the count when a button is clicked.
+        2. Key Algorithmic Steps:
+        - Initialize the `count` variable to 0 when the `CounterComponent` is created.
+        - Provide an HTML template that displays the current count and a button to increment it.
+        - Implement the `incrementCount()` method that increases the `count` by 1 when the button is clicked.
+        3. High-Level Logic:
+        - Upon initialization, the counter starts at 0.
+        - The template displays the current count, and when the "Increment" button is clicked, the count increases by 1.
+        4. Code Comments (for clarification):
+        - The Angular `@Component` decorator is used to define the component's metadata.
+        - The `count` variable represents the current count value.
+        - The `incrementCount()` method increases the count by 1 when called.
+        - The HTML template displays the current count using interpolation: {{ count }}.
+        - The button element has a click event binding that triggers the `incrementCount()` method when clicked.
+        5. Business-Relevant Variables:
+        - `count` (number): Represents the current count value in the business logic.
+        Overall, this Angular component provides a straightforward counter feature, allowing users to see the current count and increment it with a button click.
     Mermaid_Flowchart_Code=
+        flowchart
+        %% Initialization
+        subgraph Initialization
+            st=>start: Start
+            op1=>operation: Initialize count to 0
+            e=>end: End
+            st->op1->e
+        end
+        %% User Interface
+        subgraph UserInterface
+            op2=>operation: Display current count
+            op3=>operation: Click "Increment" button
+            op4=>operation: Increment count by 1
+            op2->op3->op4
+        end
+        %% Decision
+        subgraph Decision
+            cond=>condition: Is the button clicked?
+            yes=>operation: Yes
+            no=>operation: No
+            cond(yes)->yes
+            cond(no)->no
+        end
+        %% Final Output
+        subgraph FinalOutput
+            op5=>operation: Display updated count
+            e2=>end: End
+            yes->op4->op5->e2
+            no->e2
+        end
+        %% Annotations
+        st->op2->cond
+        cond(yes)->op3
+        cond(no)->op5'''
 
-rpg_example:
+rpg_example3='''
     User=
         This Code is used to maintain customer master records. It allows displaying, editing, and adding customer records.
         The program starts by checking if any parameters were passed. If not, it closes the display file MTNCUSTD and ends.
@@ -243,4 +343,34 @@ rpg_example:
             AC-- Yes -->AD
             AC-- No -->AE
             AE-- Yes -->AF
-            AF-->AA
+            AF-->AA'''
+
+sas_example3='''
+    User=
+        The high-level business logic of the provided SAS code involves visually representing and analyzing data in the form of a bar chart.
+        The data preparation step involves reading in data with two variables: "category" and "count." The "category" variable contains categorical 
+        values (in this case, likely words or labels like A, B, C, D), while the "count" variable contains numeric values associated with each category.
+        The main objective of the code is to create a vertical bar chart where these categorical values (words or labels) are displayed on the x-axis, 
+        and the numeric values (counts) are represented as the heights of the bars on the y-axis. This visual representation allows business users to
+        quickly and intuitively compare and analyze the distribution of counts across different categories, aiding in data-driven decision-making.
+        In summary, the code's business logic involves transforming data with word-based categories and their corresponding numeric values into a visual
+        format (bar chart) to facilitate the easy interpretation and analysis of the data's distribution by business stakeholders.  
+    Mermaid_Flowchart_Code=
+        flowchart TB
+        subgraph Data_Preparation
+            subgraph Read_Data
+                rd[Read Data]
+            end
+            subgraph Data_Transformation
+                dt[Data Transformation]
+            end
+        end
+        subgraph Create_Bar_Chart
+            cbc[Create Bar Chart]
+        end
+        subgraph Visualize_Data
+            vd[Visualize Data]
+        end
+        rd --> dt
+        dt --> cbc
+        cbc --> vd'''

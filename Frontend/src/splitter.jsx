@@ -3,15 +3,12 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import useAppStore from './assets/components/states';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { Button, Divider, Drawer, Fab, IconButton } from '@mui/material';
 import { Split } from "@geoffcox/react-splitter";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus, duotoneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Download, Edit, ReplayOutlined, Save } from '@mui/icons-material';
 import './splitter.css'
 import mermaid from 'mermaid';
@@ -19,7 +16,7 @@ import MermaidDiagram from './assets/components/mermaid';
 import AceEditor from "react-ace";
 import { saveAs } from 'file-saver';
 
-import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-python";
 import "ace-builds/src-noconflict/theme-clouds_midnight";
 import "ace-builds/src-noconflict/ext-language_tools"
 import CircularProgress from '@mui/material/CircularProgress';
@@ -214,7 +211,7 @@ export default function InteractiveArea() {
             case 'java':
 
                 const blob = new Blob([javaCode], { type: 'text/plain;charset=utf-8' });
-                saveAs(blob,`${extractedValue}.java`);
+                saveAs(blob,`${extractedValue}.py`);
                 break;
 
             default:
@@ -339,7 +336,6 @@ export default function InteractiveArea() {
         }
 
     };
-    let javaExample = "Here is how the RPG code could be implemented in Java:\n\n```java\nimport java.time.LocalDateTime;\nimport java.time.format.DateTimeFormatter;\n\npublic class PrintReport {\n\n  static final String TOP = \"\TOP\";\n  static final String S1 = \"\S1\"; \n  static final String S2 = \"\S2\";\n  static final String S3 = \"\S3\";\n  static final String S0 = \"\S0\";\n\n  static class Line {\n    String fcfc;\n    String leftMargin;\n    String text;\n    String num;\n    String moreLeftMargin; \n    String timestamp;\n    \n    Line() {\n      leftMargin = \"      \";\n      moreLeftMargin = \"      \";\n    }\n  }\n  \n  static Line head1 = new Line();\n  static Line head2 = new Line();\n  static Line head3 = new Line();\n\n  public static void main(String[] args) {\n    \n    head1.fcfc = TOP;\n    head1.text = \"Simple Report\";\n    \n    head2.fcfc = S2;\n    head2.num = \"Number\";\n    head2.timestamp = \"Time Stamp\";\n    \n    head3.fcfc = S0;\n    head3.num = \"------\";\n    head3.timestamp = \"----------\";\n\n    for (int i = 1; i <= 70; i++) {\n      \n      Line line = new Line();\n      line.num = String.format(\"%06d\", i);\n      \n      if (i % 60 == 1) {\n        line.fcfc = TOP;\n      } else {\n        line.fcfc = S1;  \n      }\n      \n      line.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss\"));\n\n      System.out.println(line.fcfc + line.leftMargin + line.text + line.num + \n                         line.moreLeftMargin + line.timestamp);\n    }\n    \n    Line finalLine = new Line();\n    finalLine.fcfc = S3;\n    finalLine.text = \"End of report\";\n    System.out.println(finalLine.fcfc + finalLine.leftMargin + finalLine.text);\n\n  }\n\n}\n```\n\nThe key aspects:\n- Define constants for the FCFC codes \n- Line class to represent each report line\n- Header lines initialized with formatting and text \n- Loop through detail lines, generating line number and timestamp\n- Print header, detail and final lines\n- Use Java string formatting and LocalDateTime for timestamp\n\nThis implements the basic logic and output of the RPG code for printing a simple formatted report in Java. The output could be redirected to a file or printer instead of just printing to console."
 
     return (
         <div
@@ -390,7 +386,7 @@ export default function InteractiveArea() {
                             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" sx={{ color: 'black', fontWeight: '600' }}>
                                 <Tab sx={{ color: 'white' }} label="Business Logic" {...a11yProps(0)} />
                                 <Tab sx={{ color: 'white' }} label="Mermaid Diagram" {...a11yProps(1)} />
-                                <Tab sx={{ color: 'white' }} label="Java Code" {...a11yProps(2)} />
+                                <Tab sx={{ color: 'white' }} label="Python Code" {...a11yProps(2)} />
                             </Tabs>
                         </Box>
 
@@ -503,17 +499,21 @@ export default function InteractiveArea() {
                                         :
                                         <div style={{ position: 'relative', width: '100%' }}>
                                         <AceEditor style={{ width: '100%', height: '95%' ,borderRadius:'15px' }}
-                                        mode="java"
+                                        mode="python"
                                         theme="clouds_midnight"
                                         onChange={onChange}
-                                        name="UNIQUE_ID_OF_DIV"
-                                        editorProps={{ $blockScrolling: true }}
+                                        fontSize={14}
+                                        showPrintMargin={true}
+                                        showGutter={true}
+                                        highlightActiveLine={true}
+                                        value={javaCode}
                                         setOptions={{
                                             enableBasicAutocompletion: true,
                                             enableLiveAutocompletion: true,
-                                            enableSnippets: true
-                                        }}
-                                        value={javaCode} />
+                                            enableSnippets: true,
+                                            showLineNumbers: true,
+                                            tabSize: 2,
+                                          }} />
                                         <div className='flex flex-col' style={{ position: 'absolute', top: '15px', right: '10px' }}>
                                         <Fab size='small' sx={{backgroundColor:'#42a5f5',":hover":{backgroundColor:'#64b5f6'}}} variant='outlined' onClick={() => handleDownload('java')}>
                                             <Download sx={{ color: '#FFF' }} />

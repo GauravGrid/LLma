@@ -74,7 +74,7 @@ class FolderUploadView(APIView):
                 subfolder = FolderUpload.objects.create(foldername=item, parentFolder=parent_folder, user=user)
                 self.process_folder(item_path, subfolder,request) 
             else:
-                rpg_extensions = ['.rpgle', '.sqlrpgle', '.clle', '.RPGLE', '.SQLRPGLE', '.CLLE','.py','.java','.jsx','.tsx','.js','.ts','.sql','.PY','.JAVA','.JSX','.TSX','.JS','.TS','.SQL']
+                rpg_extensions = ['.rpgle', '.sqlrpgle', '.clle', '.RPGLE', '.SQLRPGLE', '.CLLE','.py','.java','.jsx','.tsx','.js','.ts','.sql','.PY','.JAVA','.JSX','.TSX','.JS','.TS','.SQL','.sas','.SAS']
                 if any(item.endswith(ext) for ext in rpg_extensions):
                     with open(item_path, 'rb') as file:
                         print('fileSelected',item)
@@ -447,16 +447,7 @@ class LogicDetailAPIViewNew(APIView):
             logic = Logic.objects.filter(file=file, user=request.user).first()
             serializer = LogicSerializer(logic)
             return Response(serializer.data,status=200)
-        ext = file.filename.split('.')[1]
-        if(ext.lower()=="java"):
-            var = "Java"    
-        elif(ext.lower()=="py"):
-            var="Python"
-        elif(ext.lower()=="sql"):
-            var="SQL"
-        elif(ext.lower()=="rpgle" or ext.lower()=="sqlrpgle" or ext.lower()=="clle"):
-            var="RPG"
-        print(ext)
+        var="SAS"
         code=file.file
         businessLogic =  code_to_business_logic(code,var)
         logicData = {
@@ -506,7 +497,8 @@ class JavaCodeAPIViewNew(APIView):
         file = self.get_object(file_id)
         logic = self.get_object(file_id, logic_id)
         logic_str = logic.logic
-        generated_code = business_logic_to_code(logic_str) 
+        var="SAS"
+        generated_code = business_logic_to_code(logic_str,var) 
         code_data = {
             'code': generated_code,
             'logic': logic_id,
@@ -594,15 +586,7 @@ class MermaidAPIViewNew(APIView):
         file = self.get_object(file_id)
         logic = self.get_object(file_id, logic_id)
         logic_str = logic.logic
-        ext = file.filename.split('.')[1]
-        if(ext.lower()=="java"):
-            var = "Java"    
-        elif(ext.lower()=="py"):
-            var="Python"
-        elif(ext.lower()=="sql"):
-            var="SQL"
-        elif(ext.lower()=="rpgle" or ext.lower()=="sqlrpgle" or ext.lower()=="clle"):
-            var="RPG"
+        var="SAS"
         mermaidDiagramClass = business_logic_to_mermaid_diagram(logic_str,var)
         mermaidDiagramFlow = business_logic_to_mermaid_flowchart(logic_str,var)
         
