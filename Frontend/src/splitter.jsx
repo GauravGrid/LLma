@@ -535,7 +535,7 @@ export default function InteractiveArea() {
                 />
                 <Tab
                   sx={{ color: "white" }}
-                  label="Java Code"
+                  label={convertingFile} 
                   {...a11yProps(2)}
                 />
               </Tabs>
