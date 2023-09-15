@@ -65,6 +65,7 @@ export default function Repositories() {
                                             <IconButton className='folderButton' onClick={handleButtonClick(repository.project_id)} >
                                                 <Folder className='folderIcon'/>
                                                 <p className='folderName'>{repository.project_name}</p>
+                                         
                                             </IconButton>
                                             
                                             

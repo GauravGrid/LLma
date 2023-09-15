@@ -109,6 +109,7 @@ const FolderStructure = (props) => {
       <div className='flex justify-between p-2 w-full' style={{border:'1px solid #2B3140' , borderWidth:'2px 0'}}>
         <Typography sx={{color:'#FFF'}}>
           Source
+        
         </Typography>
         {/* <ArrowDropDown sx={{color:'#FFF'}}/> */}
       </div>

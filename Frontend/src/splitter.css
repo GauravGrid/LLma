@@ -65,3 +65,36 @@
   }
 
 
+
+
+
+
+
+  .generate_container {
+	margin-right: 2rem;
+	margin-bottom: 1rem;
+	color: #FFF;
+	display: flex;       /* Use Flexbox to make children inline */
+	align-items: center; /* Vertically center children */
+  }
+  
+  .generate_container-label {
+	
+	margin-right: 10px; /* Add space between label and select boxes */
+  }
+  
+  .generate_container-select-container {
+	color: #1e1e1e;
+	display: flex;       /* Use Flexbox to make select boxes and "To" inline */
+	align-items: center; /* Vertically center select boxes and "To" */
+  }
+  
+  /* Add some spacing between the select boxes and "To" */
+  .generate_container-select-container select {
+	margin-right: 10px;
+  }
+  
+  .to {
+	margin-right: 10px;  /* Add space between "To" and the second select box */
+  }
+  
