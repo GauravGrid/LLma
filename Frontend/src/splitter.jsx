@@ -141,6 +141,7 @@ export default function InteractiveArea() {
   const [flowchartCode, setFlowchartCode] = useState("");
   const [classDiagramCode, setClassDiagramCode] = useState("");
   const [javaCode, setJavaCode] = useState("");
+  const [error, setError] = useState(''); // State to hold the error message
 
   useEffect(() => {
     mermaid.initialize({
@@ -283,6 +284,28 @@ export default function InteractiveArea() {
   };
 
   const generateBusinessLogic = async () => {
+
+      // Check if either selectedFile or convertingFile is empty
+      if (!selectedFile || !convertingFile) {
+        setError('Select Source or Destination languages.');
+        return;
+      }
+  
+      // Clear the error message if no error
+      setError('');
+  
+      // Add your logic for generating business logic here
+      // This function should be defined separately
+
+
+
+
+
+
+    if(!error){
+
+    
+
     setIsGenButtonClicked(true);
     setLogicLoader(true);
     setDiagramLoader(true);
@@ -308,6 +331,13 @@ export default function InteractiveArea() {
     } catch (error) {
       console.log(error);
     }
+
+
+
+    
+    }
+
+
   };
 
   const generateJavaCode = async (id) => {
@@ -401,7 +431,9 @@ export default function InteractiveArea() {
         >
 
 
-            //  name of uploaded file on the below the navbar
+            {/* name of uploaded file on the below the navbar */}
+
+
 
           <div className="flex justify-center px-5">
             <div
@@ -425,7 +457,9 @@ export default function InteractiveArea() {
           </div>
 
 
-          // content of file that you select from sidenav
+
+
+           {/* content of file that you select from sidenav */}
 
           <div style={{ position: "relative", width: "100%", height: "94.5%" }}>
             <div
@@ -439,24 +473,16 @@ export default function InteractiveArea() {
                 height: "100%",
               }}
             >
-              <RPGLECodeBlock fileContent={fileContent} />
-             
-            </div>
-            <div
-              style={{ position: "absolute", bottom: "32px", right: "25px" }}
-            >
+                
 
-
-
-
-<div className="generate_container">
-      <div className="generate_container-label">Generate the file:</div>
+    <div className="generate_container">
+      <div className="generate_container-label">Choose Language:</div>
       <div className="generate_container-select-container">
         <select
           value={selectedFile}
           onChange={(e) => setSelectedFile(e.target.value)}
         >
-          <option value="">Choose file</option>
+          <option value="">Source</option>
           {selectedOptions.map((option, index) => (
             <option key={index} value={option}>
               {option}
@@ -470,7 +496,7 @@ export default function InteractiveArea() {
           value={convertingFile}
           onChange={(e) => setConvertingFile(e.target.value)}
         >
-          <option value="">Choose file</option>
+          <option value="">Destination</option>
           {generateFile.map((option, index) => (
             <option key={index} value={option}>
               {option}
@@ -483,6 +509,24 @@ export default function InteractiveArea() {
 
 
 
+
+
+              <RPGLECodeBlock fileContent={fileContent} />
+             
+            </div>
+            <div
+              style={{ position: "absolute", bottom: "32px", right: "25px" }}
+            >
+
+
+
+
+
+
+
+
+            {/* Display the error message if there is one */}
+      {error && <div className="error-message">{error}</div>}
               <div
                 className="flex flex-col justify-center items-center"
                 style={{
@@ -497,9 +541,12 @@ export default function InteractiveArea() {
                     generateBusinessLogic();
                   }}
                 >
-                  Generate {convertingFile}
+                  Generate 
                 </Button>
               </div>
+
+
+
             </div>
           </div>
         </div>

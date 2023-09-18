@@ -72,7 +72,7 @@
 
   .generate_container {
 	margin-right: 2rem;
-	margin-bottom: 1rem;
+	margin-bottom: 1.5rem;
 	color: #FFF;
 	display: flex;       /* Use Flexbox to make children inline */
 	align-items: center; /* Vertically center children */
@@ -96,5 +96,6 @@
   
   .to {
 	margin-right: 10px;  /* Add space between "To" and the second select box */
+	color: white;
   }
   
