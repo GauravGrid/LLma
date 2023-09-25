@@ -28,6 +28,24 @@ import {
 import { FilePen } from "styled-icons/fa-solid";
 import { useNavigate } from "react-router-dom";
 
+
+
+
+// clone from git hub
+import SendIcon from '@mui/icons-material/Send';
+import Stack from '@mui/material/Stack';
+
+
+
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+
+
+
+
 const FileDropBox = styled(Box)({
     width: "50%",
     border: "0.5px dashed #000",
@@ -211,6 +229,39 @@ export default function UploadScreen(props) {
         }
     };
 
+     // event handling of gitclone
+
+  const [openSourcecontrol, setOpenSourcecontrol ]= React.useState(false);
+
+  const handleClonecontrolOpen = () => {
+    setOpenSourcecontrol(true);
+  };
+
+  const handleClonecontrolClose = () => {
+    setOpenSourcecontrol(false);
+  };
+
+  const handleCloneRepo = async(e) => {
+      e.preventDefault();
+      console.log(cloneRepoUrl)
+  
+    //   try {
+    //     const response = await axios.post(
+    //       "http://127.0.0.1:8000/login/",
+
+    //       {  }
+    //     );
+    //     const  jwtToken  = response.data.token;
+    //     sessionStorage.clear();
+    //     setJwtToken(jwtToken);
+  
+    //     navigate("/repositories");
+    //   } catch (error) {
+    //     console.log(error);
+    //     }
+      }
+    
+
     return (
         <Box sx={{ display: "flex" }}>
             <SideNav />
@@ -226,9 +277,53 @@ export default function UploadScreen(props) {
                 <Box>
                     <div className="flex items-center justify-center">
                         <FileDropBox>
-                            <div className="flex flex-row  uploadText">
+                            <div className="flex flex-row  uploadText justify-between">
                                 <p>Upload</p>
+                                <div>
+                                <Button
+                                        variant="contained"
+                                        endIcon={<SendIcon />}
+                                        sx={{
+                                        backgroundColor: 'rgba(2, 2, 227, var(--tw-text-opacity))',
+                                        
+                                        }}
+                                        onClick={handleClonecontrolOpen}
+                                    >
+                                        Clone From GitHub
+                                </Button>
+                                <Dialog open={openSourcecontrol} onClose={handleClonecontrolClose}>
+                                    <DialogTitle>Clone Repositories</DialogTitle>
+                                    <DialogContent>
+                                    <DialogContentText>
+                                        To Clone github repository, please enter repo address here. 
+                                    </DialogContentText>
+                                    <TextField
+                                        autoFocus
+                                        margin="dense"
+                                        id="name"
+                                        label="Clone Repository"
+                                        type="address"
+                                        fullWidth
+                                        variant="standard"
+                                        onChange={(e) => setCloneRepoUrl(e.target.value)}
+                                    />
+                                    </DialogContent>
+                                    <DialogActions>
+                                    <Button onClick={handleClonecontrolClose}>Cancel</Button>
+                                    <Button onClick={handleCloneRepo}>Clone</Button>
+                                    </DialogActions>
+                                </Dialog>
+                                
+
+
+
+                                </div>
+
+                              
                             </div>
+                            
+
+                           
                             <div className="files flex mt-4 p-5 justify-between">
                                 <div className="flex items-center w-full">
                                     <StyledTextField

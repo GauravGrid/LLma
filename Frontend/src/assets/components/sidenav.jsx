@@ -47,6 +47,14 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
 
+
+
+// githubicon
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import './sidenav.css'
+
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -167,43 +175,48 @@ export default function SideNav(props) {
 
   // event handling of gitclone
 
-  const [openSourcecontrol, setOpenSourcecontrol ]= React.useState(false);
+  // const [openSourcecontrol, setOpenSourcecontrol ]= React.useState(false);
 
-  const handleClonecontrolOpen = () => {
-    setOpenSourcecontrol(true);
-  };
+  // const handleClonecontrolOpen = () => {
+  //   setOpenSourcecontrol(true);
+  // };
 
-  const handleClonecontrolClose = () => {
-    setOpenSourcecontrol(false);
-  };
+  // const handleClonecontrolClose = () => {
+  //   setOpenSourcecontrol(false);
+  // };
 
-
-
-
-
-
-  const handleCloneRepo = async(e) => {
-      e.preventDefault();
-      console.log(cloneRepoUrl)
+  // const handleCloneRepo = async(e) => {
+  //     e.preventDefault();
+  //     console.log(cloneRepoUrl)
   
-      try {
-        const response = await axios.post(
-          "http://127.0.0.1:8000/login/",
+  //     try {
+  //       const response = await axios.post(
+  //         "http://127.0.0.1:8000/login/",
 
-          {  }
-        );
-        const  jwtToken  = response.data.token;
-        sessionStorage.clear();
-        setJwtToken(jwtToken);
+  //         {  }
+  //       );
+  //       const  jwtToken  = response.data.token;
+  //       sessionStorage.clear();
+  //       setJwtToken(jwtToken);
   
-        navigate("/repositories");
-      } catch (error) {
-        console.log(error);
-        }
-      }
+  //       navigate("/repositories");
+  //     } catch (error) {
+  //       console.log(error);
+  //       }
+  //     }
     
   
 
+      // github button
+      
+      const handleGitHubLogin = async () => {
+        try {
+          // Redirect the user to GitHub for authentication
+          window.location.href = `https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_CALLBACK_URL&scope=user`;
+        } catch (error) {
+          console.error('GitHub login error:', error);
+        }
+      };
   
 
 
@@ -217,8 +230,15 @@ export default function SideNav(props) {
              }}>
               CodeBridge
           </Typography>
+
+
+
+
+          <button onClick={handleGitHubLogin} className="github-login-button">
+              <FontAwesomeIcon icon={faGithub} /> Login to GitHub
+          </button>
            
-            <div>
+            {/* <div>
               <IconButton
               className='iconButton'
                 size="large"
@@ -248,12 +268,12 @@ export default function SideNav(props) {
                 <MenuItem onClick={handleClose}>Profile</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
-            </div>
+            </div> */}
           
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={(props.opened)?true:open}
-      onMouseEnter={()=>{updateOpen(true), console.log('hi')}}
+      onMouseEnter={()=>{updateOpen(true)}}
       onMouseLeave={()=>(props.opened)?updateOpen(true):updateOpen(false)}
       PaperProps={{
         sx: {
@@ -457,11 +477,49 @@ export default function SideNav(props) {
           :
           <></>
         }
+
+
+
+        <div style={{ display:'flex',marginLeft:'2px'}}>
+              <IconButton
+              className='iconButton'
+                size="extra large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+              >
+                <AccountCircle style = {{ fontSize:'25px'}}/>
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                // anchorOrigin={{
+                //   vertical: 'bottom',
+                //   horizontal: 'left',
+                // }}
+                keepMounted
+                // transformOrigin={{
+                //   vertical: 'top',
+                //   horizontal: 'left',
+                // }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleClose}>Profile</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
+            </div>
+
+            
       </Drawer>
       {/* <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         
       </Box> */}
+     
+     
     </Box>
   );
 }

@@ -1,0 +1,19 @@
+.github-login-button {
+    background-color: #555050;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  
+  .github-login-button:hover {
+    background-color: #0a0a0a;
+  }
+  
+  .github-login-button svg {
+    margin-right: 10px;
+  }
+  
