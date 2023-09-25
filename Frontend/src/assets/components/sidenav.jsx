@@ -30,6 +30,21 @@ import FolderStructure from './repositoryStructureView';
 import CodeIcon from '@mui/icons-material/Code';
 import  useAppStore  from './states';
 import { ArrowDropDown, ImportContacts } from '@mui/icons-material';
+import axios from "axios";
+
+
+
+
+
+import FolderCopyIcon from '@mui/icons-material/FolderCopy';
+
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 
 const drawerWidth = 240;
@@ -105,6 +120,12 @@ export default function SideNav(props) {
   const updateFileContent = useAppStore((state) => state.updateFileContent);
   const updateFileName = useAppStore((state)=> state.updateFileName)
 
+
+  // repourl
+
+  const [cloneRepoUrl, setCloneRepoUrl] = React.useState('')
+
+
   // const [open, setOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const updateOpen = useAppStore((state) => state.updateOpen);
@@ -140,6 +161,51 @@ export default function SideNav(props) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+
+
+
+  // event handling of gitclone
+
+  const [openSourcecontrol, setOpenSourcecontrol ]= React.useState(false);
+
+  const handleClonecontrolOpen = () => {
+    setOpenSourcecontrol(true);
+  };
+
+  const handleClonecontrolClose = () => {
+    setOpenSourcecontrol(false);
+  };
+
+
+
+
+
+
+  const handleCloneRepo = async(e) => {
+      e.preventDefault();
+      console.log(cloneRepoUrl)
+  
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:8000/login/",
+
+          {  }
+        );
+        const  jwtToken  = response.data.token;
+        sessionStorage.clear();
+        setJwtToken(jwtToken);
+  
+        navigate("/repositories");
+      } catch (error) {
+        console.log(error);
+        }
+      }
+    
+  
+
+  
+
 
   return (
     <Box sx={{  backgroundColor:colorScheme.menu_primary ,  }}>
@@ -206,6 +272,9 @@ export default function SideNav(props) {
           </IconButton>
             </DrawerHeader>
         <List sx={{backgroundColor : colorScheme.menu_secondary , height:'100vh' }}>
+
+
+
             <ListItem key={'Upload'} disablePadding  sx={{ display: 'block' }}>
               <ListItemButton
                 sx={{
@@ -229,6 +298,8 @@ export default function SideNav(props) {
                 <ListItemText primary={'Upload'} sx={{ opacity: open ? 1 : 0 ,color:'#FFFFFF'}} />
               </ListItemButton>
             </ListItem>
+
+
             <ListItem key={'Your Repositories'} disablePadding sx={{ display: 'block' }} >
             <ListItemButton
               sx={{
@@ -253,6 +324,8 @@ export default function SideNav(props) {
               <ListItemText primary={'Your Repositories'} sx={{ opacity: open ? 1 : 0 ,color:'#FFFFFF'}} />
             </ListItemButton>
           </ListItem>
+
+
           <ListItem key={'Dashboard'}  disablePadding sx={{ display: 'block' }}>
           <ListItemButton
             sx={{
@@ -276,7 +349,61 @@ export default function SideNav(props) {
             <ListItemText primary={'Code Converter'} sx={{ opacity: open ? 1 : 0 ,color:'#FFFFFF'}} />
           </ListItemButton>
         </ListItem>
+
+        {/* FolderCopyIcon  */}
+
+
+        {/* <ListItem key={'sourceControl'}  disablePadding sx={{ display: 'block' }}>
+          <ListItemButton
+            sx={{
+              minHeight: 48,
+              justifyContent: open ? 'initial' : 'center',
+              px: 2.5,
+              color:'#FFFFFF'
+            }}
+            onClick={handleClonecontrolOpen}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: open ? 3 : 'auto',
+                justifyContent: 'center',
+                color:'#FFFFFF'
+              }}
+            >
+               <FolderCopyIcon/>
+            </ListItemIcon>
+            <ListItemText primary={'Source Control'} sx={{ opacity: open ? 1 : 0 ,color:'#FFFFFF'}} />
+          </ListItemButton>
+          <Dialog open={openSourcecontrol} onClose={handleClonecontrolClose}>
+                <DialogTitle>Clone Repositories</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    To Clone github repository, please enter repo address here. 
+                  </DialogContentText>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="name"
+                    label="Clone Repository"
+                    type="address"
+                    fullWidth
+                    variant="standard"
+                    onChange={(e) => setCloneRepoUrl(e.target.value)}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleClonecontrolClose}>Cancel</Button>
+                  <Button onClick={handleCloneRepo}>Clone</Button>
+                </DialogActions>
+              </Dialog>
+        </ListItem> */}
+
+
         </List>
+
+
+
         {props.folderId?
           <FolderStructure folderId={props.folderId} onNotLoggedIn={props.onNotLoggedIn}/>:
           (props.page==='dashboard')?
