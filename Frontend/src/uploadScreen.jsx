@@ -241,26 +241,26 @@ export default function UploadScreen(props) {
     setOpenSourcecontrol(false);
   };
 
+
+
   const handleCloneRepo = async(e) => {
       e.preventDefault();
       console.log(cloneRepoUrl)
   
     //   try {
     //     const response = await axios.post(
-    //       "http://127.0.0.1:8000/login/",
+    //       "http://127.0.0.1:8000/clone/",
 
-    //       {  }
+    //       {  data }
     //     );
-    //     const  jwtToken  = response.data.token;
-    //     sessionStorage.clear();
-    //     setJwtToken(jwtToken);
-  
-    //     navigate("/repositories");
+ 
     //   } catch (error) {
     //     console.log(error);
     //     }
       }
     
+
+
 
     return (
         <Box sx={{ display: "flex" }}>
@@ -279,7 +279,7 @@ export default function UploadScreen(props) {
                         <FileDropBox>
                             <div className="flex flex-row  uploadText justify-between">
                                 <p>Upload</p>
-                                <div>
+                                <div > 
                                 <Button
                                         variant="contained"
                                         endIcon={<SendIcon />}
@@ -295,7 +295,7 @@ export default function UploadScreen(props) {
                                     <DialogTitle>Clone Repositories</DialogTitle>
                                     <DialogContent>
                                     <DialogContentText>
-                                        To Clone github repository, please enter repo address here. 
+                                        To Clone github repository, please enter repository address here. 
                                     </DialogContentText>
                                     <TextField
                                         autoFocus
@@ -314,9 +314,6 @@ export default function UploadScreen(props) {
                                     </DialogActions>
                                 </Dialog>
                                 
-
-
-
                                 </div>
 
                               
