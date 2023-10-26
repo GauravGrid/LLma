@@ -1362,7 +1362,7 @@ class HigherLevelBusinessLogic(APIView):
         folder_id = request.data.get('id') 
         business_logic = process_folder_business_logic(folder_id)
         print(business_logic)
-        return business_logic
+        return Response({"response":business_logic}, status=200)
 
 # Higher Level Mermaid Diagram
 
@@ -1456,7 +1456,7 @@ class HigherLevelMermaidDiagram(APIView):
         folder_id = request.data.get('id') 
         mermaid_diagram = process_folder_mermaid_diagram(folder_id)
         print(mermaid_diagram)
-        return mermaid_diagram
+        return Response({"response":mermaid_diagram}, status=200) 
 
 # Higher Level Mermaid Flowchart
 
@@ -1549,4 +1549,4 @@ class HigherLevelMermaidFlowchart(APIView):
         folder_id = request.data.get('id') 
         mermaid_flowchart = process_folder_mermaid_flowchart(folder_id)
         print(mermaid_flowchart)
-        return mermaid_flowchart
+        return Response({"response":mermaid_flowchart}, status=200)

@@ -241,22 +241,114 @@ angular_example1='''
         - `count` (number): Represents the current count value in the business logic.
         Overall, this Angular component provides a straightforward counter feature, allowing users to see the current count and increment it with a button click.'''
 
+
 rpg_example1='''
     User=
-        dcl-c MAX_ELEMS 100;
-        dcl-c default_city_name 'London';
-        dsply max_elems;
-        dsply default_city_name;
-        return;
+       //***********************************************************************
+       ctl-opt nomain option(*srcstmt);
+       dcl-c UPPER 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+       dcl-c LOWER 'abcdefghijklmnopqrstuvwxyz';
+       //***********************************************************************
+       // toUppercase
+       //***********************************************************************
+       dcl-proc toUppercase export;
+         dcl-pi *n varchar(32767);
+           string varchar(32767) const;
+         end-pi;
+         return %xlate(LOWER:UPPER:string);
+       end-proc;
+       //***********************************************************************
+       // toLowercase
+       //***********************************************************************
+       dcl-proc toLowercase export;
+         dcl-pi *n varchar(32767);
+           string varchar(32767) const;
+         end-pi;
+         return %xlate(UPPER:LOWER:string);
+       end-proc;
+       //***********************************************************************
+       // allocSpace
+       //***********************************************************************
+       dcl-proc allocSpace export;
+         dcl-pi *n;
+           ptr pointer;
+           bytes uns(10) const;
+         end-pi;
+         if (ptr = *null);
+           ptr = %alloc(bytes);
+         else;
+           ptr = %realloc(ptr:bytes);
+         endif;
+       end-proc;
+       //***********************************************************************
+       // deallocSpace
+       //***********************************************************************
+       dcl-proc deallocSpace export;
+         dcl-pi *n;
+           ptr pointer;
+         end-pi;
+         if (ptr <> *null);
+           dealloc(n) ptr;
+         endif;
+       end-proc;
     Business_Logic=
-        This piece of code declares two constants, MAX_ELEMS and default_city_name, and then displays their values on
-        some kind of output screen or device.MAX_ELEMS is declared to have a value of 100, which means it cannot be changed by the
-        program. This constant could be used to limit the number of elements in an array or other data structure.default_city_name
-        is declared to have a value of 'London'. This constant could be used to set a default value for a variable or parameter
-        that represents a city name.The dsply statements are used to display the values of these constants to the user. This could
-        be useful for testing or debugging purposes.Finally, the return statement indicates the end of the program.In summary, this
-        code sets up two constants and displays their values, which could be useful for setting default values or limiting the
-        size of data structures.'''
+        The provided source code contains several procedures, each serving a specific purpose. Let's extract and explain the business logic
+        for each of these procedures:
+        
+        1. toUppercase:
+        - Purpose: This procedure is designed to convert a given input string to uppercase.
+        - Parameters: 
+            - `string` (Input): A varchar containing the string to be converted to uppercase.
+        - Logic:
+            - It uses the `%xlate` built-in function to replace lowercase letters with their uppercase counterparts in the input string.
+            - The result, which is the input string converted to uppercase, is returned.
+        2. toLowercase:
+        - Purpose: This procedure is meant to convert a given input string to lowercase.
+        - Parameters: 
+            - `string` (Input): A varchar containing the string to be converted to lowercase.
+        - Logic:
+            - It also uses the `%xlate` built-in function, but in this case, it replaces uppercase letters with their lowercase counterparts
+            in the input string.
+            - The result, which is the input string converted to lowercase, is returned.
+        3. allocSpace:
+        - Purpose: This procedure allocates memory space for a pointer variable.
+        - Parameters: 
+            - `ptr` (Input/Output): A pointer variable that may be allocated or reallocated.
+            - `bytes` (Input): An unsigned 10-byte integer specifying the amount of memory to allocate or reallocate.
+        - Logic:
+            - It checks whether the `ptr` is null (unallocated).
+            - If the `ptr` is null, it allocates memory space of the specified size (`bytes`) and assigns it to the `ptr`.
+            - If the `ptr` is not null, it reallocates memory space to the `ptr` with the new size (`bytes`).
+            - Memory allocation and reallocation are common operations in low-level programming.
+
+        4. deallocSpace:
+        - Purpose: This procedure deallocates memory space for a pointer variable if it's not null.
+        - Parameters: 
+            - `ptr` (Input): A pointer variable that may be deallocated.
+        - Logic:
+            - It checks whether the `ptr` is not null (allocated).
+            - If the `ptr` is not null, it deallocates the memory associated with the `ptr`.
+        The business logic extracted from the provided code encompasses these four procedures, each with its specific functionality. These 
+        procedures can be used in various applications to manipulate strings, allocate and deallocate memory, and perform text case
+        conversions.'''
+        
+        
+# rpg_example1='''
+#     User=
+#         dcl-c MAX_ELEMS 100;
+#         dcl-c default_city_name 'London';
+#         dsply max_elems;
+#         dsply default_city_name;
+#         return;
+#     Business_Logic=
+#         This piece of code declares two constants, MAX_ELEMS and default_city_name, and then displays their values on
+#         some kind of output screen or device.MAX_ELEMS is declared to have a value of 100, which means it cannot be changed by the
+#         program. This constant could be used to limit the number of elements in an array or other data structure.default_city_name
+#         is declared to have a value of 'London'. This constant could be used to set a default value for a variable or parameter
+#         that represents a city name.The dsply statements are used to display the values of these constants to the user. This could
+#         be useful for testing or debugging purposes.Finally, the return statement indicates the end of the program.In summary, this
+#         code sets up two constants and displays their values, which could be useful for setting default values or limiting the
+#         size of data structures.'''
 
 sas_example1='''
     User=
