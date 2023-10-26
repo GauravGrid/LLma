@@ -50,58 +50,50 @@ def code_to_business_logic(code,source):
     
     template='''Task: Extract Comprehensive Business Logic for {destination} Code Conversion
 
-    In this task, your goal is to thoroughly analyze the provided {source} code and extract the complete business logic contained within it. The
-    objective is to create a clear, detailed, and high-level representation of the business logic that can be easily transformed into {destination} code. 
-    This process involves several essential steps:
+    In this task, your goal is to meticulously extract the complete business logic, including all variables, function names, class names, 
+    and their bodies, from the provided {source} code. The objective is to create a comprehensive representation of the business logic to 
+    ensure it can be seamlessly transformed into {destination} code. This meticulous process involves the following essential steps:
 
     Step 1: Understanding the Source Code
-    - Begin by deeply analyzing the {source} code to comprehend its functionality, purpose, and structure.
-    - Pay attention to variables, functions, and any data structures used within the code.
+    - Begin by thoroughly analyzing the {source} code to grasp its functionality, purpose, and structure. Develop a deep understanding of the underlying business processes and requirements.
+    - Pay close attention to all variables, functions, classes, and data structures within the code, as they collectively form the basis of the business logic.
 
-    Step 2: Identifying Variables and Functions
-    - Identify and list all variables and functions within the code. This includes not only their names but also their data types and any initial 
-    values they might have.
-    - Distinguish between global and local variables.
-    - Note any data dependencies between variables or functions.
-
-    Step 3: Explaining Function Logic
-    - For each function found in the code, provide a detailed explanation of its purpose and the logic it implements.
-    - Specify the parameter types for each function and describe the significance of these parameters within the function's operation.
-    - If a function returns a value, explain the meaning of the returned value and how it relates to the overall business logic.
-
-    Step 4: Expressing the Logic
-    - Present the extracted logic in a high-level, language-agnostic format that captures the essence of the business processes.
-    - Emphasize the sequential flow of operations, conditional statements, loops, and any exceptional cases.
-    - Ensure that the logic is abstracted enough to allow for straightforward translation into {destination} code.
-
-    Step 5: Handling Complexity
-    - If the code is particularly intricate or includes complex algorithms, provide comments, explanations, or visual representations that break 
-    down the logic into more manageable components.
-    - Make any additional notes to clarify the logic, especially for sections that might be challenging to understand.
-
-    The ultimate goal is to deliver a comprehensive and understandable representation of the business logic within the {source} code, making it
-    easier for it to be translated into {destination} language. The extracted logic should be designed to minimize the gap between
-    the {source} code and the eventual {destination} code, ensuring accuracy and efficiency.
-
-    Please note that you should not provide any initial words or sentences apart from the business logic.I am providing an example how to generate 
-    business logic using the {source} code as shown in the following example.
+    Step 2: Expressing the Comprehensive Logic
+        - Present the extracted logic in a high-level, language-agnostic format. This representation should encompass all variables, function names, class names, function bodies, return statements, and data dependencies.
+        - Emphasize the sequential flow of operations, conditional statements, loops, and exceptional cases to ensure that the core business processes are faithfully preserved.
     
-    Example:
-    {example_code}
+    Step 3: Identifying all Variables
+    - List all variables and classes in the code. For each, capture their names, data types, and initial values.
+    - Distinguish between global and local variables to understand their scope and relevance to the broader business logic.
+    - Identify data dependencies between variable as this is crucial for preserving the integrity of the logic during translation.
     
-    Don't give any iniial words and sentence except business logic.
-    Now the User will provide {source} code, please generate correct buisness logic as shown in above example.
+    Step 4: Identifying each Functions
+    - For each Function there should be logic of function so that it is easy to convert into another {destination} language code
+    - For each function in the code, extract the complete body, including all statements, conditions, loops, and other logic contained within.
+    - Specify the types and purposes of parameters for each function, and describe their significance within the context of the business logic.
+    - In the case of functions returning values, extract the return statement and elucidate how it contributes to the overall business processes.
+
+    The ultimate goal is to deliver a comprehensive and understandable representation of the business logic within the {source} code, 
+    encompassing all necessary details such as variables, function names, class names, function bodies, return statements, and data 
+    dependencies. This will make it significantly easier to translate the logic into {destination} language code, minimizing the gap 
+    between the original {source} code and the eventual {destination} code, thereby ensuring accuracy and efficiency.
+
+    Now, the User will provide {source} code. Your task is to generate the full business logic of given code, encompassing all variables,
+    function names,function bodies, and return statements so that it is easy to converetable into {destination} language code
+    
+    Note We use this business logic into {destination} code so that give business logic according to that.
 
     User: {input}
-    Business_Logic:
+    Business Logic:
+
     '''
 
     llm_chain = LLMChain(
         llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
-        prompt=PromptTemplate(input_variables=["input","source","example_code","destination"], template=template),
+        prompt=PromptTemplate(input_variables=["input","source","destination"], template=template),
         verbose=True,
     )
-    logic= llm_chain.predict(input=code,source=source,example_code=example_code,destination="Java")
+    logic= llm_chain.predict(input=code,source=source,destination="Java")
     return f"{logic}"
 
 def business_logic_to_mermaid_diagram(logic,source, destination):
