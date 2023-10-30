@@ -390,7 +390,7 @@ assembly_example2='''
             This assembly code is a concise and efficient implementation of a recursive factorial calculation algorithm. It uses the stack for managing function calls and recursion to calculate the result, making it a fundamental example of a recursive algorithm in assembly language.
         Mermaid_Diagram=
             classDiagram
-                class "Assembly Code" {
+                class Assembly Code {
                     + calculate_factorial()
                 }
                 class EAX {
@@ -402,34 +402,33 @@ assembly_example2='''
                 class EBP {
                     + value
                 }
-                class "Recursive Call" {
+                class Recursive Call {
                     + decrement()
                     + pushOntoStack()
                     + calculate_factorial()
                     + cleanUp()
                     + multiplyResult()
                 }
-                class ".base_case" {
+                class base_case {
                     + setEAXToOne()
                 }
-                class ".done" {
+                class done {
                     + storeResultInEAX()
                 }
-                class "_start" {
+                class start {
                     + pushNumber5()
                     + callCalculateFactorial()
                 }
-                class "Kernel" {
+                class Kernel {
                     + makeSyscall()
                 }
-                "Assembly Code" --|> EAX
-                "Assembly Code" --|> ESP
-                "Assembly Code" --|> EBP
-                "Assembly Code" --> "Recursive Call"
-                "Assembly Code" --> ".base_case"
-                "Assembly Code" --> ".done"
-                "Assembly Code" --> "_start"
-                "_start" --> "Assembly Code"
-                "Kernel" --> "Assembly Code"
+                Assembly Code --|> EAX
+                Assembly Code --|> ESP
+                Assembly Code --|> EBP
+                Assembly Code --> Recursive Call
+                Assembly Code --> base_case
+                Assembly Code --> done
+                Assembly Code --> start
+                start --> Assembly Code
+                Kernel--> Assembly Code
 '''
-

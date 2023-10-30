@@ -468,38 +468,39 @@ assembly_example3='''
             This assembly code is a concise and efficient implementation of a recursive factorial calculation algorithm. It uses the stack for managing function calls and recursion to calculate the result, making it a fundamental example of a recursive algorithm in assembly language.
         Mermaid_Flowchart_Code=
             graph TD
-            Start((Start))
-            DefineFunction[Define Function: calculate_factorial(n)]
-            PushEBP[Push EBP onto Stack]
-            MoveESP[Move ESP into EBP]
-            LoadArgument[Load n from Stack]
-            CompareN[Compare n with 1]
-            BaseCase{Base Case (n <= 1)?}
-            RecursiveCase{Recursive Case (n > 1)}
-            DecrementN[Decrement n by 1]
-            PushN[Push (n-1) onto Stack]
-            CallFunction[Call calculate_factorial(n-1)]
-            CleanupStack[Clean up Stack]
-            Multiply[Multiply EAX by original n]
-            StoreResult[Store result in EAX]
-            Done{Done}
-            SetEAXToOne[Set EAX to 1]
-            PopEBP[Pop EBP from Stack]
-            Start --> DefineFunction
-            DefineFunction --> PushEBP
-            PushEBP --> MoveESP
-            MoveESP --> LoadArgument
-            LoadArgument --> CompareN
-            CompareN --> BaseCase
-            BaseCase --> |Yes| SetEAXToOne
-            BaseCase --> |No| RecursiveCase
-            RecursiveCase --> DecrementN
-            DecrementN --> PushN
-            PushN --> CallFunction
-            CallFunction --> CleanupStack
-            CleanupStack --> Multiply
-            Multiply --> StoreResult
-            StoreResult --> Done
-            Done --> PopEBP   
+                Start((Start))
+                DefineFunction[Define Function: calculate_factorial n ]
+                PushEBP[Push EBP onto Stack]
+                MoveESP[Move ESP into EBP]
+                LoadArgument[Load n from Stack]
+                CompareN[Compare n with 1]
+                BaseCase{Base Case n <= 1?}
+                RecursiveCase{Recursive Case n > 1}
+                DecrementN[Decrement n by 1]
+                PushN[Push n-1 onto Stack]
+                CallFunction[Call calculate_factorial n-1]
+                CleanupStack[Clean up Stack]
+                Multiply[Multiply EAX by original n]
+                StoreResult[Store result in EAX]
+                Done{Done}
+                SetEAXToOne[Set EAX to 1]
+                PopEBP[Pop EBP from Stack]
+                Start --> DefineFunction
+                DefineFunction --> PushEBP
+                PushEBP --> MoveESP
+                MoveESP --> LoadArgument
+                LoadArgument --> CompareN
+                CompareN -->|Yes| BaseCase
+                CompareN -->|No| RecursiveCase
+                BaseCase -->|Yes| SetEAXToOne
+                BaseCase -->|No| RecursiveCase
+                RecursiveCase --> DecrementN
+                DecrementN --> PushN
+                PushN --> CallFunction
+                CallFunction --> CleanupStack
+                CleanupStack --> Multiply
+                Multiply --> StoreResult
+                StoreResult --> Done
+                Done --> PopEBP
 '''
 
