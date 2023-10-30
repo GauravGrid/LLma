@@ -3,10 +3,10 @@ from pydantic import BaseModel
 from langchain import LLMChain, PromptTemplate
 from langchain.chat_models import ChatAnthropic,ChatOpenAI
 from langchain.output_parsers import StructuredOutputParser,ResponseSchema
-from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1
-from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2, dspf_exampler2,dspf_examplea2
-from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3
-from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4
+from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1,assembly_example1
+from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2, dspf_exampler2,dspf_examplea2,assembly_example2
+from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3,assembly_example3
+from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4,assembly_example4
 import keys
 
 
@@ -21,7 +21,7 @@ extensions = ['.rpgle', '.sqlrpgle', '.clle', '.RPGLE', '.SQLRPGLE', '.CLLE','.p
 # java to python --java
 
 def code_to_business_logic(code,source):    
-    if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa"]:
+    if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa","assembly"]:
         return "Invalid source specified."
     
     example_code="" 
@@ -45,6 +45,8 @@ def code_to_business_logic(code,source):
         example_code=dspf_exampler1
     elif(source.lower()=="dspfa"):
         example_code=dspf_examplea1
+    elif(source.lower()=="assembly"):
+        example_code=assembly_example1
     
     template='''Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
     understandable business logic. If the destinationiables in the code have values relevant to the business logic, please include them.I am interested 
@@ -82,7 +84,7 @@ def code_to_business_logic(code,source):
 
 def business_logic_to_mermaid_diagram(logic,source, destination):
     
-    if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa"]:
+    if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa","assembly"]:
         return "Invalid source specified."
 
     example_code="" 
@@ -106,6 +108,8 @@ def business_logic_to_mermaid_diagram(logic,source, destination):
         example_code=dspf_exampler2
     elif(source.lower()=="dspfa"):
         example_code=dspf_examplea2
+    elif(source.lower()=="assembly"):
+        example_code=assembly_example2
 
     
     classDiagram_schema = ResponseSchema(name='mermaid_class_diagram_code', description='This schema represents the Mermaid class diagram code, which is compatible with MermaidJS version 8.11.0. The code should be represented as a valid JSON string with new lines replaced with "\\n".')
@@ -144,7 +148,7 @@ def business_logic_to_mermaid_diagram(logic,source, destination):
 
 def business_logic_to_mermaid_flowchart(logic,source, destination):
     
-    if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa"]:
+    if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa","assembly"]:
         return "Invalid source specified."
 
     example_code="" 
@@ -168,6 +172,8 @@ def business_logic_to_mermaid_flowchart(logic,source, destination):
         example_code=dspf_exampler3
     elif(source.lower()=="dspfa"):
         example_code=dspf_examplea3
+    elif(source.lower()=="assembly"):
+        example_code=assembly_example3
     
 
         
@@ -219,7 +225,7 @@ def business_logic_to_mermaid_flowchart(logic,source, destination):
 
 def business_logic_to_code(logic,source, destination,srccode):
     
-    if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa"]:
+    if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa","assembly"]:
         return "Invalid source specified."
 
     example_code="" 
@@ -243,6 +249,8 @@ def business_logic_to_code(logic,source, destination,srccode):
         example_code=dspf_exampler4
     elif(source.lower()=="dspfa"):
         example_code=dspf_examplea4
+    elif(source.lower()=="assembly"):
+        example_code=assembly_example4
      
     
     code_schema = ResponseSchema(name='code',description=f'This is the {destination} code generated compatible with latest java version converted to a correct json string without {destination} backticks with new line replaced with \\n.')

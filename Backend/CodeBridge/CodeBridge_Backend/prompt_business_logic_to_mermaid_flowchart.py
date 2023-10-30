@@ -444,3 +444,62 @@ dspf_examplea3='''
         style F fill:#ff0000,stroke:#cc0000
         style G fill:#cccccc,stroke:#999999
 '''
+
+assembly_example3='''
+        User=
+            The provided assembly code calculates the factorial of a given number (n) using a recursive approach. I will break down the code into its key algorithmic steps and then express the logic in a high-level format, along with relevant interactions and data structures.
+            1. The code defines a function named `calculate_factorial` to calculate the factorial of a given number. The result is stored in the EAX register, which serves as the return value of the function.
+            2. The function starts by pushing the base pointer (EBP) onto the stack and moving the stack pointer (ESP) into EBP to set up the function's stack frame.
+            3. It loads the argument (n) into the EAX register from the stack by accessing it at `[ebp + 8]`.
+            4. The code then checks if the input value (n) is less than or equal to 1 by comparing it with 1 (`cmp eax, 1`). If n is less than or equal to 1, the code jumps to the `.base_case` label.
+            5. In the recursive case (when n > 1), it decrements n by one (`dec eax`), pushes the decremented value onto the stack to save it for the recursive call, and then calls itself (`calculate_factorial`) recursively. After the recursive call, it cleans up the argument from the stack by adjusting the stack pointer (`add esp, 4`).
+            6. After returning from the recursive call, it multiplies the result of the recursive call (in EAX) by the original n value, which is still stored on the stack.
+            7. The result is stored in EAX, and the code jumps to the `.done` label.
+            8. In the base case (n = 0 or n = 1), it sets EAX to 1 because the factorial of 0 and 1 is 1.
+            9. Finally, the code pops the base pointer (EBP) from the stack and returns from the function.
+            10. In the `_start` section, the code initiates the calculation by pushing the number 5 onto the stack and calling the `calculate_factorial` function.
+            11. The result (factorial of 5) is stored in the EAX register.
+            12. It sets the result in EAX to EBX for later use, preparing to exit the program.
+            13. The program exits by setting EAX to 1 (syscall number for `sys_exit`) and making a system call (`int 0x80`) to the kernel.
+            Interactions and Data Structures:
+            - The code uses the stack to pass arguments and save the state during recursive calls.
+            - The main interaction involves the recursive function calls within `calculate_factorial`, which allows it to calculate the factorial of a number by breaking it down into smaller subproblems.
+            - There are no interactions with a database, files, or a user interface in this code. It's a self-contained program that computes the factorial of a number.
+            This assembly code is a concise and efficient implementation of a recursive factorial calculation algorithm. It uses the stack for managing function calls and recursion to calculate the result, making it a fundamental example of a recursive algorithm in assembly language.
+        Mermaid_Flowchart_Code=
+            graph TD
+            Start((Start))
+            DefineFunction[Define Function: calculate_factorial(n)]
+            PushEBP[Push EBP onto Stack]
+            MoveESP[Move ESP into EBP]
+            LoadArgument[Load n from Stack]
+            CompareN[Compare n with 1]
+            BaseCase{Base Case (n <= 1)?}
+            RecursiveCase{Recursive Case (n > 1)}
+            DecrementN[Decrement n by 1]
+            PushN[Push (n-1) onto Stack]
+            CallFunction[Call calculate_factorial(n-1)]
+            CleanupStack[Clean up Stack]
+            Multiply[Multiply EAX by original n]
+            StoreResult[Store result in EAX]
+            Done{Done}
+            SetEAXToOne[Set EAX to 1]
+            PopEBP[Pop EBP from Stack]
+            Start --> DefineFunction
+            DefineFunction --> PushEBP
+            PushEBP --> MoveESP
+            MoveESP --> LoadArgument
+            LoadArgument --> CompareN
+            CompareN --> BaseCase
+            BaseCase --> |Yes| SetEAXToOne
+            BaseCase --> |No| RecursiveCase
+            RecursiveCase --> DecrementN
+            DecrementN --> PushN
+            PushN --> CallFunction
+            CallFunction --> CleanupStack
+            CleanupStack --> Multiply
+            Multiply --> StoreResult
+            StoreResult --> Done
+            Done --> PopEBP   
+'''
+

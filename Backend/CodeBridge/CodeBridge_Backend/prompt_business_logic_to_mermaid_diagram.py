@@ -367,3 +367,69 @@ dspf_examplea2='''
         DisplayFile --|> User : interacts with
 '''  
 
+assembly_example2='''
+        User=
+            The provided assembly code calculates the factorial of a given number (n) using a recursive approach. I will break down the code into its key algorithmic steps and then express the logic in a high-level format, along with relevant interactions and data structures.
+            1. The code defines a function named `calculate_factorial` to calculate the factorial of a given number. The result is stored in the EAX register, which serves as the return value of the function.
+            2. The function starts by pushing the base pointer (EBP) onto the stack and moving the stack pointer (ESP) into EBP to set up the function's stack frame.
+            3. It loads the argument (n) into the EAX register from the stack by accessing it at `[ebp + 8]`.
+            4. The code then checks if the input value (n) is less than or equal to 1 by comparing it with 1 (`cmp eax, 1`). If n is less than or equal to 1, the code jumps to the `.base_case` label.
+            5. In the recursive case (when n > 1), it decrements n by one (`dec eax`), pushes the decremented value onto the stack to save it for the recursive call, and then calls itself (`calculate_factorial`) recursively. After the recursive call, it cleans up the argument from the stack by adjusting the stack pointer (`add esp, 4`).
+            6. After returning from the recursive call, it multiplies the result of the recursive call (in EAX) by the original n value, which is still stored on the stack.
+            7. The result is stored in EAX, and the code jumps to the `.done` label.
+            8. In the base case (n = 0 or n = 1), it sets EAX to 1 because the factorial of 0 and 1 is 1.
+            9. Finally, the code pops the base pointer (EBP) from the stack and returns from the function.
+            10. In the `_start` section, the code initiates the calculation by pushing the number 5 onto the stack and calling the `calculate_factorial` function.
+            11. The result (factorial of 5) is stored in the EAX register.
+            12. It sets the result in EAX to EBX for later use, preparing to exit the program.
+            13. The program exits by setting EAX to 1 (syscall number for `sys_exit`) and making a system call (`int 0x80`) to the kernel.
+            Interactions and Data Structures:
+            - The code uses the stack to pass arguments and save the state during recursive calls.
+            - The main interaction involves the recursive function calls within `calculate_factorial`, which allows it to calculate the factorial of a number by breaking it down into smaller subproblems.
+            - There are no interactions with a database, files, or a user interface in this code. It's a self-contained program that computes the factorial of a number.
+            This assembly code is a concise and efficient implementation of a recursive factorial calculation algorithm. It uses the stack for managing function calls and recursion to calculate the result, making it a fundamental example of a recursive algorithm in assembly language.
+        Mermaid_Diagram=
+            classDiagram
+                class "Assembly Code" {
+                    + calculate_factorial()
+                }
+                class EAX {
+                    + value
+                }
+                class ESP {
+                    + value
+                }
+                class EBP {
+                    + value
+                }
+                class "Recursive Call" {
+                    + decrement()
+                    + pushOntoStack()
+                    + calculate_factorial()
+                    + cleanUp()
+                    + multiplyResult()
+                }
+                class ".base_case" {
+                    + setEAXToOne()
+                }
+                class ".done" {
+                    + storeResultInEAX()
+                }
+                class "_start" {
+                    + pushNumber5()
+                    + callCalculateFactorial()
+                }
+                class "Kernel" {
+                    + makeSyscall()
+                }
+                "Assembly Code" --|> EAX
+                "Assembly Code" --|> ESP
+                "Assembly Code" --|> EBP
+                "Assembly Code" --> "Recursive Call"
+                "Assembly Code" --> ".base_case"
+                "Assembly Code" --> ".done"
+                "Assembly Code" --> "_start"
+                "_start" --> "Assembly Code"
+                "Kernel" --> "Assembly Code"
+'''
+
