@@ -25,7 +25,6 @@ from .worker import add_code_submission
 
 from langchain.output_parsers import PydanticOutputParser,StructuredOutputParser,ResponseSchema
 from typing import List
-load_dotenv()
 
 # Access the OpenAI API key
 #api_key = os.environ.get("OPENAI_API_KEY")

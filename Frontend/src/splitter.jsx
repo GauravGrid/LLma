@@ -225,8 +225,8 @@ export default function InteractiveArea(props) {
   const isGenButtonClicked = useAppStore((state) => state.isGenButtonClicked);
   const setIsGenButtonClicked = useAppStore((state) => state.setIsGenButtonClicked)
   const [value, setValue] = useState(0);
-  const [blvalue, setBlValue] = useState(0);
-  const [mdvalue, setMdValue] = useState(0);
+  const [blvalue, setBlValue] = useState(1);
+  const [mdvalue, setMdValue] = useState(1);
   const [merm, setMerm] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -866,9 +866,9 @@ export default function InteractiveArea(props) {
 
       </div >
       <div className='status-bar'>
-        <div className='git-bar'>
+        <div className='git-bar w-full'>
 
-          <div className='git-bar-left'>
+          {/* <div className='git-bar-left'>
             <Typography>
               Branch
             </Typography>
@@ -877,7 +877,7 @@ export default function InteractiveArea(props) {
               <MenuItem value={20}>Branch 1</MenuItem>
               <MenuItem value={30}>Branch 2</MenuItem>
             </Select>
-          </div>
+          </div> */}
 
           <div className='mr-4'>
             <Button variant='contained' onClick={handleOpenModal}>

@@ -7,6 +7,10 @@ from .prompt_code_to_business_logic import java_example1,python_example1,sql_exa
 from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2, dspf_exampler2,dspf_examplea2,assembly_example2
 from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3,assembly_example3
 from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4,assembly_example4
+from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1,rpg_example11,rpg_example12
+from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2, dspf_exampler2,dspf_examplea2
+from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3
+from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4
 import keys
 
 
@@ -38,7 +42,7 @@ def code_to_business_logic(code,source):
     elif(source.lower()=="react"):
         example_code=react_example1
     elif(source.lower()=="rpg"):
-        example_code=rpg_example1
+        example_code=rpg_example12
     elif(source.lower()=="sas"):
         example_code=sas_example1
     elif(source.lower()=="dspfr"):
@@ -76,10 +80,10 @@ def code_to_business_logic(code,source):
 
     llm_chain = LLMChain(
         llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
-        prompt=PromptTemplate(input_variables=["input","source","example_code","destination"], template=template),
+        prompt=PromptTemplate(input_variables=["input","source","example_code"], template=template),
         verbose=True,
     )
-    logic= llm_chain.predict(input=code,source=source,example_code=example_code,destination="Java")
+    logic= llm_chain.predict(input=code,source=source,example_code=example_code)
     return f"{logic}"
 
 def business_logic_to_mermaid_diagram(logic,source, destination):

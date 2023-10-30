@@ -258,6 +258,188 @@ rpg_example1='''
         code sets up two constants and displays their values, which could be useful for setting default values or limiting the
         size of data structures.'''
 
+rpg_example11='''
+    User=
+       //***********************************************************************
+       ctl-opt nomain option(*srcstmt);
+       dcl-c UPPER 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+       dcl-c LOWER 'abcdefghijklmnopqrstuvwxyz';
+       //***********************************************************************
+       // toUppercase
+       //***********************************************************************
+       dcl-proc toUppercase export;
+         dcl-pi *n varchar(32767);
+           string varchar(32767) const;
+         end-pi;
+         return %xlate(LOWER:UPPER:string);
+       end-proc;
+       //***********************************************************************
+       // toLowercase
+       //***********************************************************************
+       dcl-proc toLowercase export;
+         dcl-pi *n varchar(32767);
+           string varchar(32767) const;
+         end-pi;
+         return %xlate(UPPER:LOWER:string);
+       end-proc;
+       //***********************************************************************
+       // allocSpace
+       //***********************************************************************
+       dcl-proc allocSpace export;
+         dcl-pi *n;
+           ptr pointer;
+           bytes uns(10) const;
+         end-pi;
+         if (ptr = *null);
+           ptr = %alloc(bytes);
+         else;
+           ptr = %realloc(ptr:bytes);
+         endif;
+       end-proc;
+       //***********************************************************************
+       // deallocSpace
+       //***********************************************************************
+       dcl-proc deallocSpace export;
+         dcl-pi *n;
+           ptr pointer;
+         end-pi;
+         if (ptr <> *null);
+           dealloc(n) ptr;
+         endif;
+       end-proc;
+    Business_Logic=
+        The provided source code contains several procedures, each serving a specific purpose. Let's extract and explain the business logic
+        for each of these procedures:
+        
+        1. toUppercase:
+        - Purpose: This procedure is designed to convert a given input string to uppercase.
+        - Parameters: 
+            - `string` (Input): A varchar containing the string to be converted to uppercase.
+        - Logic:
+            - It uses the `%xlate` built-in function to replace lowercase letters with their uppercase counterparts in the input string.
+            - The result, which is the input string converted to uppercase, is returned.
+        2. toLowercase:
+        - Purpose: This procedure is meant to convert a given input string to lowercase.
+        - Parameters: 
+            - `string` (Input): A varchar containing the string to be converted to lowercase.
+        - Logic:
+            - It also uses the `%xlate` built-in function, but in this case, it replaces uppercase letters with their lowercase counterparts
+            in the input string.
+            - The result, which is the input string converted to lowercase, is returned.
+        3. allocSpace:
+        - Purpose: This procedure allocates memory space for a pointer variable.
+        - Parameters: 
+            - `ptr` (Input/Output): A pointer variable that may be allocated or reallocated.
+            - `bytes` (Input): An unsigned 10-byte integer specifying the amount of memory to allocate or reallocate.
+        - Logic:
+            - It checks whether the `ptr` is null (unallocated).
+            - If the `ptr` is null, it allocates memory space of the specified size (`bytes`) and assigns it to the `ptr`.
+            - If the `ptr` is not null, it reallocates memory space to the `ptr` with the new size (`bytes`).
+            - Memory allocation and reallocation are common operations in low-level programming.
+
+        4. deallocSpace:
+        - Purpose: This procedure deallocates memory space for a pointer variable if it's not null.
+        - Parameters: 
+            - `ptr` (Input): A pointer variable that may be deallocated.
+        - Logic:
+            - It checks whether the `ptr` is not null (allocated).
+            - If the `ptr` is not null, it deallocates the memory associated with the `ptr`.
+        The business logic extracted from the provided code encompasses these four procedures, each with its specific functionality. These 
+        procedures can be used in various applications to manipulate strings, allocate and deallocate memory, and perform text case
+        conversions.'''
+
+rpg_example12 = '''
+User=
+     **FREE
+     /copy QRPGLECPY,CSVIO
+     dcl-f DataFile disk(FileName);
+     dcl-s RecordData varchar(100);
+     dcl-ds EmployeeData qualified;
+       EmpID char(10);
+       EmpName char(50);
+       EmpSalary packed(9:2);
+     end-ds;
+     // Function to read a record from the file
+     dcl-proc ReadRecord;
+       if %eof;
+         return;
+       endif;
+       read DataFile RecordData;
+       if %eof;
+         return;
+       endif;
+       // Parse the CSV record into fields
+       EmployeeData = %strtok(RecordData : ',');
+       EmployeeData.EmpName = %strtok(*next : ',');
+       EmployeeData.EmpSalary = %dech(%strtok(*next : ','));
+     end-proc;
+     // Function to process employee data
+     dcl-proc ProcessEmployee;
+       // Calculate bonuses, tax, etc.
+       // For this example, let's just display the employee data.
+       dsply ('Employee ID: ' + EmployeeData.EmpID);
+       dsply ('Employee Name: ' + EmployeeData.EmpName);
+       dsply ('Employee Salary: ' + %char(EmployeeData.EmpSalary));
+     end-proc;
+     // Function to write processed data to another file
+     dcl-proc WriteProcessedData;
+       // Open an output file for writing processed data
+       dcl-f OutputFile disk(OutFileName : *OUTPUT);
+       // Write processed data to the output file
+       write EmployeeData;
+     end-proc;
+     // Main program
+     dow not %eof;
+       ReadRecord();
+       if %eof;
+         leave;
+       endif;
+       ProcessEmployee();
+       if EmployeeData.EmpSalary > 50000.00;
+         WriteProcessedData();
+       endif;
+     enddo;
+     // Close the input file
+     *inlr = *on;
+     close(DataFile);
+Business_Logic=
+    The provided RPG code is designed to process employee data stored in a CSV file and perform specific actions on this data. Here's a
+    breakdown of the business logic:
+    1. File Operations:
+         - The code begins by declaring a file named `DataFile`, which is used for reading employee data from a file specified by `FileName`.
+    2. Data Structures:
+         - A data structure named `EmployeeData` is defined to hold information about an employee, including their ID, name, and salary.
+    3. ReadRecord Function:
+        - `ReadRecord` is a procedure (function) that reads a record from the `DataFile`. It checks for the end-of-file (%eof) condition, and if
+           the end of the file is reached, it returns, indicating that there is no more data to process.
+        - If not at the end of the file, it reads a line of data from `DataFile` and then parses this CSV record into individual fields. The 
+          employee's ID, name, and salary are extracted and stored in the `EmployeeData` data structure.
+    4. ProcessEmployee Function:
+        - `ProcessEmployee` is another procedure. Its main purpose is to perform calculations related to employees, such as calculating bonuses 
+           or taxes. However, in this example, it simply displays the employee data using the `dsply` function.
+        - It displays the Employee ID, Employee Name, and Employee Salary.
+    5. WriteProcessedData Function:
+        - `WriteProcessedData` is a procedure responsible for writing processed employee data to another file. It first opens an output file
+           specified by `OutFileName` for writing using the `OutputFile` file handle.
+        - Then, it writes the content of the `EmployeeData` data structure to the output file.
+    6. Main Program:
+        - The main program consists of a `dow` loop (Do While) that continues until the end of the input file is reached. Inside this loop:
+        - It calls the `ReadRecord` procedure to read a record from the input file.
+        - If the end of the input file is encountered, it leaves the loop.
+        - The `ProcessEmployee` procedure is called to display employee data.
+        - It checks if the employee's salary is greater than 50,000.00, and if so, it calls the `WriteProcessedData` procedure to write the data
+          to an output file.
+    7. File Closing:
+        - Once the loop is completed, the code sets *inlr (Last Record Indicator) to *on, indicating the end of processing.
+        - Finally, it closes the input file using the `close` operation.
+    File Interactions:
+        - Input File: `DataFile` is used to read employee data from a file specified by `FileName`.
+        - Output File: `OutputFile` is used to write processed employee data to a file specified by `OutFileName`.
+    The code reads employee data from the input file, processes it, and writes the data to the output file if the employee's salary is above 
+    50,000.00. It essentially filters and processes employee data based on a salary threshold.The dsply statements are used for informational
+    purposes.
+'''
+
 sas_example1='''
     User=
         /* Sample data for a bar chart */

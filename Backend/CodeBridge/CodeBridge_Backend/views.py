@@ -528,9 +528,9 @@ class LogicDetailAPIViewNew(APIView):
             serializer = LogicSerializer(logic)
             return Response(serializer.data,status=200)
         source = request.data.get('source')
-        destination = request.data.get('destination')
+        # destination = request.data.get('destination')
         code=file.file
-        businessLogic =  code_to_business_logic(code,source,destination)
+        businessLogic =  code_to_business_logic(code,source)
         logicData = {
             'logic':businessLogic,
             'user':request.user,
