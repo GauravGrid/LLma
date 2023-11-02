@@ -25,17 +25,25 @@ from pydantic import BaseModel
 from langchain import LLMChain, PromptTemplate
 from langchain.chat_models import ChatAnthropic
 from langchain.output_parsers import StructuredOutputParser,ResponseSchema
-from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1
+from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1,assembly_example1,rpg_exampleh
+from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2, dspf_exampler2,dspf_examplea2,assembly_example2
+from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3,assembly_example3
+from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4,assembly_example4
+from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1,rpg_example11,rpg_example12
 from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2, dspf_exampler2,dspf_examplea2
 from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3
 from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4
 import keys
+from dotenv import load_dotenv
+load_dotenv()
+ChatAnthropic.api_key=os.getenv("ANTHROPIC_API_KEY")
+ChatAnthropic.api_key=keys.anthropic_key
+import logging
 
 import hashlib 
 
 def index(request):
     return JsonResponse({'Message':'Hello World. Welcome to CodeBridge'})
-
 
 class FolderUploadView(APIView):
     permission_classes = [CustomIsAuthenticated]
@@ -163,7 +171,6 @@ class FolderUploadView(APIView):
 
             return Response(project_list)
 
-
 class FileContentAPIView(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -185,8 +192,6 @@ class FileContentAPIView(APIView):
             except:
                 return Response({'error': 'File not found'}, status=404)
         
-
-
 class LogicDetailAPIView(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -255,8 +260,6 @@ class LogicDetailAPIView(APIView):
         logic.delete()
         return Response(status=204)
     
-
-
 class JavaCodeAPIView(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -343,12 +346,10 @@ class JavaCodeAPIView(APIView):
         code = JavaCode.objects.filter(file=file, logic=logic, user=request.user).first()
         code.delete()
         return Response(status=204)
-
-    
+  
 # class MermaidAPIView(APIView):
 #     permission_classes = [CustomIsAuthenticated]
 #     authentication_classes = [TokenAuthentication]
-
 #     def get_object(self, file_id, logic_id=None):
 #         try:
 #             file = FileUpload.objects.get(fileId=file_id, user=self.request.user)
@@ -360,42 +361,35 @@ class JavaCodeAPIView(APIView):
 #             raise Http404
 #         except Logic.DoesNotExist:
 #             raise Http404
-
 #     def generate_diagrams(self, file_id, logic_id):
 #         file = self.get_object(file_id)
 #         logic = self.get_object(file_id, logic_id)
 #         logic_str = logic.logic
 #         mermaidDiagramClass = generateClassDiagram(logic_str)
-#         mermaidDiagramFlow = generateFlowChart(logic_str)
-        
+#         mermaidDiagramFlow = generateFlowChart(logic_str)  
 #         diagram_data = {
 #             'classDiagram': mermaidDiagramClass,
 #             'flowChart': mermaidDiagramFlow,
 #             'logic': logic_id,
 #             'user': self.request.user,
 #             'file': file_id
-#         }
-        
-#         existing_diagram = MermaidDiagrams.objects.filter(file=file, logic=logic, user=self.request.user).first()
-        
+#         }       
+#         existing_diagram = MermaidDiagrams.objects.filter(file=file, logic=logic, user=self.request.user).first()      
 #         if existing_diagram:
 #             serializer = MermaidDiagramSerializer(existing_diagram, data=diagram_data)
 #         else:
-#             serializer = MermaidDiagramSerializer(data=diagram_data)
-        
+#             serializer = MermaidDiagramSerializer(data=diagram_data)        
 #         if serializer.is_valid():
 #             serializer.save()
 #             return serializer.data
 #         else:
 #             return None
-
 #     def get(self, request, file_id, logic_id):
 #         file = self.get_object(file_id)
 #         logic = self.get_object(file_id, logic_id)
 #         diagram = MermaidDiagrams.objects.get(file=file, logic=logic, user=request.user)
 #         serializer = MermaidDiagramSerializer(diagram)
 #         return Response(serializer.data)
-
 #     def post(self, request, file_id, logic_id):
 #         if not file_id:
 #             return Response({'error': 'file_id is required'}, status=400)
@@ -415,23 +409,19 @@ class JavaCodeAPIView(APIView):
 #                 return Response(new_diagram_data, status=201)
 #             else:
 #                 return Response({'error': 'Failed to generate diagrams'}, status=400)
-
-#     def put(self, request, file_id, logic_id):
-        
+#     def put(self, request, file_id, logic_id):     
 #         new_diagram_data = self.generate_diagrams(file_id, logic_id)
 #         if new_diagram_data:
 #             return Response(new_diagram_data)
 #         else:
-#             return Response({'error': 'Failed to generate diagrams'}, status=400)
-    
+#             return Response({'error': 'Failed to generate diagrams'}, status=400)  
 #     def delete(self, request, file_id, logic_id):
 #         logic = self.get_object(file_id, logic_id)
 #         file = self.get_object(file_id)
 #         code = MermaidDiagrams.objects.filter(file=file, logic=logic, user=request.user).first()
 #         code.delete()
 #         return Response(status=204)    
-        
-        
+               
 class JavaCompilerView(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -439,7 +429,6 @@ class JavaCompilerView(APIView):
     def get(self,request):
         javaCompiler()
         return Response(status=200)
-
 
 class LogicDetailAPIViewNew(APIView):
     permission_classes = [CustomIsAuthenticated]
@@ -557,8 +546,6 @@ class LogicDetailAPIViewNew(APIView):
         logic.delete()
         return Response(status=204)
     
-
-
 class CodeGenAPIViewNew(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -692,8 +679,7 @@ class CodeGenAPIViewNew(APIView):
         code = JavaCode.objects.filter(file=file, logic=logic, user=request.user).first()
         code.delete()
         return Response(status=204)
-
-    
+   
 class MermaidAPIViewNew(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -1066,7 +1052,6 @@ class CloneRepositoryAPIView(APIView):
         else:
             return Response({'error': 'Failed to clone repository'}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class CreateGitHubRepository(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -1154,6 +1139,7 @@ class CreateGitHubRepository(APIView):
         else:
             print(f"Failed to get latest commit SHA: {response.text}")
             return None     
+
 class CreateGitHubBranch(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -1212,7 +1198,6 @@ class CreateGitHubBranch(APIView):
             print(f"Failed to get latest commit SHA: {response.text}")
             return None
         
-
 class ListBranches(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -1307,7 +1292,6 @@ class PullCodeFromGitHub(APIView):
 
 from django.db.models import Q
 
-
 class PushCodeToGitHub(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -1362,7 +1346,6 @@ class PushCodeToGitHub(APIView):
         if new_code_entries:
                     JavaCode.objects.bulk_create(new_code_entries)
 
-
 class CreatePullRequest(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -1405,131 +1388,784 @@ class CreatePullRequest(APIView):
         else:
             print(f"Failed to create pull request: {response.text}")
             return None
-   
-   
-
-
-      
-extensions = ['.rpgle', '.sqlrpgle', '.clle', '.RPGLE', '.SQLRPGLE', '.CLLE','.py','.java','.jsx','.tsx','.js','.ts','.sql','.PY','.JAVA','.JSX','.TSX','.JS','.TS','.SQL','.sas','.SAS']
-
-def get_folder_structure(folder_id):
     
-    folder = FolderUpload.objects.get(folderId=folder_id)
     
-    folder_structure = []
+        
+# extensions = ['.rpgle', '.sqlrpgle', '.clle', '.RPGLE', '.SQLRPGLE', '.CLLE','.py','.java','.jsx','.tsx','.js','.ts','.sql','.PY','.JAVA','.JSX','.TSX','.JS','.TS','.SQL','.sas','.SAS']
+# def get_folder_structure(folder_id):
+    
+#     folder = FolderUpload.objects.get(folderId=folder_id)
+    
+#     folder_structure = []
 
-    # Get subfolders of the parent folder
-    subfolders = FolderUpload.objects.filter(parentFolder=folder)
+#     # Get subfolders of the parent folder
+#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
 
-    # Get files in the parent folder
-    files = FileUpload.objects.filter(parentFolder=folder)
+#     # Get files in the parent folder
+#     files = FileUpload.objects.filter(parentFolder=folder)
 
-    for subfolder in subfolders:
-        # Recursively get the structure of subfolders
-        subfolder_structure = get_folder_structure(subfolder.folderId)
-        folder_structure.append({
-            'folder_name': subfolder.foldername,
-            'type': 'folder',
-            'content': subfolder_structure
-        })
+#     for subfolder in subfolders:
+#         # Recursively get the structure of subfolders
+#         subfolder_structure = get_folder_structure(subfolder.folderId)
+#         folder_structure.append({
+#             'folder_name': subfolder.foldername,
+#             'type': 'folder',
+#             'content': subfolder_structure
+#         })
 
-    for file in files:
-        # Collect information about files
-        folder_structure.append({
-            'file_name': file.filename,
-            'type': 'file'
-        })
+#     for file in files:
+#         # Collect information about files
+#         folder_structure.append({
+#             'file_name': file.filename,
+#             'type': 'file'
+#         })
 
-    return folder_structure
+#     return folder_structure
+# Higher Level Business Logic
+# def file_business_logic(code):
+#     # with open(file_path, 'rb') as file:
+#     #     code = file.read() 
+#     # logic= code_to_business_logic(code,source)
+#     # return logic
+    
+#     source="RPG"
+#     if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa","assembly"]:
+#         return "Invalid source specified."
+    
+#     # template='''Task: Extract Comprehensive Business Logic for {destination} Code Conversion
+
+#     # In this task, your goal is to meticulously extract the complete business logic, including all variables, function names, class names, 
+#     # and their bodies, from the provided {source} code. The objective is to create a comprehensive representation of the business logic to 
+#     # ensure it can be seamlessly transformed into {destination} code. This meticulous process involves the following essential steps:
+
+#     # Step 1: Understanding the Source Code
+#     # - Begin by thoroughly analyzing the {source} code to grasp its functionality, purpose, and structure. Develop a deep understanding of the underlying business processes and requirements.
+#     # - Pay close attention to all variables, functions, classes, and data structures within the code, as they collectively form the basis of the business logic.
+    
+#     # Step 2: Expressing the Comprehensive Logic
+#     #     - Present the extracted logic in a high-level, language-agnostic format. This representation should encompass all variables, function names, class names, function bodies, return statements, and data dependencies.
+#     #     - Emphasize the sequential flow of operations, conditional statements, loops, and exceptional cases to ensure that the core business processes are faithfully preserved.
+    
+#     # Step 3: Identifying all Variables
+#     # - List all variables and classes in the code. For each, capture their names, data types, and initial values.
+#     # - Distinguish between global and local variables to understand their scope and relevance to the broader business logic.
+#     # - Identify data dependencies between variable as this is crucial for preserving the integrity of the logic during translation.
+    
+#     # Step 4: Identifying each Functions
+#     # - For each Function there should be logic of function so that it is easy to convert into another {destination} language code
+#     # - For each function in the code, extract the complete body, including all statements, conditions, loops, and other logic contained within.
+#     # - Specify the types and purposes of parameters for each function, and describe their significance within the context of the business logic.
+#     # - In the case of functions returning values, extract the return statement and elucidate how it contributes to the overall business processes.
+
+#     # The ultimate goal is to deliver a comprehensive and understandable representation of the business logic within the {source} code, 
+#     # encompassing all necessary details such as variables, function names, class names, function bodies, return statements, and data 
+#     # dependencies. This will make it significantly easier to translate the logic into {destination} language code, minimizing the gap 
+#     # between the original {source} code and the eventual {destination} code, thereby ensuring accuracy and efficiency.
+
+#     # Now, the User will provide {source} code. Your task is to generate the full business logic of given code, encompassing all variables,
+#     # function names,function bodies, and return statements so that it is easy to converetable into {destination} language code
+    
+#     # Note We use this business logic into {destination} code so that give business logic according to that.
+    
+#     # Example_Code
+
+#     # User: {input}
+#     # Business Logic:
+#     # '''
+
+#     template='''Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
+#     understandable business logic. If the destinationiables in the code have values relevant to the business logic, please include them.I am interested 
+#     solely in the business logic.Your task also involves analyzing the code, identifying its core functionality, and presenting this functionality 
+#     clearly and concisely.Ensure that the extracted business logic is well-documented.
+#     This process involves multiple steps:
+    
+#     1.  Analyze the source code to understand its functionality, purpose, and structure, including variables, functions, classes, and data structures.
+#     2.  Identify and abstract the key algorithmic steps and logic used in the {source} code.
+#     3.  Express this logic in a high-level, language-agnostic format.
+#     4.  Summarize the comprehensive logic, including variables, functions, classes, control flow, and exceptional cases, in a high-level, language-agnostic format.
+#     5.  Document all variables and classes by recording their names, data types, initial values, and distinguishing between global and local variables while identifying data dependencies for logic preservation.
+#     6.  Extract and document each function's complete body, encompassing all statements, conditions, loops, and logic, along with parameter types and purposes, and clarify the role of return statements in the context of the business logic for higher level logic.
+#     7.  Mention all variables and function are called from different file.
+#     8.  Identify the type of code and if there is any database, other files or ui interaction.
+#     9.  Any important information about the file structure should be identified and added to the interactions. 
+#     10. Please specify these interactions towards the end of the generated response in a well formatted manner.
+#     11. Be as verbose as needed.
+    
+#     Make sure that the output provides a clear and concise representation of the business logic within the {source} code. If the {source} code is complex,
+#     please include comments or explanations to clarify the logic.
+    
+#     Now the User will provide {source} code, please generate correct buisness logic.
+#     Share business logic and related files, functions and variables from different file and files also like for database as part of the response.
+#     Business logic of this child file code should be such that contribute in higher level business logic of a parent folder. 
+    
+#     User: {input}
+#     Business_Logic:
+#     '''
+#     llm_chain = LLMChain(
+#         llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
+#         prompt=PromptTemplate(input_variables=["input","source"], template=template),
+#         verbose=True,
+#     )
+#     logic= llm_chain.predict(input=code,source=source)
+#     return logic
+# def combine_business_logic(folder_name,
+#                            folder_structure,
+#                            previous_business_logic,
+#                            current_directory_name,
+#                            current_directory_business_logic):
+    
+    
+#     template='''
+#     I'd like to generate comprehensive business logic documentation for a specific directory named '{folder_name}' with the following 
+#     folder structure: '{folder_structure}'. 
+
+#     To accomplish this, I will aggregate business logic from each directory within this folder one by one. Specifically, I will merge the business 
+#     logic from selected directories within the folder structure with the business logic from the current directory named '{current_directory_name}' 
+#     within the same folder structure. This process will result in a combined business logic document, which includes the accumulated logic up to the
+#     specified directory and the business logic of the current directory. The goal is to create an all-encompassing report that includes any imported
+#     statements from other files and all significant statements originating from these files. Additionally, this report will list the names of all
+#     files and folders involved and the business logic report for the specified directory and its subdirectories will also include specific variable
+#     values relevant to the overall business logic. It will indicate functions imported from other files and specify their sources, maintain consistency
+#     in variable and function names, and provide function parameter types for each function.
+
+#     In cases where the previous file's business logic is empty, it signifies that the current file is the first file, and there is no previous file's
+#     business logic.
+    
+#     Now give me only Combined Business Logic of  Previous and Current Directory Logic given below: 
+    
+#     Previous Business Logic: {previous_business_logic}
+#     Current Directory Business Logic: {current_directory_business_logic}
+    
+#     '''
+
+#     llm_chain = LLMChain(
+#         llm=ChatAnthropic(
+#             temperature=0.8,
+#             model="claude-2.0",
+#             max_tokens_to_sample=100000
+#         ),
+#         prompt=PromptTemplate(
+#             input_variables=[
+#                 "folder_name",
+#                 "folder_structure",
+#                 "previous_business_logic",
+#                 "current_directory_name",
+#                 "current_directory_business_logic"
+#             ],
+#             template=template
+#         ),
+#         verbose=True,
+#     )
+
+#     logic= llm_chain.predict(folder_name=folder_name,
+#                              folder_structure=folder_structure,
+#                              previous_business_logic=previous_business_logic,
+#                              current_directory_name=current_directory_name,
+#                              current_directory_business_logic=current_directory_business_logic)
+#     return f"{logic}"
+# def process_folder_business_logic(folder_id):
+    
+#     folder = FolderUpload.objects.get(folderId=folder_id)
+
+#     business_logic = ""
+    
+#     folder_name = folder.foldername
+    
+#     folder_structure = get_folder_structure(folder_id)
+
+#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
+#     files = FileUpload.objects.filter(parentFolder=folder)
+    
+#     for subfolder in subfolders:
+#         subfolder_business_logic = process_folder_business_logic(subfolder.folderId)
+#         if(business_logic==""):
+#             business_logic=subfolder_business_logic
+#         else:
+#             business_logic = combine_business_logic(folder_name, folder_structure, business_logic, subfolder.foldername, subfolder_business_logic)
+
+#     for file in files:
+#         file_business_logic_result = file_business_logic(file.file)
+        
+#         if (business_logic==""):
+#             business_logic=file_business_logic
+#         else:
+#             business_logic = combine_business_logic(folder_name, folder_structure, business_logic, file.filename, file_business_logic_result)
+
+#     return business_logic
+# class HigherLevelBusinessLogic(APIView):
+#     permission_classes = [CustomIsAuthenticated]
+#     authentication_classes = [TokenAuthentication]
+
+#     def post(self, request):
+#         folder_id = request.data.get('id') 
+#         business_logic = process_folder_business_logic(folder_id)
+#         print(business_logic)
+#         return Response({"response":business_logic}, status=200)
+# Higher Level Mermaid Diagram
+# def file_mermaid_diagram(code):
+#     # with open(file_path, 'rb') as file:
+#     #     code = file.read() 
+        
+#     source="RPG"
+#     destination="JAVA"    
+#     logic=code_to_business_logic(code,source)
+#     mermaid_diagram = business_logic_to_mermaid_diagram(logic,source,destination)
+#     return mermaid_diagram
+# def combine_mermaid_diagram(folder_name,
+#                            folder_structure,
+#                            previous_mermaid_diagram,
+#                            current_directory_name,
+#                            current_directory_mermaid_diagram):
+    
+    
+#     classDiagram_schema = ResponseSchema(name='mermaid_class_diagram_code',description='This is the mermaid class diagram code which can be rendered by mermaidjs 8.11.0. , converted to a correct json string with new line replaced with \\n.')
+#     classDiagram_description_schema = ResponseSchema(name='mermaid_class_diagram_code_description',description='This is the description of the class diagram code generated')
+
+#     response_schema = (classDiagram_schema,classDiagram_description_schema)
+#     parser = StructuredOutputParser.from_response_schemas(response_schema)
+#     format_instructions = parser.get_format_instructions()
+    
+#     template='''
+#     I want to generate the complete Mermaid Diagram for the folder named '{folder_name}'. The folder structure of this folder is '{folder_structure}'.
+#     To achieve this, I will consolidate the Mermaid Diagram from each directory within it one by one. Specifically, I will merge the Mermaid Diagram
+#     from some directories within the folder structure with the current directory's Mermaid Diagram named 
+#     '{current_directory_name}'. This process will result in the combined Mermaid Diagram up to the specified directory and the Mermaid Diagram of 
+#     the current directory.Remember, in the future, anyone can convert this Mermaid Class diagram code to another language code easily, so provide the 
+#     answer in the context of that. Also, give code in the correct syntax so that it can be rendered by MermaidJS 8.11.0. 
+    
+#     Now give me combined Mermaid Diagram of Previous Mermaid Diagram and Curreny Directory Mermaid Diagram given below.
+    
+#     Previous Mermaid Diagram:
+     
+#     {previous_mermaid_diagram}
+    
+#     Current Directory Mermaid Diagram: 
+    
+#     {current_directory_mermaid_diagram}
+    
+#     {format_instructions}
+
+#     '''
+
+#     llm_chain = LLMChain(
+#         llm = ChatAnthropic(temperature= 0.8,model = "claude-2.0",max_tokens_to_sample=100000),
+#         prompt=PromptTemplate(input_variables=["folder_name","folder_structure","previous_mermaid_diagram",
+#                                                "current_directory_name","current_directory_mermaid_diagram"],partial_variables={"format_instructions":format_instructions}, template=template),
+#         verbose=True,
+#     )
+#     logic= llm_chain.predict(folder_name=folder_name,
+#                              folder_structure=folder_structure,
+#                              previous_mermaid_diagram=previous_mermaid_diagram,
+#                              current_directory_name=current_directory_name,
+#                              current_directory_mermaid_diagram=current_directory_mermaid_diagram)
+#     return f"{logic}"
+# def process_folder_mermaid_diagram(folder_id):
+    
+#     folder = FolderUpload.objects.get(folderId=folder_id)
+
+#     mermaid_diagram = ""
+    
+#     folder_name = folder.foldername
+    
+#     folder_structure = get_folder_structure(folder_id)
+
+#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
+#     files = FileUpload.objects.filter(parentFolder=folder)
+    
+#     for subfolder in subfolders:
+#         subfolder_mermaid_diagram = process_folder_mermaid_diagram(subfolder.folderId)
+#         mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, subfolder.foldername, subfolder_mermaid_diagram)
+
+#     for file in files:
+#         file_mermaid_diagram_result = file_mermaid_diagram(file.file)
+#         mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, file.filename, file_mermaid_diagram_result)
+
+#     return mermaid_diagram
+# def higher_level_mermaid_diagram(business_logic):
+    
+#     classDiagram_schema = ResponseSchema(name='mermaid_class_diagram_code', description='This schema represents the Mermaid class diagram code, which is compatible with MermaidJS version 8.11.0. The code should be represented as a valid JSON string with new lines replaced with "\\n".')
+#     classDiagram_description_schema = ResponseSchema(name='mermaid_class_diagram_code_description', description='This schema represents the description of the class diagram code generated by MermaidJS.')
+
+#     response_schema = (classDiagram_schema,classDiagram_description_schema)
+#     parser = StructuredOutputParser.from_response_schemas(response_schema)
+#     format_instructions = parser.get_format_instructions()
+    
+#     example_code=rpg_example2
+    
+#     template='''
+#     I want to generate code with backticks for a Mermaid Class diagram using the business logic of a full folder. This Mermaid diagram is used to
+#     visualize the high-level business logic of a folder's code.
+    
+#     Note: Also, provide code in the correct syntax so that it can be rendered by mermaidjs version 8.11.0. The code should be represented as a valid 
+#     JSON string with new lines replaced with "\n".
+
+#     Example:
+#     {example_code}
+    
+#     Now, the user will provide the business logic of a full folder as well as associated files. Please generate correct and running code for a
+#     Mermaid class diagram without any initial text in a JSON format with "mermaid_class_diagram_code" as the key.
+
+#     User:{input}
+#     Mermaid_Code:
+#     {format_instructions}'''
+
+#     llm_chain = LLMChain(
+#         llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
+#         prompt=PromptTemplate(input_variables=["input","example_code"],partial_variables={"format_instructions":format_instructions}, template=template),
+#         verbose=True,
+#     )
+    
+#     mermaid_diagram= llm_chain.predict(input=business_logic,example_code=example_code)
+#     result=parser.parse(mermaid_diagram)
+#     return result['mermaid_class_diagram_code']  
+# class HigherLevelMermaidDiagram(APIView):
+#     permission_classes = [CustomIsAuthenticated]
+#     authentication_classes = [TokenAuthentication]
+
+#     def post(self, request):
+#         folder_id = request.data.get('id') 
+#         folder = FolderUpload.objects.get(folderId=folder_id)
+        
+#         # business_logic= folder.higherlevelbusinesslogic
+#         # mermaid_diagram=higher_level_mermaid_diagram(business_logic)
+        
+#         # mermaid_diagram = process_folder_mermaid_diagram(folder_id)
+        
+#         business_logic= '''Based on the provided inputs, here is a high-level summary of the business logic for the Gau folder:
+
+#         The code in this folder relates to an ERP system handling various business functions like inventory management, sales order processing,
+#         customer relationship management, and analytics. 
+
+#         Key capabilities include:
+#         - User and rights management - Adding, editing, deleting user records and access rights
+#         - Master data maintenance - Updating inventory item master data, customer master records, partner records
+#         - Pricing and discounts - Determining pricing, discounts, and net prices based on complex hierarchical rules and customer attributes 
+#         - Order processing - Handling sales document types like quotes, orders, deliveries along with statuses, dates, quantities
+#         - Inventory transactions - Posting inventory movements, serial numbers, batches triggered by sales, purchase etc.
+#         - Batch management - Controlling, monitoring background jobs and batches
+#         - Reporting and analytics - Customer survey analysis, sales analytics, inventory reports
+#         - Auditing - Tracking changes to configuration and master data 
+#         - System configuration - Managing system parameters, defaults, schemas across various screens
+#         The programs leverage physical and logical database files, APIs, data structures, andbuilt-in RPG functions.
+#         The code demonstrates common RPG constructs - file I/O, data structures, modular procedures, calculations, branching, looping, error handling. 
+#         In summary, the folder contains a range of business logic required in an ERP system, interacting with databases, programs, interfaces and
+#         users. The logic covers both transaction processing as well as reporting/analytics capabilities.'''
+        
+#         mermaid_diagram=higher_level_mermaid_diagram(business_logic)
+#         print(mermaid_diagram)
+#         return Response({"response":mermaid_diagram}, status=200)
+# Higher Level Mermaid Flowchart
+# def file_mermaid_flowchart(code):
+#     # # with open(file_path, 'rb') as file:
+#     # #     code = file.read() 
+    
+#     source="RPG"
+#     destination="JAVA" 
+#     logic=code_to_business_logic(code,source)
+#     mermaid_flowchart = business_logic_to_mermaid_flowchart(logic,source,destination)
+#     return mermaid_flowchart
+# def combine_mermaid_flowchart(folder_name,
+#                            folder_structure,
+#                            previous_mermaid_flowchart,
+#                            current_directory_name,
+#                            current_directory_mermaid_flowchart):
+    
+    
+#     flowchart_schema = ResponseSchema(name='mermaid_flowchart_code',description='This is the mermaid flowchart code with properly linked nodes which can be rendered by mermaidjs 8.11.0. ,converted to a correct json string with new line replaced with \\n. Also all the nodes should contain strings so that any special characters do not cause problems')
+#     flowchart_description_schema = ResponseSchema(name='flowchart_code_description',description='This is the description of the flowchart code generated')
+
+#     response_schema = (flowchart_schema,flowchart_description_schema)
+#     parser = StructuredOutputParser.from_response_schemas(response_schema)
+#     format_instructions = parser.get_format_instructions()
+
+    
+#     template='''
+#     I want to generate the complete Mermaid Diagram for the folder named '{folder_name}'. The folder structure of this folder is '{folder_structure}'.
+#     To achieve this, I will consolidate the Mermaid Diagram from each directory within it one by one. Specifically, I will merge the Mermaid Diagram
+#     from directories some within the folder structure with the current directory's Mermaid Diagram named 
+#     '{current_directory_name}'. This process will result in the combined Mermaid Diagram up to the specified directory and the Mermaid Diagram of 
+#     the current directory.and the remember in future anyone can convert this mermaid diagram code to business logic easily.Also give code in correct
+#     syntax so that it can be rendered by mermaidjs 8.11.0 . Make sure the blocks are properly linked .Mermaid flow chart diagram that visually
+#     represents this logic.Now give me combined Mermaid Flowchart Code using Previous Memaid Flowchart and Current Directory Mermaid Flowchart given below:
+
+#     Previous Mermaid Flowchart:
+     
+#     {previous_mermaid_flowchart}
+    
+#     Current Directory Mermaid Flowchart: 
+    
+#     {current_directory_mermaid_flowchart}
+
+#     {format_instructions}
+#     '''
+
+#     llm_chain = LLMChain(
+#         llm = ChatAnthropic(temperature= 0.8,model = "claude-2.0",max_tokens_to_sample=100000),
+#         prompt=PromptTemplate(input_variables=["folder_name","folder_structure","previous_mermaid_flowchart",
+#                                                "current_directory_name","current_directory_mermaid_flowchart"],partial_variables={"format_instructions":format_instructions}, template=template),
+#         verbose=True,
+#     )
+#     mermaid_flowchart= llm_chain.predict(folder_name=folder_name,
+#                              folder_structure=folder_structure,
+#                              previous_mermaid_flowchart=previous_mermaid_flowchart,
+#                              current_directory_name=current_directory_name,
+#                              current_directory_mermaid_flowchart=current_directory_mermaid_flowchart)
+#     return f"{mermaid_flowchart}"
+# def process_folder_mermaid_flowchart(folder_id):
+    
+#     folder = FolderUpload.objects.get(folderId=folder_id)
+
+#     mermaid_flowchart = ""
+    
+#     folder_name = folder.foldername
+    
+#     folder_structure = get_folder_structure(folder_id)
+
+#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
+#     files = FileUpload.objects.filter(parentFolder=folder)
+    
+#     for subfolder in subfolders:
+#         subfolder_mermaid_flowchart = process_folder_mermaid_flowchart(subfolder.folderId)
+#         mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, subfolder.foldername, subfolder_mermaid_flowchart)
+
+#     for file in files:
+#         file_mermaid_flowchart_result = file_mermaid_flowchart(file.file)
+#         mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, file.filename, file_mermaid_flowchart_result)
+
+#     return mermaid_flowchart
+# def higher_level_mermaid_flowchart(business_logic):
+    
+#     flowchart_schema = ResponseSchema(name='mermaid_flowchart_code', description='This schema represents the Mermaid flowchart code, designed to generate properly linked nodes that can be rendered by MermaidJS version 8.11.0. The code must be formatted as a valid JSON string, with newline characters replaced by "\\n". All nodes within the code should contain strings to ensure compatibility and avoid issues with special characters.')
+#     flowchart_description_schema = ResponseSchema(name='flowchart_code_description', description='This schema provides a description of the flowchart code generated by MermaidJS. It includes details about the structure and relationships of the nodes within the flowchart, as well as any additional information relevant to understanding the flowchart.')
+
+#     response_schema = (flowchart_schema,flowchart_description_schema)
+#     parser = StructuredOutputParser.from_response_schemas(response_schema)
+#     format_instructions = parser.get_format_instructions()
+    
+#     example_code=rpg_example3
+    
+#     template='''
+#     Convert Business Logic to Mermaid Flow chart Diagram of a folder.
+#     I want to generate code for Mermaid Flow chart diagram using business logic of a folder and Remember this mermaid class diagram code is used by
+#     developers to visualize the folder's code logic. Also give code in correct syntax so that it can be rendered by mermaidjs 8.11.0 . Make sure the
+#     blocks are properly linked . Here is also an example how to generate mermaid class diagram using the business logic. and remember also don't give
+#     any inital word and sentence like here is mermaid flow chart diagram of this business logic.Mermaid flow chart diagram that visually represents 
+#     this logic.The Mermaid flow chart diagram also should visually represent the flow and sequence of the business logic,including key decision points
+#     and data dependencies. Ensure that the resulting diagram is comprehensive and self-explanatory. 
+#     Follow these steps:
+#         1. Review the provided business logic.
+#         2. Identify key components, decisions, and flow control in the logic.
+#         3. Create a Mermaid flow chart diagram that illustrates the flow of logic, including decisions, loops, and data flow.
+#         4. Ensure that the files , databases and other UI elements which might be present are properly shown.
+#         5. Ensure the Mermaid flow chartdiagram is clear, well-structured, and accurately represents the business logic.
+        
+#     Example:
+#     {example_code}
+    
+#     Now the User will provide business logic,generate correct and running code for mermaid Flowchart diagram as shown in above example without any 
+#     initial text in a JSON format with "mermaid_flowchart_code" as the key and make sure that the blocks areproperly linked in the code.
+    
+#     User: {input}
+#     Mermaid_Flowchart_Code:
+#     {format_instructions}'''
+
+#     llm_chain = LLMChain(
+#         llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
+#         prompt=PromptTemplate(input_variables=["input","example_code"],partial_variables={"format_instructions":format_instructions}, template=template),
+#         verbose=True,
+#     )
+    
+#     mermaid_flowchart= llm_chain.predict(input=business_logic,example_code=example_code)
+#     result=parser.parse(mermaid_flowchart)
+#     return result['mermaid_flowchart_code']
+# class HigherLevelMermaidFlowchart(APIView):
+#     permission_classes = [CustomIsAuthenticated]
+#     authentication_classes = [TokenAuthentication]
+
+#     def post(self, request):
+#         folder_id = request.data.get('id') 
+#         folder = FolderUpload.objects.get(folderId=folder_id)
+        
+#         # mermaid_flowchart = process_folder_mermaid_flowchart(folder_id)
+        
+#         # business_logic= folder.higherlevelbusinesslogic
+#         # mermaid_flowchart=higher_level_mermaid_flowchart(business_logic)
+        
+#         business_logic= '''Based on the provided inputs, here is a high-level summary of the business logic for the Gau folder:
+
+#         The code in this folder relates to an ERP system handling various business functions like inventory management, sales order processing,
+#         customer relationship management, and analytics. 
+
+#         Key capabilities include:
+#         - User and rights management - Adding, editing, deleting user records and access rights
+#         - Master data maintenance - Updating inventory item master data, customer master records, partner records
+#         - Pricing and discounts - Determining pricing, discounts, and net prices based on complex hierarchical rules and customer attributes 
+#         - Order processing - Handling sales document types like quotes, orders, deliveries along with statuses, dates, quantities
+#         - Inventory transactions - Posting inventory movements, serial numbers, batches triggered by sales, purchase etc.
+#         - Batch management - Controlling, monitoring background jobs and batches
+#         - Reporting and analytics - Customer survey analysis, sales analytics, inventory reports
+#         - Auditing - Tracking changes to configuration and master data 
+#         - System configuration - Managing system parameters, defaults, schemas across various screens
+#         The programs leverage physical and logical database files, APIs, data structures, andbuilt-in RPG functions.
+#         The code demonstrates common RPG constructs - file I/O, data structures, modular procedures, calculations, branching, looping, error handling. 
+#         In summary, the folder contains a range of business logic required in an ERP system, interacting with databases, programs, interfaces and
+#         users. The logic covers both transaction processing as well as reporting/analytics capabilities.'''
+            
+#         mermaid_flowchart=higher_level_mermaid_flowchart(business_logic)
+        
+#         print(mermaid_flowchart)
+#         return Response({"response":mermaid_flowchart}, status=200)
+
+    
+        
+#     def file_mermaid_flowchart(file_path):
+#         with open(file_path, 'rb') as file:
+#             code = file.read() 
+        
+#         source=""
+#         destination=""
+#         logic=code_to_business_logic(code,source)
+#         mermaid_flowchart = business_logic_to_mermaid_flowchart(logic,source,destination)
+#         return mermaid_flowchart
+        
+#     def combine_mermaid_flowchart(folder_name,
+#                             folder_structure,
+#                             previous_mermaid_flowchart,
+#                             current_directory_name,
+#                             current_directory_mermaid_flowchart):
+        
+        
+#         flowchart_schema = ResponseSchema(name='mermaid_flowchart_code',description='This is the mermaid flowchart code with properly linked nodes which can be rendered by mermaidjs 8.11.0. ,converted to a correct json string with new line replaced with \\n. Also all the nodes should contain strings so that any special characters do not cause problems')
+#         flowchart_description_schema = ResponseSchema(name='flowchart_code_description',description='This is the description of the flowchart code generated')
+
+#         response_schema = (flowchart_schema,flowchart_description_schema)
+#         parser = StructuredOutputParser.from_response_schemas(response_schema)
+#         format_instructions = parser.get_format_instructions()
+
+        
+#         template='''
+#         I want to generate the complete Mermaid Diagram for the folder named '{folder_name}'. The folder structure of this folder is '{folder_structure}'.
+#         To achieve this, I will consolidate the Mermaid Diagram from each directory within it one by one. Specifically, I will merge the Mermaid Diagram
+#         from directories some within the folder structure with the current directory's Mermaid Diagram named 
+#         '{current_directory_name}'. This process will result in the combined Mermaid Diagram up to the specified directory and the Mermaid Diagram of 
+#         the current directory.and the remember in future anyone can convert this mermaid diagram code to business logic easily.Also give code in correct
+#         syntax so that it can be rendered by mermaidjs 8.11.0 . Make sure the blocks are properly linked .Mermaid flow chart diagram that visually
+#         represents this logic.Now give me combined Mermaid Flowchart Code using Previous Memaid Flowchart and Current Directory Mermaid Flowchart given below:
+
+#         Previous Mermaid Flowchart:
+        
+#         {previous_mermaid_flowchart}
+        
+#         Current Directory Mermaid Flowchart: 
+        
+#         {current_directory_mermaid_flowchart}
+
+#         {format_instructions}
+#         '''
+
+#         llm_chain = LLMChain(
+#             llm = ChatAnthropic(temperature= 0.8,model = "claude-2.0",max_tokens_to_sample=100000),
+#             prompt=PromptTemplate(input_variables=["folder_name","folder_structure","previous_mermaid_flowchart",
+#                                                 "current_directory_name","current_directory_mermaid_flowchart"],partial_variables={"format_instructions":format_instructions}, template=template),
+#             verbose=True,
+#         )
+#         mermaid_flowchart= llm_chain.predict(folder_name=folder_name,
+#                                 folder_structure=folder_structure,
+#                                 previous_mermaid_flowchart=previous_mermaid_flowchart,
+#                                 current_directory_name=current_directory_name,
+#                                 current_directory_mermaid_flowchart=current_directory_mermaid_flowchart)
+#         return f"{mermaid_flowchart}"
+                
+#     def process_folder_mermaid_flowchart(self,folder_path):
+#         mermaid_flowchart=""
+#         folder_name=os.path.basename(folder_path)
+#         folder_structure=os.listdir(folder_path)
+#         src_path = os.path.join(folder_path, "src")
+
+#         if os.path.exists(src_path) and os.path.isdir(src_path):
+#             for item in os.listdir(src_path): 
+                
+#                 if item in (".DS_Store", ".gitignore","_pycache_","README.md","pom.xml",".idea",".mvn","mvnw.cmd","HELP.md","target","data","Data"):
+#                     continue
+#                 item_path = os.path.join(src_path, item) 
+#                 if os.path.isdir(item_path):  
+#                     Mermaid_Flowchart = self.process_folder_mermaid_flowchart(item_path) 
+#                 else:
+#                     Mermaid_Flowchart = self.file_mermaid_flowchart(item_path)
+                
+#                 mermaid_flowchart= self.combine_mermaid_flowchart(folder_name,folder_structure,mermaid_flowchart,
+#                                                         item,Mermaid_Flowchart)
+#         else:
+#             for item in os.listdir(folder_path): 
+                
+#                 if item in (".DS_Store", ".gitignore","_pycache_","README.md","pom.xml",".idea",".mvn","mvnw.cmd","HELP.md","target","data","Data"):
+#                     continue
+#                 item_path = os.path.join(folder_path, item) 
+#                 if os.path.isdir(item_path):  
+#                     Mermaid_Flowchart = self.process_folder_mermaid_flowchart(item_path) 
+#                 else:
+#                     Mermaid_Flowchart = self.file_mermaid_flowchart(item_path)   
+                
+#                 mermaid_flowchart= self.combine_mermaid_flowchart(folder_name,folder_structure,mermaid_flowchart,
+#                                                         item,Mermaid_Flowchart)
+        
+#         return mermaid_flowchart
+
+# Github 
+
+class GenerateUUID(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def post(self, request):
+        serializer = ShareCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            folder_structure_id = serializer.validated_data['folder_structure_id']
+            print(folder_structure_id)
+            try:
+                folder_structure = FolderUpload.objects.get(folderId=folder_structure_id, user=request.user)
+                shareable_link, created = ShareCode.objects.get_or_create(folder_structure=folder_structure)
+                return Response({'uuid': shareable_link.uuid}, status=status.HTTP_201_CREATED)
+            except FolderUpload.DoesNotExist:
+                return Response({'error': 'Folder not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AccessRepository(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def post(self, request):
+        uuid = request.data.get('uuid')
+        try:
+            shareable_link = ShareCode.objects.get(uuid=uuid)
+            folder_structure = shareable_link.folder_structure
+            if request.user not in shareable_link.users.all():
+                shareable_link.users.add(request.user)
+            return Response({'repository_id': folder_structure.folderId, 'repositoryname': folder_structure.foldername}, status=status.HTTP_200_OK)
+        except ShareCode.DoesNotExist:
+            return Response({'error': 'Repository not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+
+
 
 # Higher Level Business Logic
 
-def file_business_logic(code):
-    # with open(file_path, 'rb') as file:
-    #     code = file.read() 
+def file_business_logic(code): 
+    source="RPG"   
+    if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa","assembly"]:
+        return "Invalid source specified."
     
-    source="RPG"
-    logic= code_to_business_logic(code,source)
-    return logic
-
-def combine_business_logic(folder_name,
-                           folder_structure,
-                           previous_business_logic,
-                           current_directory_name,
-                           current_directory_business_logic):
+    example_code="" 
+    if(source.lower()=="java"):
+        example_code=java_example1   
+    elif(source.lower()=="python"):
+       example_code=python_example1
+    elif(source.lower()=="sql"):
+        example_code=sql_example1
+    elif(source.lower()=="mongodb"):
+        example_code=mongodb_example1
+    elif(source.lower()=="angular"):
+        example_code=angular_example1
+    elif(source.lower()=="react"):
+        example_code=react_example1
+    elif(source.lower()=="rpg"):
+        example_code=rpg_exampleh
+    elif(source.lower()=="sas"):
+        example_code=sas_example1
+    elif(source.lower()=="dspfr"):
+        example_code=dspf_exampler1
+    elif(source.lower()=="dspfa"):
+        example_code=dspf_examplea1
+    elif(source.lower()=="assembly"):
+        example_code=assembly_example1
     
+    template='''Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
+    understandable business logic. If the destinationiables in the code have values relevant to the business logic, please include them.I am interested 
+    solely in the business logic and do not require introductory statements such as 'Here is the business logic extracted from this code.'
+    Your task also involves analyzing the code, identifying its core functionality, and presenting this functionality clearly and concisely. 
+    Ensure that the extracted business logic is well-documented.
+    This process involves multiple steps:
+    1.Analyze the provided {source} code to comprehend its purpose.
+    2.Identify and abstract the key algorithmic steps and logic used in the {source} code.
+    3.Express this logic in a high-level, language-agnostic format.
+    4.Identify the type of code and if there is any database, other files or ui interaction.
+    5.Any important information about the file structure should be identified and added to the interactions. 
+    6.Please specify these interactions towards the end of the generated response in a well formatted manner.
+    7.Be as verbose as needed.
+    Make sure that the output provides a clear and concise representation of the business logic within the {source} code. If the {source} code is complex,
+    please include comments or explanations to clarify the logic.I am providing an example how to generate business logic 
+    using the {source} code as shown in the following example.
     
-    template='''
-    I'd like to generate comprehensive business logic documentation for a specific directory named '{folder_name}' with the following 
-    folder structure: '{folder_structure}'. 
-
-    To accomplish this, I will aggregate business logic from each directory within this folder one by one. Specifically, I will merge the business 
-    logic from selected directories within the folder structure with the business logic from the current directory named '{current_directory_name}' 
-    within the same folder structure. This process will result in a combined business logic document, which includes the accumulated logic up to the
-    specified directory and the business logic of the current directory. The goal is to create an all-encompassing report that includes any imported
-    statements from other files and all significant statements originating from these files. Additionally, this report will list the names of all
-    files and folders involved and the business logic report for the specified directory and its subdirectories will also include specific variable
-    values relevant to the overall business logic. It will indicate functions imported from other files and specify their sources, maintain consistency
-    in variable and function names, and provide function parameter types for each function.
-
-    In cases where the previous file's business logic is empty, it signifies that the current file is the first file, and there is no previous file's
-    business logic.
+    Example:
+    {example_code}
     
-    Now give me only Combined Business Logic of  Previous and Current Directory Logic given below: 
-    
-    Previous Business Logic: {previous_business_logic}
-    Current Directory Business Logic: {current_directory_business_logic}
-    
+    Now the User will provide {source} code, please generate correct buisness logic as shown in above example.
+    Share business logic and related files like database , ui and other files as part of the response.
+    User: {input}
+    Business_Logic:
     '''
 
     llm_chain = LLMChain(
-        llm=ChatAnthropic(
-            temperature=0.8,
-            model="claude-2.0",
-            max_tokens_to_sample=100000
-        ),
-        prompt=PromptTemplate(
-            input_variables=[
-                "folder_name",
-                "folder_structure",
-                "previous_business_logic",
-                "current_directory_name",
-                "current_directory_business_logic"
-            ],
-            template=template
-        ),
+        llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
+        prompt=PromptTemplate(input_variables=["input","source","example_code"], template=template),
         verbose=True,
     )
-
-    logic= llm_chain.predict(folder_name=folder_name,
-                             folder_structure=folder_structure,
-                             previous_business_logic=previous_business_logic,
-                             current_directory_name=current_directory_name,
-                             current_directory_business_logic=current_directory_business_logic)
+    logic= llm_chain.predict(input=code,source=source,example_code=example_code)
     return f"{logic}"
 
-def process_folder_business_logic(folder_id):
+def higher_level_business_logic(business_logic,folder_name):
     
-    folder = FolderUpload.objects.get(folderId=folder_id)
+    template='''I would like to generate comprehensive higher-level business logic for a specific folder, which is identified by the name {folder_name}. This business logic
+    should encompass the entirety of the folder, including all subfiles and subfolder files, in order to provide developers with a clear and concise overview of the code
+    within this directory. The objective is to make it easier for developers to understand the codebase contained in this folder.
 
-    business_logic = ""
+    The process involves the user providing the business logic for all the files and subfolder files within the specified directory. After gathering this information, 
+    I will synthesize a higher-level business logic that summarizes the individual inputs. It's important to note that this higher-level business logic should also be
+    suitable for generating a mermaid flowchart diagram. This diagram will serve as a visual representation of the folder's code structure, utilizing the synthesized 
+    business logic to create an informative visual aid.
+
+    User: {input}
+    Higher_Level_Business_Logic:
     
-    folder_name = folder.foldername
+    '''
     
-    folder_structure = get_folder_structure(folder_id)
-
-    subfolders = FolderUpload.objects.filter(parentFolder=folder)
-    files = FileUpload.objects.filter(parentFolder=folder)
+    llm_chain = LLMChain(
+        llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
+        prompt=PromptTemplate(input_variables=["input","folder_name"], template=template),
+        verbose=True,
+    )
     
-    for subfolder in subfolders:
-        subfolder_business_logic = process_folder_business_logic(subfolder.folderId)
-        business_logic = combine_business_logic(folder_name, folder_structure, business_logic, subfolder.foldername, subfolder_business_logic)
+    logic= llm_chain.predict(input=business_logic,folder_name=folder_name)
+    return logic
 
-    for file in files:
-        file_business_logic_result = file_business_logic(file.file)
-        business_logic = combine_business_logic(folder_name, folder_structure, business_logic, file.filename, file_business_logic_result)
+def process_folder_business_logic(parent_folder_id):    
+    
+    try:
+        folder = FolderUpload.objects.get(folderId=parent_folder_id)
+        folder_name = folder.foldername
+        folder_business_logic_dict = {}
+        
+        files = FileUpload.objects.filter(parentFolder=folder)
+        for file in files:
+            file_logic = file_business_logic(file.file)
+            folder_business_logic_dict[file.filename] = file_logic
 
-    return business_logic
+        subfolders = FolderUpload.objects.filter(parentFolder=folder)
+        for subfolder in subfolders:
+            subfolder_logic = process_folder_business_logic(subfolder.folderId)
+            folder_business_logic_dict[subfolder.foldername] = subfolder_logic
+            
+        try:
+            logic = higher_level_business_logic(folder_business_logic_dict,folder_name)
+            return logic
+        except:
+            return "Error"
+        
+    except FolderUpload.DoesNotExist:
+        logging.error(f"Folder with ID {parent_folder_id} not found.")
+        return ""
+    except Exception as e:
+        logging.error(f"An error occurred while processing folder {parent_folder_id}: {str(e)}")
+        return ""
 
 class HigherLevelBusinessLogic(APIView):
     permission_classes = [CustomIsAuthenticated]
@@ -1539,68 +2175,9 @@ class HigherLevelBusinessLogic(APIView):
         folder_id = request.data.get('id') 
         business_logic = process_folder_business_logic(folder_id)
         print(business_logic)
-        return business_logic
-
+        return Response({"response":business_logic}, status=200)
+    
 # Higher Level Mermaid Diagram
-
-def file_mermaid_diagram(code):
-    # with open(file_path, 'rb') as file:
-    #     code = file.read() 
-        
-    source="RPG"
-    destination="JAVA"    
-    logic=code_to_business_logic(code,source)
-    mermaid_diagram = business_logic_to_mermaid_diagram(logic,source,destination)
-    return mermaid_diagram
-
-def combine_mermaid_diagram(folder_name,
-                           folder_structure,
-                           previous_mermaid_diagram,
-                           current_directory_name,
-                           current_directory_mermaid_diagram):
-    
-    
-    classDiagram_schema = ResponseSchema(name='mermaid_class_diagram_code',description='This is the mermaid class diagram code which can be rendered by mermaidjs 8.11.0. , converted to a correct json string with new line replaced with \\n.')
-    classDiagram_description_schema = ResponseSchema(name='mermaid_class_diagram_code_description',description='This is the description of the class diagram code generated')
-
-    response_schema = (classDiagram_schema,classDiagram_description_schema)
-    parser = StructuredOutputParser.from_response_schemas(response_schema)
-    format_instructions = parser.get_format_instructions()
-    
-    template='''
-    I want to generate the complete Mermaid Diagram for the folder named '{folder_name}'. The folder structure of this folder is '{folder_structure}'.
-    To achieve this, I will consolidate the Mermaid Diagram from each directory within it one by one. Specifically, I will merge the Mermaid Diagram
-    from some directories within the folder structure with the current directory's Mermaid Diagram named 
-    '{current_directory_name}'. This process will result in the combined Mermaid Diagram up to the specified directory and the Mermaid Diagram of 
-    the current directory.Remember, in the future, anyone can convert this Mermaid Class diagram code to another language code easily, so provide the 
-    answer in the context of that. Also, give code in the correct syntax so that it can be rendered by MermaidJS 8.11.0. 
-    
-    Now give me combined Mermaid Diagram of Previous Mermaid Diagram and Curreny Directory Mermaid Diagram given below.
-    
-    Previous Mermaid Diagram:
-     
-    {previous_mermaid_diagram}
-    
-    Current Directory Mermaid Diagram: 
-    
-    {current_directory_mermaid_diagram}
-    
-    {format_instructions}
-
-    '''
-
-    llm_chain = LLMChain(
-        llm = ChatAnthropic(temperature= 0.8,model = "claude-2.0",max_tokens_to_sample=100000),
-        prompt=PromptTemplate(input_variables=["folder_name","folder_structure","previous_mermaid_diagram",
-                                               "current_directory_name","current_directory_mermaid_diagram"],partial_variables={"format_instructions":format_instructions}, template=template),
-        verbose=True,
-    )
-    logic= llm_chain.predict(folder_name=folder_name,
-                             folder_structure=folder_structure,
-                             previous_mermaid_diagram=previous_mermaid_diagram,
-                             current_directory_name=current_directory_name,
-                             current_directory_mermaid_diagram=current_directory_mermaid_diagram)
-    return f"{logic}"
 
 def process_folder_mermaid_diagram(folder_id):
     
@@ -1625,75 +2202,82 @@ def process_folder_mermaid_diagram(folder_id):
 
     return mermaid_diagram
 
+def higher_level_mermaid_diagram(business_logic):
+    
+    classDiagram_schema = ResponseSchema(name='mermaid_class_diagram_code', description='This schema represents the Mermaid class diagram code, which is compatible with MermaidJS version 8.11.0. The code should be represented as a valid JSON string with new lines replaced with "\\n".')
+    classDiagram_description_schema = ResponseSchema(name='mermaid_class_diagram_code_description', description='This schema represents the description of the class diagram code generated by MermaidJS.')
+
+    response_schema = (classDiagram_schema,classDiagram_description_schema)
+    parser = StructuredOutputParser.from_response_schemas(response_schema)
+    format_instructions = parser.get_format_instructions()
+    
+    example_code=rpg_example2
+    
+    template='''
+    I want to generate code with backticks for a Mermaid Class diagram using the business logic of a full folder. This Mermaid diagram is used to
+    visualize the high-level business logic of a folder's code.
+    
+    Note: Also, provide code in the correct syntax so that it can be rendered by mermaidjs version 8.11.0. The code should be represented as a valid 
+    JSON string with new lines replaced with "\n".
+
+    Example:
+    {example_code}
+    
+    Now, the user will provide the business logic of a full folder as well as associated files. Please generate correct and running code for a
+    Mermaid class diagram without any initial text in a JSON format with "mermaid_class_diagram_code" as the key.
+
+    User:{input}
+    Mermaid_Code:
+    {format_instructions}'''
+
+    llm_chain = LLMChain(
+        llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
+        prompt=PromptTemplate(input_variables=["input","example_code"],partial_variables={"format_instructions":format_instructions}, template=template),
+        verbose=True,
+    )
+    
+    mermaid_diagram= llm_chain.predict(input=business_logic,example_code=example_code)
+    result=parser.parse(mermaid_diagram)
+    return result['mermaid_class_diagram_code']
+    
 class HigherLevelMermaidDiagram(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def post(self, request):
         folder_id = request.data.get('id') 
-        mermaid_diagram = process_folder_mermaid_diagram(folder_id)
+        folder = FolderUpload.objects.get(folderId=folder_id)
+        
+        # business_logic= folder.higherlevelbusinesslogic
+        # mermaid_diagram=higher_level_mermaid_diagram(business_logic)
+        
+        # mermaid_diagram = process_folder_mermaid_diagram(folder_id)
+        
+        business_logic= '''Based on the provided inputs, here is a high-level summary of the business logic for the Gau folder:
+
+        The code in this folder relates to an ERP system handling various business functions like inventory management, sales order processing,
+        customer relationship management, and analytics. 
+
+        Key capabilities include:
+        - User and rights management - Adding, editing, deleting user records and access rights
+        - Master data maintenance - Updating inventory item master data, customer master records, partner records
+        - Pricing and discounts - Determining pricing, discounts, and net prices based on complex hierarchical rules and customer attributes 
+        - Order processing - Handling sales document types like quotes, orders, deliveries along with statuses, dates, quantities
+        - Inventory transactions - Posting inventory movements, serial numbers, batches triggered by sales, purchase etc.
+        - Batch management - Controlling, monitoring background jobs and batches
+        - Reporting and analytics - Customer survey analysis, sales analytics, inventory reports
+        - Auditing - Tracking changes to configuration and master data 
+        - System configuration - Managing system parameters, defaults, schemas across various screens
+        The programs leverage physical and logical database files, APIs, data structures, andbuilt-in RPG functions.
+        The code demonstrates common RPG constructs - file I/O, data structures, modular procedures, calculations, branching, looping, error handling. 
+        In summary, the folder contains a range of business logic required in an ERP system, interacting with databases, programs, interfaces and
+        users. The logic covers both transaction processing as well as reporting/analytics capabilities.'''
+        
+        mermaid_diagram=higher_level_mermaid_diagram(business_logic)
         print(mermaid_diagram)
-        return mermaid_diagram
+        return Response({"response":mermaid_diagram}, status=200)
 
-# Higher Level Mermaid Flowchart
-
-def file_mermaid_flowchart(code):
-    # # with open(file_path, 'rb') as file:
-    # #     code = file.read() 
-    
-    source="RPG"
-    destination="JAVA" 
-    logic=code_to_business_logic(code,source)
-    mermaid_flowchart = business_logic_to_mermaid_flowchart(logic,source,destination)
-    return mermaid_flowchart
- 
-def combine_mermaid_flowchart(folder_name,
-                           folder_structure,
-                           previous_mermaid_flowchart,
-                           current_directory_name,
-                           current_directory_mermaid_flowchart):
-    
-    
-    flowchart_schema = ResponseSchema(name='mermaid_flowchart_code',description='This is the mermaid flowchart code with properly linked nodes which can be rendered by mermaidjs 8.11.0. ,converted to a correct json string with new line replaced with \\n. Also all the nodes should contain strings so that any special characters do not cause problems')
-    flowchart_description_schema = ResponseSchema(name='flowchart_code_description',description='This is the description of the flowchart code generated')
-
-    response_schema = (flowchart_schema,flowchart_description_schema)
-    parser = StructuredOutputParser.from_response_schemas(response_schema)
-    format_instructions = parser.get_format_instructions()
-
-    
-    template='''
-    I want to generate the complete Mermaid Diagram for the folder named '{folder_name}'. The folder structure of this folder is '{folder_structure}'.
-    To achieve this, I will consolidate the Mermaid Diagram from each directory within it one by one. Specifically, I will merge the Mermaid Diagram
-    from directories some within the folder structure with the current directory's Mermaid Diagram named 
-    '{current_directory_name}'. This process will result in the combined Mermaid Diagram up to the specified directory and the Mermaid Diagram of 
-    the current directory.and the remember in future anyone can convert this mermaid diagram code to business logic easily.Also give code in correct
-    syntax so that it can be rendered by mermaidjs 8.11.0 . Make sure the blocks are properly linked .Mermaid flow chart diagram that visually
-    represents this logic.Now give me combined Mermaid Flowchart Code using Previous Memaid Flowchart and Current Directory Mermaid Flowchart given below:
-
-    Previous Mermaid Flowchart:
-     
-    {previous_mermaid_flowchart}
-    
-    Current Directory Mermaid Flowchart: 
-    
-    {current_directory_mermaid_flowchart}
-
-    {format_instructions}
-    '''
-
-    llm_chain = LLMChain(
-        llm = ChatAnthropic(temperature= 0.8,model = "claude-2.0",max_tokens_to_sample=100000),
-        prompt=PromptTemplate(input_variables=["folder_name","folder_structure","previous_mermaid_flowchart",
-                                               "current_directory_name","current_directory_mermaid_flowchart"],partial_variables={"format_instructions":format_instructions}, template=template),
-        verbose=True,
-    )
-    mermaid_flowchart= llm_chain.predict(folder_name=folder_name,
-                             folder_structure=folder_structure,
-                             previous_mermaid_flowchart=previous_mermaid_flowchart,
-                             current_directory_name=current_directory_name,
-                             current_directory_mermaid_flowchart=current_directory_mermaid_flowchart)
-    return f"{mermaid_flowchart}"
+# Higher Level Mermaid Flowchart    
   
 def process_folder_mermaid_flowchart(folder_id):
     
@@ -1718,16 +2302,89 @@ def process_folder_mermaid_flowchart(folder_id):
 
     return mermaid_flowchart
 
+def higher_level_mermaid_flowchart(business_logic):
+    
+    flowchart_schema = ResponseSchema(name='mermaid_flowchart_code', description='This schema represents the Mermaid flowchart code, designed to generate properly linked nodes that can be rendered by MermaidJS version 8.11.0. The code must be formatted as a valid JSON string, with newline characters replaced by "\\n". All nodes within the code should contain strings to ensure compatibility and avoid issues with special characters.')
+    flowchart_description_schema = ResponseSchema(name='flowchart_code_description', description='This schema provides a description of the flowchart code generated by MermaidJS. It includes details about the structure and relationships of the nodes within the flowchart, as well as any additional information relevant to understanding the flowchart.')
+
+    response_schema = (flowchart_schema,flowchart_description_schema)
+    parser = StructuredOutputParser.from_response_schemas(response_schema)
+    format_instructions = parser.get_format_instructions()
+    
+    example_code=rpg_example3
+    
+    template='''
+    Convert Business Logic to Mermaid Flow chart Diagram of a folder.
+    I want to generate code for Mermaid Flow chart diagram using business logic of a folder and Remember this mermaid class diagram code is used by
+    developers to visualize the folder's code logic. Also give code in correct syntax so that it can be rendered by mermaidjs 8.11.0 . Make sure the
+    blocks are properly linked . Here is also an example how to generate mermaid class diagram using the business logic. and remember also don't give
+    any inital word and sentence like here is mermaid flow chart diagram of this business logic.Mermaid flow chart diagram that visually represents 
+    this logic.The Mermaid flow chart diagram also should visually represent the flow and sequence of the business logic,including key decision points
+    and data dependencies. Ensure that the resulting diagram is comprehensive and self-explanatory. 
+    Follow these steps:
+        1. Review the provided business logic.
+        2. Identify key components, decisions, and flow control in the logic.
+        3. Create a Mermaid flow chart diagram that illustrates the flow of logic, including decisions, loops, and data flow.
+        4. Ensure that the files , databases and other UI elements which might be present are properly shown.
+        5. Ensure the Mermaid flow chartdiagram is clear, well-structured, and accurately represents the business logic.
+        
+    Example:
+    {example_code}
+    
+    Now the User will provide business logic,generate correct and running code for mermaid Flowchart diagram as shown in above example without any 
+    initial text in a JSON format with "mermaid_flowchart_code" as the key and make sure that the blocks areproperly linked in the code.
+    
+    User: {input}
+    Mermaid_Flowchart_Code:
+    {format_instructions}'''
+
+    llm_chain = LLMChain(
+        llm = ChatAnthropic(temperature= 0.8,anthropic_api_key=keys.anthropic_key,model = "claude-2.0",max_tokens_to_sample=100000),
+        prompt=PromptTemplate(input_variables=["input","example_code"],partial_variables={"format_instructions":format_instructions}, template=template),
+        verbose=True,
+    )
+    
+    mermaid_flowchart= llm_chain.predict(input=business_logic,example_code=example_code)
+    result=parser.parse(mermaid_flowchart)
+    return result['mermaid_flowchart_code']
+
 class HigherLevelMermaidFlowchart(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def post(self, request):
-        folder_path = request.data.get('folder_path', '')
         folder_id = request.data.get('id') 
-        mermaid_flowchart = process_folder_mermaid_flowchart(folder_id)
+        folder = FolderUpload.objects.get(folderId=folder_id)
+        
+        # mermaid_flowchart = process_folder_mermaid_flowchart(folder_id)
+        
+        # business_logic= folder.higherlevelbusinesslogic
+        # mermaid_flowchart=higher_level_mermaid_flowchart(business_logic)
+        
+        business_logic= '''Based on the provided inputs, here is a high-level summary of the business logic for the Gau folder:
+
+        The code in this folder relates to an ERP system handling various business functions like inventory management, sales order processing,
+        customer relationship management, and analytics. 
+
+        Key capabilities include:
+        - User and rights management - Adding, editing, deleting user records and access rights
+        - Master data maintenance - Updating inventory item master data, customer master records, partner records
+        - Pricing and discounts - Determining pricing, discounts, and net prices based on complex hierarchical rules and customer attributes 
+        - Order processing - Handling sales document types like quotes, orders, deliveries along with statuses, dates, quantities
+        - Inventory transactions - Posting inventory movements, serial numbers, batches triggered by sales, purchase etc.
+        - Batch management - Controlling, monitoring background jobs and batches
+        - Reporting and analytics - Customer survey analysis, sales analytics, inventory reports
+        - Auditing - Tracking changes to configuration and master data 
+        - System configuration - Managing system parameters, defaults, schemas across various screens
+        The programs leverage physical and logical database files, APIs, data structures, andbuilt-in RPG functions.
+        The code demonstrates common RPG constructs - file I/O, data structures, modular procedures, calculations, branching, looping, error handling. 
+        In summary, the folder contains a range of business logic required in an ERP system, interacting with databases, programs, interfaces and
+        users. The logic covers both transaction processing as well as reporting/analytics capabilities.'''
+            
+        mermaid_flowchart=higher_level_mermaid_flowchart(business_logic)
+        
         print(mermaid_flowchart)
-        return mermaid_flowchart
+        return Response({"response":mermaid_flowchart}, status=200)
 
     
         
@@ -1823,35 +2480,3 @@ class HigherLevelMermaidFlowchart(APIView):
                                                         item,Mermaid_Flowchart)
         
         return mermaid_flowchart
-
-
-class GenerateUUID(APIView):
-    permission_classes = [CustomIsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-    def post(self, request):
-        serializer = ShareCodeSerializer(data=request.data)
-        if serializer.is_valid():
-            folder_structure_id = serializer.validated_data['folder_structure_id']
-            print(folder_structure_id)
-            try:
-                folder_structure = FolderUpload.objects.get(folderId=folder_structure_id, user=request.user)
-                shareable_link, created = ShareCode.objects.get_or_create(folder_structure=folder_structure)
-                return Response({'uuid': shareable_link.uuid}, status=status.HTTP_201_CREATED)
-            except FolderUpload.DoesNotExist:
-                return Response({'error': 'Folder not found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class AccessRepository(APIView):
-    permission_classes = [CustomIsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-    def post(self, request):
-        uuid = request.data.get('uuid')
-        try:
-            shareable_link = ShareCode.objects.get(uuid=uuid)
-            folder_structure = shareable_link.folder_structure
-            if request.user not in shareable_link.users.all():
-                shareable_link.users.add(request.user)
-            return Response({'repository_id': folder_structure.folderId, 'repositoryname': folder_structure.foldername}, status=status.HTTP_200_OK)
-        except ShareCode.DoesNotExist:
-            return Response({'error': 'Repository not found'}, status=status.HTTP_404_NOT_FOUND)
-        

@@ -9,34 +9,34 @@ java_example2='''
         3. If the loop exits without finding the target, return -1 to indicate that the element is not in the array.
     Mermaid_Code=
         classDiagram
-            class "BinarySearch" {{
+            class "BinarySearch" {
                 + binarySearch(arr: array, target: int): int
-            }}
-            class "BinarySearch" {{
+            }
+            class "BinarySearch" {
                 + left: int
                 + right: int
                 + mid: int
                 - binarySearch(arr: array, target: int): int
-            }}
-            class "Array" {{
+            }
+            class "Array" {
                 + length: int
                 + elementAt(index: int): int
-            }}
-            class "Result" {{
+            }
+            class "Result" {
                 + result: int
-            }}
+            }
             "BinarySearch" --|> "Array" : contains
             "BinarySearch" --|> "Result" : returns
             "BinarySearch" : + Initialize left to 0
             "BinarySearch" : + Initialize right to arr.length - 1
             "BinarySearch" : + binarySearch(arr, target)
-            "BinarySearch" : binarySearch(arr, target) {{
+            "BinarySearch" : binarySearch(arr, target) {
                 + Calculate mid as the average of left and right
                 + If elementAt(mid) equals target, return mid
                 + If elementAt(mid) < target, update left to mid + 1
                 + Else, update right to mid - 1
                 + If loop exits without finding target, return -1
-            }}
+            }
             "Array" : + length
             "Array" : + elementAt(index)
             "Result" : + result'''
@@ -53,23 +53,23 @@ python_example2='''
         no valid starting point.
     Mermaid_Code=
         classDiagram
-            class "CircularRouteSolver" {{
+            class "CircularRouteSolver" {
                 +InitializeVariables()
                 +LoopThroughPumps()
                 +CheckCurrentPetrol()
                 +CheckTotalPetrol()
-            }}
+            }
             class "CircularRouteSolver" ..> "PetrolPump" : <<uses>>
-            class "PetrolPump" {{
+            class "PetrolPump" {
                 -calculateSurplusDeficit()
-            }}
+            }
             class "CircularRouteSolver" -- "CircularRouteSolver" : <<calls>>
             "CircularRouteSolver" --|> "Java Code" : <<converts>>
-            class "Java Code" {{
+            class "Java Code" {
                 +int start
                 +int totalPetrol
                 +int currentPetrol
-            }}'''
+            }'''
 
 sql_example2='''
     User=
@@ -82,7 +82,7 @@ sql_example2='''
     Mermaid_Code=
         classDiagram
             classDef table fill:#f9f,stroke:#333,stroke-width:2px;
-            class Products {{
+            class Products {
                 `products`
                 --
                 `product_id: string`
@@ -90,23 +90,23 @@ sql_example2='''
                 `product_category_id: string`
                 `unit_price: decimal`
                 `...other_fields`
-            }}
-            class OrderItems {{
+            }
+            class OrderItems {
                 `order_items`
                 --
                 `order_id: string`
                 `product_id: string`
                 `quantity_sold: int`
                 `...other_fields`
-            }}
-            class ProductCategories {{
+            }
+            class ProductCategories {
                 `product_categories`
                 --
                 `category_id: string`
                 `category_name: string`
                 `...other_fields`
-            }}
-            class Query {{
+            }
+            class Query {
                 `SQL Query`
                 --
                 `SELECT pc.category_name, p.product_name,`
@@ -119,7 +119,7 @@ sql_example2='''
                 `GROUP BY pc.category_name, p.product_name`
                 `HAVING total_revenue > 10000`
                 `ORDER BY pc.category_name ASC, total_revenue DESC`
-            }}
+            }
             Products --> OrderItems : `product_id`
             Products --> ProductCategories : `product_category_id`
             Products ..|> table
@@ -196,14 +196,14 @@ react_example2='''
         value.
     Mermaid_Code=
         classDiagram
-        class Counter {{
+        class Counter {
             - count: Number = 0
             + increment(): void
             + decrement(): void
-        }}
-        class ReactComponent {{
+        }
+        class ReactComponent {
             + render(): JSX
-        }}
+        }
         Counter --|> ReactComponent : extends
 '''
 
@@ -231,13 +231,13 @@ angular_example2='''
         Overall, this Angular component provides a straightforward counter feature, allowing users to see the current count and increment it with a button click.
     Mermaid_Code=
         classDiagram
-        class CounterComponent {{
+        class CounterComponent {
             +count: number
             +incrementCount(): void
-        }}
-        class Angular {{
+        }
+        class Angular {
             +@Component
-        }}
+        }
         CounterComponent --|> Angular'''
 
 rpg_example2='''
@@ -248,25 +248,25 @@ rpg_example2='''
         Finally, the return statement indicates the end of the program.
     Mermaid_Code=
         classDiagram
-            class Families {{
+            class Families {
                 - address: string
                 - numPeople: int
                 - people: People[]
                 + setAddress(address: string)
                 + setNumPeople(numPeople: int)
-            }}
-            class People {{
+            }
+            class People {
                 - name: string
                 - age: int
                 + setName(name: string)
                 + setAge(age: int)
-            }}
-            class Main {{
+            }
+            class Main {
                 - numFamilies: int
                 - i: int
                 - j: int
                 + main()
-            }}
+            }
             Families --> People
             Main --> Families
             Families "1" o-- "*" People : contains'''
@@ -283,17 +283,17 @@ sas_example2='''
         format (bar chart) to facilitate the easy interpretation and analysis of the data's distribution by business stakeholders.  
     Mermaid_Code=
     classDiagram
-    class Category {{
+    class Category {
         - value: string
-    }}
-    class Count {{
+    }
+    class Count {
         - value: number
-    }}
+    }
     Category -- Count : 1..* Contains
-    class BusinessLogic {{
+    class BusinessLogic {
         - description: string
         + generateChart(): void
-    }}
+    }
     Category -- BusinessLogic : 1..1 Has
     Count -- BusinessLogic : 1..1 Has'''
 

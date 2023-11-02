@@ -43,9 +43,9 @@ urlpatterns = [
     path('create-branch/',views.CreateGitHubBranch.as_view(),name='create_branch'),
     path('get-branch/',views.ListBranches.as_view(),name='list_branch'),
     path('git-pull/',views.PullCodeFromGitHub.as_view(),name='git_pull'),
-    path('api/business_logic/<str:folder_path>/', views.HigherLevelBusinessLogic.as_view(), name='business-logic'),
-    path('api/mermaid-diagram/<str:folder_path>/', views.HigherLevelMermaidDiagram.as_view(), name='mermaid_diagram'),
-    path('api/mermaid_flowchart/<str:folder_path>/', views.HigherLevelMermaidFlowchart.as_view(), name='mermaid_flowchart'),
+    path('api/business_logic/', views.HigherLevelBusinessLogic.as_view(), name='business-logic'),
+    path('api/mermaid_diagram/', views.HigherLevelMermaidDiagram.as_view(), name='mermaid_diagram'),
+    path('api/mermaid_flowchart/', views.HigherLevelMermaidFlowchart.as_view(), name='mermaid_flowchart'),
     path('gen-share-code/',views.GenerateUUID.as_view(),name='generate_share_code'),
     path('get-access/',views.AccessRepository.as_view(),name='get_access_to_repository'),
 ]

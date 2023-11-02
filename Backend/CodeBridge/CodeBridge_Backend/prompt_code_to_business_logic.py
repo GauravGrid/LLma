@@ -1,22 +1,22 @@
 java_example1='''   
     User=   
-        public class BinarySearch {{
-                public static int binarySearch(int[] arr, int target) {{
+        public class BinarySearch {
+                public static int binarySearch(int[] arr, int target) {
                     int left = 0;
                     int right = arr.length - 1;
-                    while (left <= right) {{
+                    while (left <= right) {
                         int mid = left + (right - left) / 2;
-                        if (arr[mid] == target) {{
+                        if (arr[mid] == target) {
                             return mid;
-                        }} else if (arr[mid] < target) {{
+                        } else if (arr[mid] < target) {
                             left = mid + 1;
-                        }} else {{
+                        } else {
                             right = mid - 1;
-                        }}
-                    }}
+                        }
+                    }
                     return -1; // Element not found
-                }}
-            }}
+                }
+            }
     Business_Logic=
             1. Initialize two pointers, left and right, to the start and end of the array.
             2. Enter a loop that continues as long as left is less than or equal to right.
@@ -90,50 +90,50 @@ sql_example1='''
 mongodb_example1='''
     User=
         db.orders.aggregate([
-            {{
-                $lookup: {{
+            {
+                $lookup: {
                     from: "products",
                     localField: "product_id",
                     foreignField: "product_id",
                     as: "product"
-                }}
-            }},
-            {{
+                }
+            },
+            {
                 $unwind: "$product"
-            }},
-            {{
-                $lookup: {{
+            },
+            {
+                $lookup: {
                     from: "product_categories",
                     localField: "product.category_id",
                     foreignField: "category_id",
                     as: "category"
-                }}
-            }},
-            {{
+                }
+            },
+            {
                 $unwind: "$category"
-            }},
-            {{
-                $group: {{
-                    _id: {{
+            },
+            {
+                $group: {
+                    _id: {
                         category: "$category.category_name",
                         product: "$product.product_name"
-                    }},
-                    avg_price: {{ $avg: "$unit_price" }},
-                    total_quantity_sold: {{ $sum: "$quantity" }},
-                    total_revenue: {{ $sum: {{ $multiply: ["$unit_price", "$quantity"] }} }}
-                }}
-            }},
-            {{
-                $match: {{
-                    "total_revenue": {{ $gt: 10000 }}
-                }}
-            }},
-            {{
-                $sort: {{
+                    },
+                    avg_price: { $avg: "$unit_price" },
+                    total_quantity_sold: { $sum: "$quantity" },
+                    total_revenue: { $sum: { $multiply: ["$unit_price", "$quantity"] } }
+                }
+            },
+            {
+                $match: {
+                    "total_revenue": { $gt: 10000 }
+                }
+            },
+            {
+                $sort: {
                     "_id.category": 1,
                     "total_revenue": -1
-                }}
-            }}
+                }
+            }
         ])
     Business_Logic=
         The provided code appears to be an aggregation pipeline for querying and aggregating data from a MongoDB database, likely related to orders, products, and product categories.
@@ -155,15 +155,15 @@ mongodb_example1='''
 
 react_example1='''
     User=
-        import React, {{ useState }} from 'react';
-        function Counter() {{
+        import React, { useState } from 'react';
+        function Counter() {
         const [count, setCount] = useState(0);
-        const increment = () => {{
+        const increment = () => {
             setCount(count + 1);
-        }};
-        const decrement = () => {{
+        };
+        const decrement = () => {
             setCount(count - 1);
-        }};
+        };
         return (
             <div>
             <h1>Counter</h1>
@@ -172,7 +172,7 @@ react_example1='''
             <button onClick={decrement}>Decrement</button>
             </div>
         );
-        }}
+        }
         export default Counter;
     Business_Logic=
             The provided React code defines a functional component called `Counter` that implements a simple counter application. The core functionality 
@@ -202,23 +202,23 @@ react_example1='''
 
 angular_example1='''
     User=
-        import {{ Component }} from '@angular/core';
-        @Component({{
+        import { Component } from '@angular/core';
+        @Component({
         selector: 'app-counter',
         template: `
             <div>
-            <p>Count: {{{{ count }}}}</p>
+            <p>Count: {{ count }}</p>
             <button (click)="incrementCount()">Increment</button>
             </div>
         `
-        }})
-        export class CounterComponent {{
+        })
+        export class CounterComponent {
         count: number = 0;
 
-        incrementCount() {{
+        incrementCount() {
             this.count++;
-        }}
-        }}
+        }
+        }
     Business_Logic= 
         Business Logic Extracted from the Angular Code:
         1. Purpose:
@@ -318,6 +318,7 @@ rpg_example11='''
         - Logic:
             - It uses the `%xlate` built-in function to replace lowercase letters with their uppercase counterparts in the input string.
             - The result, which is the input string converted to uppercase, is returned.
+            
         2. toLowercase:
         - Purpose: This procedure is meant to convert a given input string to lowercase.
         - Parameters: 
@@ -326,6 +327,7 @@ rpg_example11='''
             - It also uses the `%xlate` built-in function, but in this case, it replaces uppercase letters with their lowercase counterparts
             in the input string.
             - The result, which is the input string converted to lowercase, is returned.
+            
         3. allocSpace:
         - Purpose: This procedure allocates memory space for a pointer variable.
         - Parameters: 
@@ -439,6 +441,78 @@ Business_Logic=
     50,000.00. It essentially filters and processes employee data based on a salary threshold.The dsply statements are used for informational
     purposes.
 '''
+
+rpg_exampleh='''
+    User=
+       //***********************************************************************
+       ctl-opt nomain option(*srcstmt);
+       dcl-c UPPER 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+       dcl-c LOWER 'abcdefghijklmnopqrstuvwxyz';
+       //***********************************************************************
+       // toUppercase
+       //***********************************************************************
+       dcl-proc toUppercase export;
+         dcl-pi *n varchar(32767);
+           string varchar(32767) const;
+         end-pi;
+         return %xlate(LOWER:UPPER:string);
+       end-proc;
+       //***********************************************************************
+       // toLowercase
+       //***********************************************************************
+       dcl-proc toLowercase export;
+         dcl-pi *n varchar(32767);
+           string varchar(32767) const;
+         end-pi;
+         return %xlate(UPPER:LOWER:string);
+       end-proc;
+       //***********************************************************************
+       // allocSpace
+       //***********************************************************************
+       dcl-proc allocSpace export;
+         dcl-pi *n;
+           ptr pointer;
+           bytes uns(10) const;
+         end-pi;
+         if (ptr = *null);
+           ptr = %alloc(bytes);
+         else;
+           ptr = %realloc(ptr:bytes);
+         endif;
+       end-proc;
+       //***********************************************************************
+       // deallocSpace
+       //***********************************************************************
+       dcl-proc deallocSpace export;
+         dcl-pi *n;
+           ptr pointer;
+         end-pi;
+         if (ptr <> *null);
+           dealloc(n) ptr;
+         endif;
+       end-proc;
+    Business_Logic=
+        The provided source code contains several procedures, each serving a specific purpose. Let's extract and explain the business logic
+        for each of these procedures:
+        
+        1. The "toUppercase" procedure is created to transform an input string into uppercase. It takes a single parameter, "string," which is the string to be converted. 
+           The procedure employs the `%xlate` built-in function to replace lowercase characters in the input string with their uppercase equivalents. The output is the input
+           string in uppercase format, which is then returned.
+        2. The "toLowercase" procedure is designed to transform an input string into lowercase. It accepts a single parameter, "string," which is the string to be converted.
+           The procedure utilizes the `%xlate` built-in function to substitute uppercase characters in the input string with their lowercase equivalents. The output is the
+           input string in lowercase format, which is then returned.
+        3. The "allocSpace" procedure serves the purpose of allocating memory space for a pointer variable. It accepts two parameters: "ptr" (Input/Output), a pointer 
+           variable that may be allocated or reallocated, and "bytes" (Input), an unsigned 10-byte integer specifying the amount of memory to allocate or reallocate. The 
+           procedure first checks whether "ptr" is null (unallocated). If "ptr" is null, it allocates memory space of the specified size ("bytes") and assigns it to "ptr." 
+           If "ptr" is not null, it reallocates memory space to "ptr" with the new size ("bytes"). Memory allocation and reallocation are common operations in low-level 
+           programming for managing dynamic memory usage
+        4. The "deallocSpace" procedure is designed to deallocate memory space for a pointer variable if it is not null. It takes a single parameter, "ptr" (Input), which is 
+           the pointer variable that may be deallocated. The procedure checks whether "ptr" is not null (allocated), and if "ptr" is not null, it proceeds to deallocate the
+           memory associated with "ptr." This procedure is useful for releasing memory resources to prevent memory leaks in low-level programming.
+        
+        The business logic extracted from the provided code encompasses these four procedures, each with its specific functionality. These 
+        procedures can be used in various applications to manipulate strings, allocate and deallocate memory, and perform text case
+        conversions.'''
 
 sas_example1='''
     User=
