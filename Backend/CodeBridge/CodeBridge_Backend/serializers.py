@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,FileUpload,FolderUpload,Logic,JavaCode,MermaidDiagrams,GitHubRepository
+from .models import User,FileUpload,FolderUpload,Logic,JavaCode,MermaidDiagrams,GitHubRepository,HighLevel
 class UserSerializer(serializers.ModelSerializer):
     class Meta : 
         model = User
@@ -44,3 +44,8 @@ class GithubRepositorySerializer(serializers.ModelSerializer):
 
 class ShareCodeSerializer(serializers.Serializer):
     folder_structure_id = serializers.IntegerField()
+
+class HighLevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HighLevel
+        fields = '__all__'
