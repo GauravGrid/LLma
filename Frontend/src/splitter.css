@@ -1,0 +1,146 @@
+.vscDark{
+    color: #d4d4d4;
+	font-size: 13px;
+	text-shadow: none;
+	font-family: Menlo, Monaco, Consolas, "Andale Mono", "Ubuntu Mono", "Courier New", monospace;
+	direction: ltr;
+	text-align: left;
+	word-spacing: normal;
+	word-break: normal;
+	line-height: 1.5;
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+    white-space: pre-wrap ;
+    overflow-wrap: break-word;
+    overflow: auto;
+    overflow-y: scroll;
+
+
+}
+.vscDarkPre{
+    padding: 1em;
+	margin: .5em 0;
+	background: #1e1e1e;
+    overflow: auto;
+    overflow-y: scroll;
+}
+
+
+.fileName{
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	height: 48px;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 1.5;
+	min-width: max-content;
+	margin: 0;
+	padding: 8px 8px;
+	text-align: left;
+	text-transform: uppercase;
+	color: rgba(0, 0, 0, 0.87);
+	background-color: #f5f5f5; 
+	border-bottom: 2px solid #1976d2; 
+	transition: color 0.2s ease-out, background-color 0.2s ease-out;
+	/* cursor: pointer; */
+}
+
+.utility-icons{
+	-webkit-text-stroke: 2px black !important;
+	filter: drop-shadow(2em 2em 2em #1e1e1e) !important;
+	color: #FFF;
+	margin-top: 5px;
+}
+
+.customDivider {
+	background-color: #42a5f5;
+	height: 1.5px;
+  }
+
+
+  .generate_container {
+	margin-right: 2rem;
+	margin-bottom: 1.5rem;
+	color: #FFF;
+	display: flex;       /* Use Flexbox to make children inline */
+	align-items: center; /* Vertically center children */
+  }
+  
+.generate_container-label {
+
+	margin-right: 10px; 
+}
+  
+.generate_container-select-container {
+	color: #1e1e1e;
+	display: flex;       
+	align-items: center; 
+}
+  
+  
+  .generate_container-select-container select {
+	margin-right: 10px;
+  }
+  
+.to {
+	margin-right: 10px; 
+	color: white;
+}
+  
+.status-bar {
+	
+	position: absolute;
+	width:85%;
+	height: 6%;
+
+	bottom: 0;
+	background-color: black;
+}
+.git-bar{
+	display: flex;
+	width:100%;
+	height: 100%;
+	padding: 0px 40px;
+	align-items: center;
+	justify-content: space-between;
+	gap: 50px;
+	flex-shrink: 0;
+	background-color: #2B3140;
+}
+.git-bar-left{
+	display: flex;
+	height: 100%;
+	align-items: center;
+	padding: 0px 40px;
+	gap: 50px;
+	flex-shrink: 0;
+}
+.select{
+	display: flex;
+	width: 220px;
+	height: 40px;
+	padding: var(--none, 0px);
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--none, 0px);
+	flex-shrink: 0;
+}
+
+.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input{
+	padding: 9px 14px !important;
+}
+
+.modal-content{
+	height: 50%;
+	width: 45%;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+}
