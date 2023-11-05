@@ -12,6 +12,9 @@ from .prompt_business_logic_to_mermaid_diagram import java_example2,python_examp
 from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3
 from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4
 import keys
+from langchain.prompts import ChatPromptTemplate
+
+
 
 
 # ChatAnthropic.api_key=keys.anthropic_key
@@ -42,7 +45,7 @@ def code_to_business_logic(code,source):
     elif(source.lower()=="react"):
         example_code=react_example1
     elif(source.lower()=="rpg"):
-        example_code=rpg_example12
+        example_code=rpg_example11
     elif(source.lower()=="sas"):
         example_code=sas_example1
     elif(source.lower()=="dspfr"):
@@ -51,15 +54,86 @@ def code_to_business_logic(code,source):
         example_code=dspf_examplea1
     elif(source.lower()=="assembly"):
         example_code=assembly_example1
+
     
-    template='''Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
-    understandable business logic. If the destinationiables in the code have values relevant to the business logic, please include them.I am interested 
+
+
+    
+    # step_back_prompt ='''
+    # You are an expert at world knowledge. Your task is to step back and paraphrase a question to a more generic step-back question, which is easier to answer. 
+    # Here are a few examples:
+    # Example 1:
+    # user : Could the members of The Police perform lawful arrests?    
+    # ai : what can the members of The Police do?
+    # Example 2: 
+    # user : Jan Sindel's was born in what country?
+    # ai : what is Jan Sindel's personal history?
+    
+    # # New question
+    # user : Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
+    # understandable business logic. If the variables in the code have values relevant to the business logic, please include them.I am interested 
+    # solely in the business logic and do not require introductory statements such as 'Here is the business logic extracted from this code.'
+    # Your task also involves analyzing the code, identifying its core functionality, and presenting this functionality clearly and concisely. 
+    # Ensure that the extracted business logic is well-documented.
+    # This process involves multiple steps:
+    # 1.Analyze the provided {source} code to comprehend its purpose.
+    # 2.Identify and abstract the key functional logic of the {source} code.
+    # 3.Express this logic in a high-level, language-agnostic format.
+    # 4.Identify the type of code and if there is any database, other files or ui interaction.
+    # 5.Any important information about the file structure should be identified and added to the interactions. 
+    # 6.Please specify these interactions towards the end of the generated response in a well formatted manner.
+    # 7.Be as verbose as needed.
+    # Make sure that the output provides a clear and concise representation of the business logic within the {source} code. If the {source} code is complex,
+    # please include comments or explanations to clarify the logic.I am providing an example how to generate business logic 
+    # using the {source} code as shown in the following example.
+    
+    # Example:
+    # {example_code}
+    
+    # Now the User will provide {source} code, please generate correct buisness logic as shown in above example.
+    # Share business logic and related files like database , ui and other files as part of the response.
+    # user: {input}
+    # Business_Logic:
+    # ai :
+    # '''
+    
+    # question = f'''
+    # Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
+    # understandable business logic. If the variables in the code have values relevant to the business logic, please include them.I am interested 
+    # solely in the business logic and do not require introductory statements such as 'Here is the business logic extracted from this code.'
+    # Your task also involves analyzing the code, identifying its core functionality, and presenting this functionality clearly and concisely. 
+    # Ensure that the extracted business logic is well-documented.
+    # This process involves multiple steps:
+    # 1.Analyze the provided {source} code to comprehend its purpose.
+    # 2.Identify and abstract the key algorithmic steps and logic used in the {source} code.
+    # 3.Express this logic in a high-level, language-agnostic format.
+    # 4.Identify the type of code and if there is any database, other files or ui interaction.
+    # 5.Any important information about the file structure should be identified and added to the interactions. 
+    # 6.Please specify these interactions towards the end of the generated response in a well formatted manner.
+    # 7.Be as verbose as needed.
+    # Make sure that the output provides a clear and concise representation of the business logic within the {source} code. If the {source} code is complex,
+    # please include comments or explanations to clarify the logic.
+
+    
+    # '''
+
+    # step_back_chain = LLMChain(
+    #     llm = ChatAnthropic(temperature= 0,anthropic_api_key=keys.anthropic_key,model = "claude-2.0"),
+    #     prompt=PromptTemplate(input_variables=["input,source,example_code,"], template=step_back_prompt),
+    #     verbose=True,
+    # )
+    # step_back_question = step_back_chain.predict(input=code,source=source,example_code=example_code)
+    # print(step_back_question)
+
+    template='''
+    Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
+    understandable business logic. If the variables in the code have values relevant to the business logic, please include them.I am interested 
     solely in the business logic and do not require introductory statements such as 'Here is the business logic extracted from this code.'
     Your task also involves analyzing the code, identifying its core functionality, and presenting this functionality clearly and concisely. 
     Ensure that the extracted business logic is well-documented.
     This process involves multiple steps:
     1.Analyze the provided {source} code to comprehend its purpose.
-    2.Identify and abstract the key algorithmic steps and logic used in the {source} code.
+    2.Identify and abstract the key functional logic of the {source} code.
     3.Express this logic in a high-level, language-agnostic format.
     4.Identify the type of code and if there is any database, other files or ui interaction.
     5.Any important information about the file structure should be identified and added to the interactions. 
@@ -74,7 +148,10 @@ def code_to_business_logic(code,source):
     
     Now the User will provide {source} code, please generate correct buisness logic as shown in above example.
     Share business logic and related files like database , ui and other files as part of the response.
-    User: {input}
+
+    Take a deep breath and think step by step to solve this task.
+
+    user: {input}
     Business_Logic:
     '''
 
