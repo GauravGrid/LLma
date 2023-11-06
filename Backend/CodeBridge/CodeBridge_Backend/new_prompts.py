@@ -585,7 +585,10 @@ def business_logic_to_code(logic,source, destination,srccode):
         7. Make smart assumptions of the file structure in order to output more complete code.
         8. Do not return any TODOs and actually write code based on assumptions.
         9. Return all the methods created in a comment.
-
+    
+    In the business logic, there is a mention of the data definition language used in the database file for {destination} language code. This 
+    DDL is also used to convert the business logic into {destination} language code.
+    
     Please ensure that the generated {destination} code is well-commented and adheres to best practices for readability and functionality.
     I am providing an example how to generate {destination} code using the business logic of {source} code as shown in the following example.
 
