@@ -1526,7 +1526,11 @@ def process_folder_business_logic(parent_folder_id):
         
         files = FileUpload.objects.filter(parentFolder=folder)
         for file in files:
-            file_logic = file_business_logic(file.file)
+            existing_logic = Logic.objects.get(file=file)
+            if existing_logic:
+                file_logic = existing_logic.logic
+            else:
+                file_logic = file_business_logic(file.file)
             folder_business_logic_dict[file.filename] = file_logic
 
         subfolders = FolderUpload.objects.filter(parentFolder=folder)
