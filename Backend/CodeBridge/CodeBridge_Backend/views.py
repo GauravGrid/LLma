@@ -1589,28 +1589,28 @@ class HigherLevelBusinessLogic(APIView):
     
 # Higher Level Mermaid Diagram
 
-def process_folder_mermaid_diagram(folder_id):
+# def process_folder_mermaid_diagram(folder_id):
     
-    folder = FolderUpload.objects.get(folderId=folder_id)
+#     folder = FolderUpload.objects.get(folderId=folder_id)
 
-    mermaid_diagram = ""
+#     mermaid_diagram = ""
     
-    folder_name = folder.foldername
+#     folder_name = folder.foldername
     
-    folder_structure = get_folder_structure(folder_id)
+#     folder_structure = get_folder_structure(folder_id)
 
-    subfolders = FolderUpload.objects.filter(parentFolder=folder)
-    files = FileUpload.objects.filter(parentFolder=folder)
+#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
+#     files = FileUpload.objects.filter(parentFolder=folder)
     
-    for subfolder in subfolders:
-        subfolder_mermaid_diagram = process_folder_mermaid_diagram(subfolder.folderId)
-        mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, subfolder.foldername, subfolder_mermaid_diagram)
+#     for subfolder in subfolders:
+#         subfolder_mermaid_diagram = process_folder_mermaid_diagram(subfolder.folderId)
+#         mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, subfolder.foldername, subfolder_mermaid_diagram)
 
-    for file in files:
-        file_mermaid_diagram_result = file_mermaid_diagram(file.file)
-        mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, file.filename, file_mermaid_diagram_result)
+#     for file in files:
+#         file_mermaid_diagram_result = file_mermaid_diagram(file.file)
+#         mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, file.filename, file_mermaid_diagram_result)
 
-    return mermaid_diagram
+#     return mermaid_diagram
 
 def higher_level_mermaid_diagram(business_logic):
     
@@ -1751,28 +1751,28 @@ class HigherLevelMermaidDiagram(APIView):
 
 # Higher Level Mermaid Flowchart    
   
-def process_folder_mermaid_flowchart(folder_id):
+# def process_folder_mermaid_flowchart(folder_id):
     
-    folder = FolderUpload.objects.get(folderId=folder_id)
+#     folder = FolderUpload.objects.get(folderId=folder_id)
 
-    mermaid_flowchart = ""
+#     mermaid_flowchart = ""
     
-    folder_name = folder.foldername
+#     folder_name = folder.foldername
     
-    folder_structure = get_folder_structure(folder_id)
+#     folder_structure = get_folder_structure(folder_id)
 
-    subfolders = FolderUpload.objects.filter(parentFolder=folder)
-    files = FileUpload.objects.filter(parentFolder=folder)
+#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
+#     files = FileUpload.objects.filter(parentFolder=folder)
     
-    for subfolder in subfolders:
-        subfolder_mermaid_flowchart = process_folder_mermaid_flowchart(subfolder.folderId)
-        mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, subfolder.foldername, subfolder_mermaid_flowchart)
+#     for subfolder in subfolders:
+#         subfolder_mermaid_flowchart = process_folder_mermaid_flowchart(subfolder.folderId)
+#         mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, subfolder.foldername, subfolder_mermaid_flowchart)
 
-    for file in files:
-        file_mermaid_flowchart_result = file_mermaid_flowchart(file.file)
-        mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, file.filename, file_mermaid_flowchart_result)
+#     for file in files:
+#         file_mermaid_flowchart_result = file_mermaid_flowchart(file.file)
+#         mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, file.filename, file_mermaid_flowchart_result)
 
-    return mermaid_flowchart
+#     return mermaid_flowchart
 
 def higher_level_mermaid_flowchart(business_logic):
     
