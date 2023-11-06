@@ -1,6 +1,5 @@
 import os
 from pydantic import BaseModel
-from langchain import LLMChain, PromptTemplate
 from langchain.chat_models import ChatAnthropic,ChatOpenAI
 from langchain.output_parsers import StructuredOutputParser,ResponseSchema
 from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1,assembly_example1
@@ -12,7 +11,12 @@ from .prompt_business_logic_to_mermaid_diagram import java_example2,python_examp
 from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3
 from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4
 import keys
-# from .hugging import updated_business_logic
+from langchain.prompts import ChatPromptTemplate
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+
+
+
 
 
 # ChatAnthropic.api_key=keys.anthropic_key
@@ -23,12 +27,8 @@ class LLM(BaseModel):
 
 extensions = ['.rpgle', '.sqlrpgle', '.clle', '.RPGLE', '.SQLRPGLE', '.CLLE','.py','.java','.jsx','.tsx','.js','.ts','.sql','.PY','.JAVA','.JSX','.TSX','.JS','.TS','.SQL','.sas','.SAS']
 
-from pydantic import BaseModel
-from langchain import LLMChain
-from langchain.chat_models import ChatAnthropic
 from typing import List
 from langchain.output_parsers import PydanticOutputParser
-from langchain.prompts import PromptTemplate
 from langchain.pydantic_v1 import BaseModel, Field
 from sentence_transformers import SentenceTransformer, util
 
@@ -53,7 +53,7 @@ def get_file_name(business_logic):
     '''
     
     llm_chain = LLMChain(
-        llm = ChatAnthropic(temperature= 0.8,anthropic_api_key = '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', model = "claude-2.0", max_tokens_to_sample=100000),
+        llm = ChatAnthropic(temperature= 0.8,anthropic_api_key = keys.anthropic_key, model = "claude-2.0", max_tokens_to_sample=100000),
         prompt=PromptTemplate(input_variables=["business_logic"],partial_variables={"format_instructions":parser.get_format_instructions()}, template=template),
         verbose=True,
     )
@@ -64,7 +64,7 @@ def get_file_name(business_logic):
     files = [file.strip(' "\n') for file in schema_str[start_index:end_index].split(',')]
     print(files)
     
-    dblist=['HSHI12PF', 'RABSTAR', 'AUFSTAR', 'HSKUIPR', 'HSRAZPR','AUFSTAM','RABSTAM','ERLSTAM',"ESZPF",'HSESZPF']
+    dblist=['HSHI12PF', 'RABSTAR', 'AUFSTAR', 'HSKUIPR', 'HSRAZPR','AUFSTAM','RABSTAM','ERLSTAM',"ESZPF",'HSESZPF','TEISTAM','HSPMSL1','HSATBPF','HSPSTLF7','HSBTSLF1','BELSTAM','NUMSTAM']
     
     new_files=[]
     for file_name in files:
@@ -296,14 +296,289 @@ def updated_business_logic(business_logic):
                     CREATE INDEX HSPSTPF ON HDLDKM.HSPSTPF (PST000,PST010,PST020,PST030,PST060,PST070,PST090,PST100);
     '''
 
-    # S27='The Schema of the database file name SATA00/HSPSTPF is SATA00/HSPSTPF'
+    S27='''The data defination language of the database file name TEISTAM is 
+            -- HDLDKW.TEISTAM definition
 
+-- Drop table
 
-    Schema=[S7,S8,S16,S17,S18,S19,S20,S26]
+-- DROP TABLE HDLDKW.TEISTAM;
+
+CREATE TABLE HDLDKW.TEISTAM (
+	TEI010 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI020 CHAR(14) DEFAULT ' ' NOT NULL,
+	TEI030 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI035 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI040 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI050 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI060 CHAR(22) DEFAULT ' ' NOT NULL,
+	TEI070 DECIMAL(5,0) DEFAULT 0 NOT NULL,
+	TEI080 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI090 CHAR(6) DEFAULT ' ' NOT NULL,
+	TEI095 CHAR(8) DEFAULT ' ' NOT NULL,
+	TEI100 CHAR(2) DEFAULT ' ' NOT NULL,
+	TEI110 CHAR(4) DEFAULT ' ' NOT NULL,
+	TEI120 CHAR(3) DEFAULT ' ' NOT NULL,
+	TEI130 CHAR(6) DEFAULT ' ' NOT NULL,
+	TEI135 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI140 CHAR(14) DEFAULT ' ' NOT NULL,
+	TEI150 CHAR(8) DEFAULT ' ' NOT NULL,
+	TEI160 CHAR(12) DEFAULT ' ' NOT NULL,
+	TEI170 DECIMAL(7,2) DEFAULT 0 NOT NULL,
+	TEI180 DECIMAL(3,0) DEFAULT 0 NOT NULL,
+	TEI185 DECIMAL(3,0) DEFAULT 0 NOT NULL,
+	TEI190 DECIMAL(7,2) DEFAULT 0 NOT NULL,
+	TEI195 DECIMAL(7,2) DEFAULT 0 NOT NULL,
+	TEI200 DECIMAL(7,2) DEFAULT 0 NOT NULL,
+	TEI205 DECIMAL(7,2) DEFAULT 0 NOT NULL,
+	TEI210 DECIMAL(7,2) DEFAULT 0 NOT NULL,
+	TEI220 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI230 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI240 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI250 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI260 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI270 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI275 CHAR(2) DEFAULT ' ' NOT NULL,
+	TEI280 CHAR(8) DEFAULT ' ' NOT NULL,
+	TEI290 CHAR(8) DEFAULT ' ' NOT NULL,
+	TEI300 CHAR(8) DEFAULT ' ' NOT NULL,
+	TEI310 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI320 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI330 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI340 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI350 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI360 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI370 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI380 CHAR(6) DEFAULT ' ' NOT NULL,
+	TEI390 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI400 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI410 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI420 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI430 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI440 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI450 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI460 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI470 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI480 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI490 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI500 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI510 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI520 CHAR(9) DEFAULT ' ' NOT NULL,
+	TEI530 CHAR(8) DEFAULT ' ' NOT NULL,
+	TEI540 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI550 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI560 CHAR(6) DEFAULT ' ' NOT NULL,
+	TEI570 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI580 CHAR(6) DEFAULT ' ' NOT NULL,
+	TEI590 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI600 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI610 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI620 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI630 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI640 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI650 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI660 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI670 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI680 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI690 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI700 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI710 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI720 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	TEI800 CHAR(2) DEFAULT ' ' NOT NULL,
+	TEI810 CHAR(18) DEFAULT ' ' NOT NULL,
+	TEI820 CHAR(5) DEFAULT ' ' NOT NULL,
+	TEI830 CHAR(4) DEFAULT ' ' NOT NULL,
+	TEI840 CHAR(2) DEFAULT ' ' NOT NULL,
+	TEI850 CHAR(3) DEFAULT ' ' NOT NULL,
+	TEI860 CHAR(2) DEFAULT ' ' NOT NULL,
+	TEI870 DECIMAL(7,3) DEFAULT 0 NOT NULL,
+	TEI880 CHAR(2) DEFAULT ' ' NOT NULL,
+	TEI890 CHAR(11) DEFAULT ' ' NOT NULL,
+	TEI900 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI910 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI920 CHAR(2) DEFAULT ' ' NOT NULL,
+	TEI930 CHAR(2) DEFAULT ' ' NOT NULL,
+	TEI940 CHAR(3) DEFAULT ' ' NOT NULL,
+	TEI950 CHAR(1) DEFAULT ' ' NOT NULL,
+	TEI960 CHAR(4) DEFAULT ' ' NOT NULL
+);
+CREATE UNIQUE INDEX TEISTAM ON HDLDKW.TEISTAM (TEI010,TEI020);
+CREATE INDEX TEISTLF1 ON HDLDKW.TEISTAM (TEI010,TEI020);
+CREATE INDEX TEISTLF2 ON HDLDKW.TEISTAM (TEI090,TEI010,TEI020);
+CREATE INDEX TEISTLF3 ON HDLDKW.TEISTAM (TEI010,TEI020);
+CREATE INDEX TEISTLF4 ON HDLDKW.TEISTAM (TEI060,TEI010,TEI020);
+CREATE INDEX TEISTLF5 ON HDLDKW.TEISTAM (TEI520);
+CREATE INDEX TEISTLF6 ON HDLDKW.TEISTAM (TEI020,TEI010);
+CREATE INDEX TEISTLF8 ON HDLDKW.TEISTAM (TEI090,TEI120,TEI010,TEI020);
+CREATE INDEX TEISTLFPW ON HDLDKW.TEISTAM (TEI090,TEI010,TEI020);
+    '''
+    S28='''The data defination language of the database file name HSPMSL1 is 
+            -- HDLZENTRAL.HSPMSL1 definition
+
+-- Drop table
+
+-- DROP TABLE HDLZENTRAL.HSPMSL1;
+
+CREATE TABLE HDLZENTRAL.HSPMSL1 (
+	PMS_LAND CHAR(3) NOT NULL,
+	PMS_CDC CHAR(2) NOT NULL,
+	PMS_OTP CHAR(2) NOT NULL,
+	PMS_FRAN CHAR(2) NOT NULL,
+	PMS_PART CHAR(18) NOT NULL,
+	PMS_FCODE CHAR(1) NOT NULL,
+	PMS_DCPRT CHAR(1) NOT NULL,
+	PMS_DESC CHAR(15) NOT NULL,
+	PMS_DESC2 CHAR(15) NOT NULL,
+	PMS_PARTM CHAR(18) NOT NULL,
+	PMS_RET1 DECIMAL(11,2) NOT NULL,
+	PMS_FPGRP CHAR(5) NOT NULL,
+	PMS_PAG CHAR(4) NOT NULL,
+	PMS_ARTGP CHAR(2) NOT NULL,
+	PMS_DIS CHAR(3) NOT NULL,
+	PMS_DISA CHAR(3) NOT NULL,
+	PMS_FPRCD CHAR(2) NOT NULL,
+	PMS_SUPP CHAR(10) NOT NULL,
+	PMS_WGT DECIMAL(7,3) NOT NULL,
+	PMS_PACK DECIMAL(5,0) NOT NULL,
+	PMS_COR CHAR(2) NOT NULL,
+	PMS_DTYC CHAR(11) NOT NULL,
+	PMS_COCCD CHAR(1) NOT NULL,
+	PMS_DSMC CHAR(1) NOT NULL,
+	PMS_ASGRP CHAR(2) NOT NULL,
+	PMS_NFRN CHAR(2) NOT NULL,
+	PMS_NPRT CHAR(18) NOT NULL,
+	PMS_NFKZ CHAR(1) NOT NULL,
+	PMS_NTNR CHAR(14) NOT NULL,
+	PMS_DRAT DECIMAL(5,2) NOT NULL,
+	PMS_PPRCN DECIMAL(7,2) NOT NULL,
+	PMS_FKZ CHAR(1) NOT NULL,
+	PMS_TNR CHAR(14) NOT NULL,
+	PMS_EC CHAR(2) NOT NULL,
+	PMS_AT CHAR(1) NOT NULL,
+	PMS_PRD CHAR(2) NOT NULL,
+	PMS_NDAT CHAR(8) NOT NULL,
+	PMS_NUHR CHAR(6) NOT NULL,
+	PMS_ADAT CHAR(8) NOT NULL,
+	PMS_AUHR CHAR(6) NOT NULL
+);
+    '''
+    S29='''The data defination language of the database file name HSATBPF is 
+            -- HDLDKW.HSATBPF definition
+
+-- Drop table
+
+-- DROP TABLE HDLDKW.HSATBPF;
+
+CREATE TABLE HDLDKW.HSATBPF (
+	ATB010 CHAR(5) DEFAULT ' ' NOT NULL,
+	ATB020 CHAR(14) DEFAULT ' ' NOT NULL,
+	ATB030 DECIMAL(5,0) DEFAULT 0 NOT NULL,
+	ATB040 CHAR(1) DEFAULT ' ' NOT NULL,
+	ATB050 CHAR(1) DEFAULT ' ' NOT NULL,
+	ATB060 CHAR(8) DEFAULT ' ' NOT NULL
+);
+CREATE UNIQUE INDEX HSATBPF ON HDLDKW.HSATBPF (ATB010,ATB020);
+    '''
+    S30='''The data defination language of the database file name HSPSTLF7 is 
+            -- HDLDKW.HSPSTLF7 definition
+
+-- Drop table
+
+-- DROP TABLE HDLDKW.HSPSTLF7;
+
+CREATE TABLE HDLDKW.HSPSTLF7 (
+	PST000 CHAR(3) NOT NULL,
+	PST010 CHAR(6) NOT NULL,
+	PST020 CHAR(1) NOT NULL,
+	PST030 CHAR(14) NOT NULL,
+	PST040 DECIMAL(7,2) NOT NULL,
+	PST050 CHAR(1) NOT NULL,
+	PST060 CHAR(3) NOT NULL,
+	PST070 CHAR(7) NOT NULL,
+	PST071 CHAR(1) NOT NULL,
+	PST072 CHAR(2) NOT NULL,
+	PST073 CHAR(2) NOT NULL,
+	PST079 DECIMAL(5,2) NOT NULL,
+	PST080 DECIMAL(5,2) NOT NULL,
+	PST081 DECIMAL(5,0) NOT NULL,
+	PST082 DECIMAL(5,2) NOT NULL,
+	PST083 DECIMAL(5,0) NOT NULL,
+	PST084 DECIMAL(5,2) NOT NULL,
+	PST085 DECIMAL(5,0) NOT NULL,
+	PST086 DECIMAL(5,2) NOT NULL,
+	PST090 CHAR(8) NOT NULL,
+	PST100 CHAR(8) NOT NULL,
+	PST107 CHAR(50) NOT NULL,
+	PST108 CHAR(50) NOT NULL,
+	PST110 CHAR(10) NOT NULL,
+	PST120 CHAR(10) NOT NULL,
+	PST130 CHAR(8) NOT NULL,
+	PST140 CHAR(6) NOT NULL,
+	PST150 CHAR(10) NOT NULL,
+	PST160 CHAR(10) NOT NULL,
+	PST170 CHAR(8) NOT NULL,
+	PST180 CHAR(6) NOT NULL,
+	PST190 CHAR(1) NOT NULL
+);
+    '''
+    S31='''The data defination language of the database file name HSBTSLF1 is 
+            -- HDLZENTRAL.HSBTSLF1 definition
+
+-- Drop table
+
+-- DROP TABLE HDLZENTRAL.HSBTSLF1;
+
+CREATE TABLE HDLZENTRAL.HSBTSLF1 (
+	BTS010 CHAR(3) NOT NULL,
+	BTS020 CHAR(3) NOT NULL,
+	BTS030 DECIMAL(3,0) NOT NULL,
+	BTS040 CHAR(30) NOT NULL,
+	BTS050 CHAR(10) NOT NULL,
+	BTS060 CHAR(10) NOT NULL
+);
+    '''
+    S32='''The data defination language of the database file name BELSTAM is 
+            -- HDLDKW.BELSTAM definition
+
+-- Drop table
+
+-- DROP TABLE HDLDKW.BELSTAM;
+
+CREATE TABLE HDLDKW.BELSTAM (
+	BEL010 CHAR(6) DEFAULT ' ' NOT NULL,
+	BEL020 CHAR(40) DEFAULT ' ' NOT NULL,
+	BEL030 CHAR(2) DEFAULT ' ' NOT NULL,
+	BEL040 CHAR(1) DEFAULT ' ' NOT NULL,
+	BEL050 CHAR(3) DEFAULT ' ' NOT NULL,
+	BEL060 CHAR(1) DEFAULT ' ' NOT NULL,
+	BEL070 CHAR(8) DEFAULT ' ' NOT NULL,
+	BEL080 DECIMAL(7,2) DEFAULT 0 NOT NULL,
+	BEL090 CHAR(10) DEFAULT ' ' NOT NULL,
+	BEL100 CHAR(2) DEFAULT ' ' NOT NULL,
+	BEL110 CHAR(1) DEFAULT ' ' NOT NULL
+);
+CREATE UNIQUE INDEX BELSTAM ON HDLDKW.BELSTAM (BEL010);
+    '''
+    S33='''The data defination language of the database file name NUMSTAM is 
+            -- HDLDKW.NUMSTAM definition
+
+-- Drop table
+
+-- DROP TABLE HDLDKW.NUMSTAM;
+
+CREATE TABLE HDLDKW.NUMSTAM (
+	NUM010 CHAR(2) DEFAULT ' ' NOT NULL,
+	NUM020 DECIMAL(7,0) DEFAULT 0 NOT NULL,
+	NUM030 CHAR(1) DEFAULT ' ' NOT NULL,
+	NUM040 CHAR(8) DEFAULT ' ' NOT NULL,
+	NUM050 DECIMAL(9,0) DEFAULT 0 NOT NULL
+);
+CREATE UNIQUE INDEX NUMSTAM ON HDLDKW.NUMSTAM (NUM010);
+    '''
+
+    Schema=[S7,S8,S16,S17,S18,S19,S20,S26,S27,S28,S29,S30,S31,S32,S33]
 
     model = SentenceTransformer("flax-sentence-embeddings/st-codesearch-distilroberta-base")
 
-    # Encode our Schmea into the vector space
     code_emb = model.encode(Schema, convert_to_tensor=True)
 
     for file_name in file:
@@ -346,7 +621,7 @@ def code_to_business_logic(code,source):
     elif(source.lower()=="react"):
         example_code=react_example1
     elif(source.lower()=="rpg"):
-        example_code=rpg_example12
+        example_code=rpg_example11
     elif(source.lower()=="sas"):
         example_code=sas_example1
     elif(source.lower()=="dspfr"):
@@ -355,15 +630,86 @@ def code_to_business_logic(code,source):
         example_code=dspf_examplea1
     elif(source.lower()=="assembly"):
         example_code=assembly_example1
+
     
-    template='''Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
-    understandable business logic. If the destinationiables in the code have values relevant to the business logic, please include them.I am interested 
+
+
+    
+    # step_back_prompt ='''
+    # You are an expert at world knowledge. Your task is to step back and paraphrase a question to a more generic step-back question, which is easier to answer. 
+    # Here are a few examples:
+    # Example 1:
+    # user : Could the members of The Police perform lawful arrests?    
+    # ai : what can the members of The Police do?
+    # Example 2: 
+    # user : Jan Sindel's was born in what country?
+    # ai : what is Jan Sindel's personal history?
+    
+    # # New question
+    # user : Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
+    # understandable business logic. If the variables in the code have values relevant to the business logic, please include them.I am interested 
+    # solely in the business logic and do not require introductory statements such as 'Here is the business logic extracted from this code.'
+    # Your task also involves analyzing the code, identifying its core functionality, and presenting this functionality clearly and concisely. 
+    # Ensure that the extracted business logic is well-documented.
+    # This process involves multiple steps:
+    # 1.Analyze the provided {source} code to comprehend its purpose.
+    # 2.Identify and abstract the key functional logic of the {source} code.
+    # 3.Express this logic in a high-level, language-agnostic format.
+    # 4.Identify the type of code and if there is any database, other files or ui interaction.
+    # 5.Any important information about the file structure should be identified and added to the interactions. 
+    # 6.Please specify these interactions towards the end of the generated response in a well formatted manner.
+    # 7.Be as verbose as needed.
+    # Make sure that the output provides a clear and concise representation of the business logic within the {source} code. If the {source} code is complex,
+    # please include comments or explanations to clarify the logic.I am providing an example how to generate business logic 
+    # using the {source} code as shown in the following example.
+    
+    # Example:
+    # {example_code}
+    
+    # Now the User will provide {source} code, please generate correct buisness logic as shown in above example.
+    # Share business logic and related files like database , ui and other files as part of the response.
+    # user: {input}
+    # Business_Logic:
+    # ai :
+    # '''
+    
+    # question = f'''
+    # Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
+    # understandable business logic. If the variables in the code have values relevant to the business logic, please include them.I am interested 
+    # solely in the business logic and do not require introductory statements such as 'Here is the business logic extracted from this code.'
+    # Your task also involves analyzing the code, identifying its core functionality, and presenting this functionality clearly and concisely. 
+    # Ensure that the extracted business logic is well-documented.
+    # This process involves multiple steps:
+    # 1.Analyze the provided {source} code to comprehend its purpose.
+    # 2.Identify and abstract the key algorithmic steps and logic used in the {source} code.
+    # 3.Express this logic in a high-level, language-agnostic format.
+    # 4.Identify the type of code and if there is any database, other files or ui interaction.
+    # 5.Any important information about the file structure should be identified and added to the interactions. 
+    # 6.Please specify these interactions towards the end of the generated response in a well formatted manner.
+    # 7.Be as verbose as needed.
+    # Make sure that the output provides a clear and concise representation of the business logic within the {source} code. If the {source} code is complex,
+    # please include comments or explanations to clarify the logic.
+
+    
+    # '''
+
+    # step_back_chain = LLMChain(
+    #     llm = ChatAnthropic(temperature= 0,anthropic_api_key=keys.anthropic_key,model = "claude-2.0"),
+    #     prompt=PromptTemplate(input_variables=["input,source,example_code,"], template=step_back_prompt),
+    #     verbose=True,
+    # )
+    # step_back_question = step_back_chain.predict(input=code,source=source,example_code=example_code)
+    # print(step_back_question)
+
+    template='''
+    Pretend to be an expert in {source} code and provide a comprehensive explanation of the user-provided {source} code, converting it into
+    understandable business logic. If the variables in the code have values relevant to the business logic, please include them.I am interested 
     solely in the business logic and do not require introductory statements such as 'Here is the business logic extracted from this code.'
     Your task also involves analyzing the code, identifying its core functionality, and presenting this functionality clearly and concisely. 
     Ensure that the extracted business logic is well-documented.
     This process involves multiple steps:
     1.Analyze the provided {source} code to comprehend its purpose.
-    2.Identify and abstract the key algorithmic steps and logic used in the {source} code.
+    2.Identify and abstract the key functional logic of the {source} code.
     3.Express this logic in a high-level, language-agnostic format.
     4.Identify the type of code and if there is any database, other files or ui interaction.
     5.Any important information about the file structure should be identified and added to the interactions. 
@@ -378,7 +724,10 @@ def code_to_business_logic(code,source):
     
     Now the User will provide {source} code, please generate correct buisness logic as shown in above example.
     Share business logic and related files like database , ui and other files as part of the response.
-    User: {input}
+
+    Take a deep breath and think step by step to solve this task.
+
+    user: {input}
     Business_Logic:
     '''
 

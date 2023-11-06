@@ -1,0 +1,109 @@
+The Test 2 folder contains RPG programs and data files related to an HR/payroll system. Key capabilities include:
+
+User Management
+- Maintain user records in physical file HSAMNPR (keys: user ID, personnel no)  
+- Functions to add, edit, delete, copy, display users
+- Validate required fields on add/edit 
+- Allow adding user to all users or one personnel no
+- Display users in subfile on screen
+
+Job Configuration
+- Store job-specific settings in HSHSSPF file (keys: short code, param type, user, flag type)
+- Read/update job settings by passing key fields 
+- Add new records if not found
+- Blank fields before writing
+
+Batch Processing
+- Program to clean up job status records
+   - Read HSHSSPF file 
+   - Delete matching records from HSHSSPR where status = 'M'
+
+Reporting
+- Program to sum order line amounts
+   - Read order details from AUFWAR
+   - Sum amount field for given order/plant/week/split
+   - Return total sum amount
+   
+- Program to print customer survey analysis
+   - Read responses from HSCSSLR1 into data structures
+   - Summarize responses overall and by partner
+   - Calculate average ratings
+   - Print overall and partner reports
+   
+Additional Capabilities:   
+- String handling procedures (uppercase, lowercase, memory allocate/deallocate)
+- Printer selection - retrieve and display printers based on user location
+- Menu/selection screen - populate options from file, allow selection, pass to subroutine
+
+Physical Files:
+- HSAMNPR - User master file
+- HSHSSPF - Job settings file
+- HSHSSPR - Job status file 
+- AUFWAR - Order details file
+- HSCSSLR1 - Survey responses file
+
+
+diagram:
+classDiagram
+    class UserManagement {
+        - HSAMNPR: PhysicalFile
+        + addUser(user: User)
+        + editUser(user: User)
+        + deleteUser(userId: string)
+        + copyUser(userId: string)
+        + displayUsers()
+    }
+    
+    class JobConfiguration {
+        - HSHSSPF: PhysicalFile
+        + readJobSettings(jobCode: string)
+        + updateJobSettings(job: Job)
+        + addJobSettings(job: Job)
+    }
+    
+    class BatchProcessing {
+        - HSHSSPF: PhysicalFile 
+        - HSHSSPR: PhysicalFile
+        + cleanupJobStatus()
+    }
+    
+    class Reporting {
+        - AUFWAR: PhysicalFile
+        - HSCSSLR1: PhysicalFile
+        + sumOrderLineAmounts()
+        + printSurveyAnalysis()
+    }
+    
+    UserManagement ..> HSAMNPR: manages
+    JobConfiguration ..> HSHSSPF: manages
+    BatchProcessing ..> HSHSSPF: reads
+    BatchProcessing ..> HSHSSPR: updates
+    Reporting ..> AUFWAR: reads
+    Reporting ..> HSCSSLR1: reads
+
+graph TD
+    A[Start] --> B{User Management?}
+    B -- Yes --> C[Maintain user records]
+    C --> D[CRUD user records]
+    D --> E[Validate fields]
+    E --> F[Add to all/one personnel no]
+    F --> G[Display in subfile]
+    G --> H[End User Management]
+    
+    B -- No --> I{Job Configuration?}
+    I -- Yes --> J[Read/update job settings]
+    J --> K[Add if not found]
+    K --> L[Blank fields before write]
+    L --> M[End Job Configuration]
+    
+    I -- No --> N{Batch Processing?}
+    N -- Yes --> O[Clean up job status records]
+    O --> P[End Batch Processing]
+    
+    N -- No --> Q{Reporting?}
+    Q -- Yes --> R[Sum order line amounts]
+    R --> S[Print customer survey analysis]
+    S --> T[End Reporting]
+    
+    Q -- No --> U[Additional Capabilities]
+    U --> V[End]

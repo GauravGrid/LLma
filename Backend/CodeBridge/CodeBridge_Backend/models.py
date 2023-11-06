@@ -78,3 +78,10 @@ class ShareCode(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     folder_structure = models.ForeignKey(FolderUpload, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, related_name='shared_links')
+
+class HighLevel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    folder_id = models.ForeignKey(FolderUpload, on_delete=models.CASCADE)
+    logic = models.TextField()
+    classDiagram = models.TextField(null=True)
+    flowChart = models.TextField(null=True)

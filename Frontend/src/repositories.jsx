@@ -81,7 +81,7 @@ export default function Repositories() {
                     </p>
                 </div>
                <div className='repositoryBox'>
-                <div className='flex flex-row flex-wrap w-full'>
+                <div className='flex flex-row flex-wrap w-full h-full overflow-y-scroll'>
                 {repositoryList.map((repository, index) => (
                                         <div key={index} className='flex flex-col max-w-min'>
                                             <IconButton className='folderButton' onClick={handleButtonClick(repository.project_id)} >

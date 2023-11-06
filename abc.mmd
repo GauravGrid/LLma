@@ -1,0 +1,43 @@
+graph TD
+A[Start]
+B[Rebate code handling]
+C[Convert old codes to new codes]
+D[Link customers to rebate codes]
+E[Produce output files]
+F[Customer master updates]
+G[Update customer numbers, branch codes]
+H[Delete and recreate records]
+I[Pricing and discounts]
+J[Lookup pricing, discounts, surcharges]
+K[Apply rules based on criteria]
+L[Account master updates]
+M[Convert account types]
+N[Update associated G/L accounts]
+O[Sales data integration]
+P[Transfer sales data to CSV]
+Q[Merge CSV into database]
+R[Reporting and auditing]
+S[Generate outputs for research]
+T[Data validation]
+U[Type checking, error handling]
+V[Duplicate checking]
+A-->B
+A-->F
+A-->I
+A-->L
+A-->O
+A-->R
+A-->T
+B-->C
+B-->D
+B-->E
+F-->G
+F-->H
+I-->J
+I-->K
+L-->M
+L-->N
+O-->P
+O-->Q
+R-->S
+T-->U

@@ -132,6 +132,7 @@ export default function InteractiveArea(props) {
   const [logicLoader, setLogicLoader] = useState(false)
   const [highlogicLoader, setHighLogicLoader] = useState(false)
   const [diagramLoader, setDiagramLoader] = useState(false)
+  const [highDiagramLoader, setHighDiagramLoader] = useState(false)
   const [javaLoader, setJavaLoader] = useState(false)
   const [selectedFile, setSelectedFile] = useState('');
   const [convertingFile, setConvertingFile] = useState('');
@@ -235,10 +236,12 @@ export default function InteractiveArea(props) {
   const [highBusinessLogic, setHighBusinessLogic] = useState('');
   const [flowchartCode, setFlowchartCode] = useState('')
   const [classDiagramCode, setClassDiagramCode] = useState('')
+  const [highFlowchartCode, setHighFlowchartCode] = useState('')
+  const [highClassDiagramCode, setHighClassDiagramCode] = useState('')
   const [javaCode, setJavaCode] = useState('');
   const [gitreplist, setGitreplist] = useState([])
   const [branchlist, setBranchlist] = useState([])
-  const [error, setError] = useState(''); // State to hold the error message
+  const [error, setError] = useState(''); 
 
   useEffect(() => {
 
@@ -388,6 +391,46 @@ export default function InteractiveArea(props) {
       console.log(error)
     }
   }
+  const generateHighMermaidDiagrams = async () => {
+    setHighDiagramLoader(true)
+    const jwtToken = sessionStorage.getItem("jwt");
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/mermaid_flowchart/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({
+          id: props.folderId
+        }),
+      })
+      const data = await response.json();
+      console.log(data)
+      mermaid.contentLoaded()
+      setHighFlowchartCode(data.flowChart)
+      const response2 = await fetch(`http://127.0.0.1:8000/api/mermaid_diagram/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({
+          id: props.folderId
+        }),
+
+      })
+      const data2 = await response2.json();
+      console.log(data2)
+      mermaid.contentLoaded()
+      setHighClassDiagramCode(data2.classDiagram)
+      setHighDiagramLoader(false)
+      mermaid.contentLoaded()
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
   const generateMermaidDiagramClassNew = async (id) => {
     setDiagramLoader(true)
     const jwtToken = sessionStorage.getItem("jwt");
@@ -445,6 +488,32 @@ export default function InteractiveArea(props) {
     }
   }
 
+  const generateHighMermaidDiagramFlowNew = async (id) => {
+    setHighDiagramLoader(true)
+    const jwtToken = sessionStorage.getItem("jwt");
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/mermaid_flowchart/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({
+          id: props.folderId
+        }),
+      })
+      const data = await response.json();
+      console.log(data)
+      mermaid.contentLoaded()
+      setHighFlowchartCode(data.flowChart)
+      setHighDiagramLoader(false)
+      mermaid.contentLoaded()
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const generateBusinessLogic = async () => {
     if (!selectedFile || !convertingFile) {
       setError('Select Source or Destination languages.');
@@ -473,6 +542,7 @@ export default function InteractiveArea(props) {
 
         });
         const dataGen = await genratedResponse.json();
+        generateHighBusinessLogic()
         setBusinessLogic(dataGen.logic)
         setSelectedLogicID(dataGen.id)
         generateMermaidDiagrams(dataGen.id)
@@ -482,6 +552,45 @@ export default function InteractiveArea(props) {
         console.log(error)
       }
     }
+
+
+
+  };
+
+  const generateHighBusinessLogic = async () => {
+    if (!selectedFile || !convertingFile) {
+      setError('Select Source or Destination languages.');
+      return;
+    }
+
+    // Clear the error message if no error
+    setError('');
+
+    if (!error) {
+      setHighLogicLoader(true)
+      setHighDiagramLoader(true)
+      const jwtToken = sessionStorage.getItem("jwt");
+      try {
+        const genratedResponse = await fetch(`http://127.0.0.1:8000/api/business_logic/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${jwtToken}`,
+          },
+          body: JSON.stringify({
+            id: props.folderId,
+          }),
+
+        });
+        const dataGen = await genratedResponse.json();
+        setHighBusinessLogic(dataGen.logic)
+        generateHighMermaidDiagrams()
+        setHighLogicLoader(false)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    
 
 
   };
@@ -750,6 +859,70 @@ export default function InteractiveArea(props) {
                       <Tab sx={{ color: 'white' }} label="Individual" {...a11yProps(1)} />
                     </Tabs>
                   </Box>
+                  <CustomTabPanel value={mdvalue} index={0}>
+                    <div className='flex p-5' style={{ background: 'black', width: '100%', height: '93%' }}>
+
+                      {
+                        (highDiagramLoader) ? <>
+                          <div className='flex h-full w-full justify-center items-center'  ><CircularProgress /></div>
+                        </> :
+                          <div style={{ position: 'relative', width: '100%' }}>
+                            <div className=' vscDark vscDarkPre' style={{ height: '93%', borderRadius: '15px' }}   >
+
+                              {
+                                (highFlowchartCode === '') ?
+                                  <></> :
+                                  <div className=''>
+                                    <p className='text-lg font-black'>
+                                      FlowChart
+                                    </p>
+                                    <div className='flex h-full w-full'>
+                                      <MermaidDiagram mermaidCode={highFlowchartCode} />
+                                      <div className='flex flex-col h-full bg-black w-5' style={{ position: 'relative', top: '25px', right: '30px' }}>
+                                        <Fab size='small' sx={{ backgroundColor: '#42a5f5', marginTop: '10px', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateHighMermaidDiagramFlowNew(selectedLogicID)}>
+                                          <ReplayOutlined sx={{ color: '#FFF' }} />
+                                        </Fab>
+                                      </div>
+                                      </div>
+                                    </div>
+                        }
+                                    <Divider classes={{ root: 'customDivider' }} sx={{ bgcolor: '42a5f5' }} ></Divider>
+                                    {
+                                      (classDiagramCode === '') ?
+                                        <></> :
+                                        <div className='flex mt-2'>
+                                          <p className='text-lg font-black'>
+                                            Class Diagram
+                                          </p>
+                                          <div className='flex'>
+                                          <MermaidDiagram mermaidCode={highClassDiagramCode} />
+                                          <div className='flex flex-col h-full bg-black w-5' style={{ position: 'relative', top: '25px', right: '30px' }}>
+                                            <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateHighMermaidDiagramClassNew(selectedLogicID)}>
+                                              <ReplayOutlined sx={{ color: '#FFF' }} />
+                                            </Fab>
+                                          </div>
+                                          </div>
+                                        </div>
+
+
+
+                                    }
+
+
+                                  </div>
+                      <div className='flex flex-col h-full bg-black w-5' style={{ position: 'absolute', top: '25px', right: '30px' }}>
+                        <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} variant='outlined' onClick={() => handleDownload('mmd')}>
+                          <Download sx={{ color: '#FFF' }} />
+                        </Fab>
+                        
+                      </div>
+
+                            </div>
+                }
+
+                          </div>
+
+            </CustomTabPanel>
                   <CustomTabPanel value={mdvalue} index={1}>
                     <div className='flex p-5' style={{ background: 'black', width: '100%', height: '93%' }}>
 
