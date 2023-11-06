@@ -64,7 +64,7 @@ def get_file_name(business_logic):
     files = [file.strip(' "\n') for file in schema_str[start_index:end_index].split(',')]
     print(files)
     
-    dblist=['HSHI12PF', 'RABSTAR', 'AUFSTAR', 'HSKUIPR', 'HSRAZPR','AUFSTAM','RABSTAM','ERLSTAM',"ESZPF",'HSESZPF','TEISTAM','HSPMSL1','HSATBPF','HSPSTLF7','HSBTSLF1','BELSTAM','NUMSTAM']
+    dblist=['HSHI12PF', 'RABSTAR', 'AUFSTAR', 'HSKUIPR', 'HSRAZPR','AUFSTAM','RABSTAM','ERLSTAM',"ESZPF",'HSESZPF','TEISTAM','HSPMSL1','HSATBPF','HSPSTLF7','HSBTSLF1','BELSTAM','NUMSTAM','HSRAZPF']
     
     new_files=[]
     for file_name in files:
@@ -411,6 +411,7 @@ CREATE INDEX TEISTLF6 ON HDLDKW.TEISTAM (TEI020,TEI010);
 CREATE INDEX TEISTLF8 ON HDLDKW.TEISTAM (TEI090,TEI120,TEI010,TEI020);
 CREATE INDEX TEISTLFPW ON HDLDKW.TEISTAM (TEI090,TEI010,TEI020);
     '''
+    
     S28='''The data defination language of the database file name HSPMSL1 is 
             -- HDLZENTRAL.HSPMSL1 definition
 
@@ -461,6 +462,7 @@ CREATE TABLE HDLZENTRAL.HSPMSL1 (
 	PMS_AUHR CHAR(6) NOT NULL
 );
     '''
+    
     S29='''The data defination language of the database file name HSATBPF is 
             -- HDLDKW.HSATBPF definition
 
@@ -478,6 +480,7 @@ CREATE TABLE HDLDKW.HSATBPF (
 );
 CREATE UNIQUE INDEX HSATBPF ON HDLDKW.HSATBPF (ATB010,ATB020);
     '''
+    
     S30='''The data defination language of the database file name HSPSTLF7 is 
             -- HDLDKW.HSPSTLF7 definition
 
@@ -520,6 +523,7 @@ CREATE TABLE HDLDKW.HSPSTLF7 (
 	PST190 CHAR(1) NOT NULL
 );
     '''
+   
     S31='''The data defination language of the database file name HSBTSLF1 is 
             -- HDLZENTRAL.HSBTSLF1 definition
 
@@ -536,6 +540,7 @@ CREATE TABLE HDLZENTRAL.HSBTSLF1 (
 	BTS060 CHAR(10) NOT NULL
 );
     '''
+   
     S32='''The data defination language of the database file name BELSTAM is 
             -- HDLDKW.BELSTAM definition
 
@@ -558,6 +563,7 @@ CREATE TABLE HDLDKW.BELSTAM (
 );
 CREATE UNIQUE INDEX BELSTAM ON HDLDKW.BELSTAM (BEL010);
     '''
+   
     S33='''The data defination language of the database file name NUMSTAM is 
             -- HDLDKW.NUMSTAM definition
 
