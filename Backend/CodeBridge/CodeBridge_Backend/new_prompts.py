@@ -64,7 +64,7 @@ def get_file_name(business_logic):
     files = [file.strip(' "\n') for file in schema_str[start_index:end_index].split(',')]
     print(files)
     
-    dblist=['HSHI12PF', 'RABSTAR', 'AUFSTAR', 'HSKUIPR', 'HSRAZPR','AUFSTAM','RABSTAM','ERLSTAM',"ESZPF",'HSESZPF','TEISTAM','HSPMSL1','HSATBPF','HSPSTLF7','HSBTSLF1','BELSTAM','NUMSTAM']
+    dblist=['HSHI12PF', 'RABSTAR', 'AUFSTAR', 'HSKUIPR', 'HSRAZPF','AUFSTAM','RABSTAM','ERLSTAM',"ESZPF",'HSESZPF','TEISTAM','HSPMSL1','HSATBPF','HSPSTLF7','HSBTSLF1','BELSTAM','NUMSTAM']
     
     new_files=[]
     for file_name in files:

@@ -459,6 +459,32 @@ export default function InteractiveArea(props) {
       console.log(error)
     }
   }
+  const generateHighMermaidDiagramClassNew = async (id) => {
+    setHighDiagramLoader(true)
+    const jwtToken = sessionStorage.getItem("jwt");
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/mermaid_diagram/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({
+          id: props.folderId
+        }),
+      })
+      const data = await response.json();
+      console.log(data)
+      mermaid.contentLoaded()
+      setHighClassDiagramCode(data.classDiagram)
+      setHighDiagramLoader(false)
+      mermaid.contentLoaded()
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const generateMermaidDiagramFlowNew = async (id) => {
     setDiagramLoader(true)
     const jwtToken = sessionStorage.getItem("jwt");
