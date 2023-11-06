@@ -1696,13 +1696,18 @@ def higher_level_mermaid_flowchart(business_logic):
     example_code=rpg_example3
     
     template='''
-    Convert Business Logic to Mermaid Flow chart Diagram of a folder.
-    I want to generate code for Mermaid Flow chart diagram using business logic of a folder and Remember this mermaid class diagram code is used by
-    developers to visualize the folder's code logic. Also give code in correct syntax so that it can be rendered by mermaidjs 8.11.0 . Make sure the
+    Convert Business Logic to Mermaid Flow chart Diagram of a codebase.
+    I want to generate code for Mermaid Flow chart diagram using business logic of a codebase and Remember this mermaid class diagram code is used by
+    developers to visualize the codebase's code logic. Also give code in correct syntax so that it can be rendered by mermaidjs 8.11.0 . Make sure the
     blocks are properly linked . Here is also an example how to generate mermaid class diagram using the business logic. and remember also don't give
     any inital word and sentence like here is mermaid flow chart diagram of this business logic.Mermaid flow chart diagram that visually represents 
     this logic.The Mermaid flow chart diagram also should visually represent the flow and sequence of the business logic,including key decision points
     and data dependencies. Ensure that the resulting diagram is comprehensive and self-explanatory. 
+    
+    Remember this Mermaid Flowchart diagram serves the purpose of visualizing the interplay of business logic within a codebase, showcasing how 
+    different files interact with one another. If certain files do not interact, we should still generate Mermaid flowchart diagrams for them.
+
+    In accordance with this, please generate Mermaid code that encapsulates the business logic of an entire codebase.
     Follow these steps:
         1. Review the provided business logic.
         2. Identify key components, decisions, and flow control in the logic.
@@ -1715,6 +1720,8 @@ def higher_level_mermaid_flowchart(business_logic):
     
     Now the User will provide business logic,generate correct and running code for mermaid Flowchart diagram as shown in above example without any 
     initial text in a JSON format with "mermaid_flowchart_code" as the key and make sure that the blocks areproperly linked in the code.
+    
+    Take a deep breath and think step by step to solve this task.
     
     User: {input}
     Mermaid_Flowchart_Code:
