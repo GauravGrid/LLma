@@ -1601,20 +1601,24 @@ def higher_level_mermaid_diagram(business_logic):
     
     example_code=rpg_example2
     
-    template='''
-    I want to generate code with backticks for a Mermaid Class diagram using the business logic of a full folder. This Mermaid diagram is used to
-    visualize the high-level business logic of a folder's code.
-    
-    Note: Also, provide code in the correct syntax so that it can be rendered by mermaidjs version 8.11.0. The code should be represented as a valid 
-    JSON string with new lines replaced with "\n".
+    template='''I would like to generate code using backticks to create a Mermaid Class diagram that represents the high-level business logic 
+    of a codebase. This Mermaid diagram serves the purpose of visualizing the interplay of business logic within a codebase, showcasing how 
+    different files interact with one another. If certain files do not interact, we should still generate Mermaid diagrams for them.
+
+    In accordance with this, please generate Mermaid code that encapsulates the business logic of an entire codebase.
+
+    Additionally, please ensure that the provided code is in the correct syntax, compatible with rendering using mermaidjs version 8.11.0. 
+    The code should be formatted as a valid JSON string with new lines replaced by '\n'.
 
     Example:
     {example_code}
-    
-    Now, the user will provide the business logic of a full folder as well as associated files. Please generate correct and running code for a
-    Mermaid class diagram without any initial text in a JSON format with "mermaid_class_diagram_code" as the key.
 
-    User:{input}
+    Now, the user will provide the business logic of a complete folder along with its associated files. Your task is to generate accurate and
+    executable code for a Mermaid class diagram in JSON format, with 'mermaid_class_diagram_code' as the key.
+
+   Take a deep breath and think step by step to solve this task.
+
+    User: {input}
     Mermaid_Code:
     {format_instructions}'''
 
