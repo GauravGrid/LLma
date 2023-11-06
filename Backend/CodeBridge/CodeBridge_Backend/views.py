@@ -2179,28 +2179,28 @@ class HigherLevelBusinessLogic(APIView):
     
 # Higher Level Mermaid Diagram
 
-def process_folder_mermaid_diagram(folder_id):
+# def process_folder_mermaid_diagram(folder_id):
     
-    folder = FolderUpload.objects.get(folderId=folder_id)
+#     folder = FolderUpload.objects.get(folderId=folder_id)
 
-    mermaid_diagram = ""
+#     mermaid_diagram = ""
     
-    folder_name = folder.foldername
+#     folder_name = folder.foldername
     
-    folder_structure = get_folder_structure(folder_id)
+#     folder_structure = get_folder_structure(folder_id)
 
-    subfolders = FolderUpload.objects.filter(parentFolder=folder)
-    files = FileUpload.objects.filter(parentFolder=folder)
+#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
+#     files = FileUpload.objects.filter(parentFolder=folder)
     
-    for subfolder in subfolders:
-        subfolder_mermaid_diagram = process_folder_mermaid_diagram(subfolder.folderId)
-        mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, subfolder.foldername, subfolder_mermaid_diagram)
+#     for subfolder in subfolders:
+#         subfolder_mermaid_diagram = process_folder_mermaid_diagram(subfolder.folderId)
+#         mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, subfolder.foldername, subfolder_mermaid_diagram)
 
-    for file in files:
-        file_mermaid_diagram_result = file_mermaid_diagram(file.file)
-        mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, file.filename, file_mermaid_diagram_result)
+#     for file in files:
+#         file_mermaid_diagram_result = file_mermaid_diagram(file.file)
+#         mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, file.filename, file_mermaid_diagram_result)
 
-    return mermaid_diagram
+#     return mermaid_diagram
 
 def higher_level_mermaid_diagram(business_logic):
     
@@ -2253,25 +2253,54 @@ class HigherLevelMermaidDiagram(APIView):
         
         # mermaid_diagram = process_folder_mermaid_diagram(folder_id)
         
-        business_logic= '''Based on the provided inputs, here is a high-level summary of the business logic for the Gau folder:
-
-        The code in this folder relates to an ERP system handling various business functions like inventory management, sales order processing,
-        customer relationship management, and analytics. 
+        business_logic= ''' Based on the provided files and extracted business logic, here is a synthesized higher-level overview of the business
+        functionality represented by the code in the Gau folder:
+        The code in this folder appears to cover user and access management functionality for an ERP system. 
 
         Key capabilities include:
-        - User and rights management - Adding, editing, deleting user records and access rights
-        - Master data maintenance - Updating inventory item master data, customer master records, partner records
-        - Pricing and discounts - Determining pricing, discounts, and net prices based on complex hierarchical rules and customer attributes 
-        - Order processing - Handling sales document types like quotes, orders, deliveries along with statuses, dates, quantities
-        - Inventory transactions - Posting inventory movements, serial numbers, batches triggered by sales, purchase etc.
-        - Batch management - Controlling, monitoring background jobs and batches
-        - Reporting and analytics - Customer survey analysis, sales analytics, inventory reports
-        - Auditing - Tracking changes to configuration and master data 
-        - System configuration - Managing system parameters, defaults, schemas across various screens
-        The programs leverage physical and logical database files, APIs, data structures, andbuilt-in RPG functions.
-        The code demonstrates common RPG constructs - file I/O, data structures, modular procedures, calculations, branching, looping, error handling. 
-        In summary, the folder contains a range of business logic required in an ERP system, interacting with databases, programs, interfaces and
-        users. The logic covers both transaction processing as well as reporting/analytics capabilities.'''
+
+        - Maintaining user master data records (HS0091.txt)
+            - Viewing, adding, editing, deleting users
+            - Storing user records in HSAMNPR file
+            - Validating inputs
+            - Manipulating user records via subfile
+
+        - Managing user roles/permissions (HS0090.txt, HS0095.txt)
+            - Assigning access rights to users
+            - Checking authorization based on user attributes
+            - Limiting menu/functionality access based on user role
+        
+        - Printer selection based on user attributes (HS0097.txt)
+            - Display available printers filtered by user region/office
+            - Allow user to select printer
+        
+        - Tracking usage metrics and statistics (HS0086.txt, HS0098.txt) 
+            - Maintaining counts and totals in database files
+            - Performing statistical analysis on tracked metrics
+            - Generating reports from collected usage data
+
+        - Job and process configuration management (HS0089.txt, HS0100.txt)
+            - Storing job settings in configuration files
+            - Editing configuration parameters 
+            - Refreshing displays after changes
+            - Logging configuration changes
+        
+        - Customer satisfaction data collection and reporting (HS0098.txt, HS0099.txt)
+            - Administering customer surveys
+            - Storing survey responses in database
+            - Analyzing results
+            - Producing survey reports
+        
+        - Pricing and discount calculations (HS0095.txt)
+            - Determining pricing and discounts based on complex rules
+            - Checking for special prices or discounts
+            - Supporting quantity break pricing
+        
+        The code interacts with various physical database files to store and retrieve business data. It utilizes display files, printer files and 
+        subfiles for user interaction. There are also external program calls for specific sub-functions.
+
+        In summary, the folder contains code to support various user and access management capabilities, usage tracking, analytics, and configuration
+        data management for an ERP system.'''
         
         mermaid_diagram=higher_level_mermaid_diagram(business_logic)
         print(mermaid_diagram)
@@ -2279,28 +2308,28 @@ class HigherLevelMermaidDiagram(APIView):
 
 # Higher Level Mermaid Flowchart    
   
-def process_folder_mermaid_flowchart(folder_id):
+# def process_folder_mermaid_flowchart(folder_id):
     
-    folder = FolderUpload.objects.get(folderId=folder_id)
+#     folder = FolderUpload.objects.get(folderId=folder_id)
 
-    mermaid_flowchart = ""
+#     mermaid_flowchart = ""
     
-    folder_name = folder.foldername
+#     folder_name = folder.foldername
     
-    folder_structure = get_folder_structure(folder_id)
+#     folder_structure = get_folder_structure(folder_id)
 
-    subfolders = FolderUpload.objects.filter(parentFolder=folder)
-    files = FileUpload.objects.filter(parentFolder=folder)
+#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
+#     files = FileUpload.objects.filter(parentFolder=folder)
     
-    for subfolder in subfolders:
-        subfolder_mermaid_flowchart = process_folder_mermaid_flowchart(subfolder.folderId)
-        mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, subfolder.foldername, subfolder_mermaid_flowchart)
+#     for subfolder in subfolders:
+#         subfolder_mermaid_flowchart = process_folder_mermaid_flowchart(subfolder.folderId)
+#         mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, subfolder.foldername, subfolder_mermaid_flowchart)
 
-    for file in files:
-        file_mermaid_flowchart_result = file_mermaid_flowchart(file.file)
-        mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, file.filename, file_mermaid_flowchart_result)
+#     for file in files:
+#         file_mermaid_flowchart_result = file_mermaid_flowchart(file.file)
+#         mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, file.filename, file_mermaid_flowchart_result)
 
-    return mermaid_flowchart
+#     return mermaid_flowchart
 
 def higher_level_mermaid_flowchart(business_logic):
     
@@ -2361,25 +2390,54 @@ class HigherLevelMermaidFlowchart(APIView):
         # business_logic= folder.higherlevelbusinesslogic
         # mermaid_flowchart=higher_level_mermaid_flowchart(business_logic)
         
-        business_logic= '''Based on the provided inputs, here is a high-level summary of the business logic for the Gau folder:
-
-        The code in this folder relates to an ERP system handling various business functions like inventory management, sales order processing,
-        customer relationship management, and analytics. 
+        business_logic= ''' Based on the provided files and extracted business logic, here is a synthesized higher-level overview of the business
+        functionality represented by the code in the Gau folder:
+        The code in this folder appears to cover user and access management functionality for an ERP system. 
 
         Key capabilities include:
-        - User and rights management - Adding, editing, deleting user records and access rights
-        - Master data maintenance - Updating inventory item master data, customer master records, partner records
-        - Pricing and discounts - Determining pricing, discounts, and net prices based on complex hierarchical rules and customer attributes 
-        - Order processing - Handling sales document types like quotes, orders, deliveries along with statuses, dates, quantities
-        - Inventory transactions - Posting inventory movements, serial numbers, batches triggered by sales, purchase etc.
-        - Batch management - Controlling, monitoring background jobs and batches
-        - Reporting and analytics - Customer survey analysis, sales analytics, inventory reports
-        - Auditing - Tracking changes to configuration and master data 
-        - System configuration - Managing system parameters, defaults, schemas across various screens
-        The programs leverage physical and logical database files, APIs, data structures, andbuilt-in RPG functions.
-        The code demonstrates common RPG constructs - file I/O, data structures, modular procedures, calculations, branching, looping, error handling. 
-        In summary, the folder contains a range of business logic required in an ERP system, interacting with databases, programs, interfaces and
-        users. The logic covers both transaction processing as well as reporting/analytics capabilities.'''
+
+        - Maintaining user master data records (HS0091.txt)
+            - Viewing, adding, editing, deleting users
+            - Storing user records in HSAMNPR file
+            - Validating inputs
+            - Manipulating user records via subfile
+
+        - Managing user roles/permissions (HS0090.txt, HS0095.txt)
+            - Assigning access rights to users
+            - Checking authorization based on user attributes
+            - Limiting menu/functionality access based on user role
+        
+        - Printer selection based on user attributes (HS0097.txt)
+            - Display available printers filtered by user region/office
+            - Allow user to select printer
+        
+        - Tracking usage metrics and statistics (HS0086.txt, HS0098.txt) 
+            - Maintaining counts and totals in database files
+            - Performing statistical analysis on tracked metrics
+            - Generating reports from collected usage data
+
+        - Job and process configuration management (HS0089.txt, HS0100.txt)
+            - Storing job settings in configuration files
+            - Editing configuration parameters 
+            - Refreshing displays after changes
+            - Logging configuration changes
+        
+        - Customer satisfaction data collection and reporting (HS0098.txt, HS0099.txt)
+            - Administering customer surveys
+            - Storing survey responses in database
+            - Analyzing results
+            - Producing survey reports
+        
+        - Pricing and discount calculations (HS0095.txt)
+            - Determining pricing and discounts based on complex rules
+            - Checking for special prices or discounts
+            - Supporting quantity break pricing
+        
+        The code interacts with various physical database files to store and retrieve business data. It utilizes display files, printer files and 
+        subfiles for user interaction. There are also external program calls for specific sub-functions.
+
+        In summary, the folder contains code to support various user and access management capabilities, usage tracking, analytics, and configuration
+        data management for an ERP system.'''
             
         mermaid_flowchart=higher_level_mermaid_flowchart(business_logic)
         
