@@ -22,7 +22,8 @@ from rest_framework.decorators import permission_classes,authentication_classes
 from .newrepo import create_repository,get_git_repo_owner,create_github_branch,push_to_github
 import os
 from pydantic import BaseModel
-from langchain import LLMChain, PromptTemplate
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatAnthropic
 from langchain.output_parsers import StructuredOutputParser,ResponseSchema
 from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1,assembly_example1,rpg_exampleh
@@ -1589,29 +1590,6 @@ class HigherLevelBusinessLogic(APIView):
     
 # Higher Level Mermaid Diagram
 
-# def process_folder_mermaid_diagram(folder_id):
-    
-#     folder = FolderUpload.objects.get(folderId=folder_id)
-
-#     mermaid_diagram = ""
-    
-#     folder_name = folder.foldername
-    
-#     folder_structure = get_folder_structure(folder_id)
-
-#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
-#     files = FileUpload.objects.filter(parentFolder=folder)
-    
-#     for subfolder in subfolders:
-#         subfolder_mermaid_diagram = process_folder_mermaid_diagram(subfolder.folderId)
-#         mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, subfolder.foldername, subfolder_mermaid_diagram)
-
-#     for file in files:
-#         file_mermaid_diagram_result = file_mermaid_diagram(file.file)
-#         mermaid_diagram = combine_mermaid_diagram(folder_name, folder_structure, mermaid_diagram, file.filename, file_mermaid_diagram_result)
-
-#     return mermaid_diagram
-
 def higher_level_mermaid_diagram(business_logic):
     
     classDiagram_schema = ResponseSchema(name='mermaid_class_diagram_code', description='This schema represents the Mermaid class diagram code, which is compatible with MermaidJS version 8.11.0. The code should be represented as a valid JSON string with new lines replaced with "\\n".')
@@ -1659,75 +1637,6 @@ class HigherLevelMermaidDiagram(APIView):
         folder = FolderUpload.objects.get(folderId=folder_id)
         existing_logic = HighLevel.objects.filter(user=request.user,folder_id=folder_id).first()
 
-        # business_logic= folder.higherlevelbusinesslogic
-        # mermaid_diagram=higher_level_mermaid_diagram(business_logic)
-        
-        # mermaid_diagram = process_folder_mermaid_diagram(folder_id)
-        
-        # business_logic= '''Based on the provided inputs, here is a high-level summary of the business logic for the Gau folder:
-
-        # The code in this folder relates to an ERP system handling various business functions like inventory management, sales order processing,
-        # customer relationship management, and analytics. 
-
-        # Key capabilities include:
-        # - User and rights management - Adding, editing, deleting user records and access rights
-        # - Master data maintenance - Updating inventory item master data, customer master records, partner records
-        # - Pricing and discounts - Determining pricing, discounts, and net prices based on complex hierarchical rules and customer attributes 
-        # - Order processing - Handling sales document types like quotes, orders, deliveries along with statuses, dates, quantities
-        # - Inventory transactions - Posting inventory movements, serial numbers, batches triggered by sales, purchase etc.
-        # - Batch management - Controlling, monitoring background jobs and batches
-        # - Reporting and analytics - Customer survey analysis, sales analytics, inventory reports
-        # - Auditing - Tracking changes to configuration and master data 
-        # - System configuration - Managing system parameters, defaults, schemas across various screens
-        # The programs leverage physical and logical database files, APIs, data structures, andbuilt-in RPG functions.
-        # The code demonstrates common RPG constructs - file I/O, data structures, modular procedures, calculations, branching, looping, error handling. 
-        # In summary, the folder contains a range of business logic required in an ERP system, interacting with databases, programs, interfaces and
-        # users. The logic covers both transaction processing as well as reporting/analytics capabilities.'''
-#         business_logic = '''
-#         The Test 2 folder contains RPG programs and data files related to an HR/payroll system. Key capabilities include:
-
-# User Management
-# - Maintain user records in physical file HSAMNPR (keys: user ID, personnel no)  
-# - Functions to add, edit, delete, copy, display users
-# - Validate required fields on add/edit 
-# - Allow adding user to all users or one personnel no
-# - Display users in subfile on screen
-
-# Job Configuration
-# - Store job-specific settings in HSHSSPF file (keys: short code, param type, user, flag type)
-# - Read/update job settings by passing key fields 
-# - Add new records if not found
-# - Blank fields before writing
-
-# Batch Processing
-# - Program to clean up job status records
-#    - Read HSHSSPF file 
-#    - Delete matching records from HSHSSPR where status = 'M'
-
-# Reporting
-# - Program to sum order line amounts
-#    - Read order details from AUFWAR
-#    - Sum amount field for given order/plant/week/split
-#    - Return total sum amount
-   
-# - Program to print customer survey analysis
-#    - Read responses from HSCSSLR1 into data structures
-#    - Summarize responses overall and by partner
-#    - Calculate average ratings
-#    - Print overall and partner reports
-   
-# Additional Capabilities:   
-# - String handling procedures (uppercase, lowercase, memory allocate/deallocate)
-# - Printer selection - retrieve and display printers based on user location
-# - Menu/selection screen - populate options from file, allow selection, pass to subroutine
-
-# Physical Files:
-# - HSAMNPR - User master file
-# - HSHSSPF - Job settings file
-# - HSHSSPR - Job status file 
-# - AUFWAR - Order details file
-# - HSCSSLR1 - Survey responses file
-#         '''
         if not existing_logic.classDiagram:
             mermaid_diagram=higher_level_mermaid_diagram(existing_logic.logic)
             data = {
@@ -1746,34 +1655,31 @@ class HigherLevelMermaidDiagram(APIView):
         else:
             serializer = HighLevelSerializer(existing_logic)
             return Response(serializer.data, status=201)
-        # print(mermaid_diagram)
-        # return Response({"response":mermaid_diagram}, status=200)
+        
+    def put(self, request):
+        folder_id = request.data.get('id') 
+        folder = FolderUpload.objects.get(folderId=folder_id)
+        existing_logic = HighLevel.objects.filter(user=request.user,folder_id=folder_id).first()
 
-# Higher Level Mermaid Flowchart    
-  
-# def process_folder_mermaid_flowchart(folder_id):
-    
-#     folder = FolderUpload.objects.get(folderId=folder_id)
 
-#     mermaid_flowchart = ""
-    
-#     folder_name = folder.foldername
-    
-#     folder_structure = get_folder_structure(folder_id)
+        mermaid_diagram=higher_level_mermaid_diagram(existing_logic.logic)
+        data = {
+            'logic':existing_logic.logic,
+            'user':request.user,
+            'folder_id':folder_id,
+            'classDiagram':mermaid_diagram,
+            'flowChart':existing_logic.flowChart
+        }
+        serializer = HighLevelSerializer(existing_logic,data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        else:
+            return Response(serializer.errors, status=400)
+        
 
-#     subfolders = FolderUpload.objects.filter(parentFolder=folder)
-#     files = FileUpload.objects.filter(parentFolder=folder)
-    
-#     for subfolder in subfolders:
-#         subfolder_mermaid_flowchart = process_folder_mermaid_flowchart(subfolder.folderId)
-#         mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, subfolder.foldername, subfolder_mermaid_flowchart)
 
-#     for file in files:
-#         file_mermaid_flowchart_result = file_mermaid_flowchart(file.file)
-#         mermaid_flowchart = combine_mermaid_flowchart(folder_name, folder_structure, mermaid_flowchart, file.filename, file_mermaid_flowchart_result)
-
-#     return mermaid_flowchart
-
+# Higher Level Mermaid Flowchart
 def higher_level_mermaid_flowchart(business_logic):
     
     flowchart_schema = ResponseSchema(name='mermaid_flowchart_code', description='This schema represents the Mermaid flowchart code, designed to generate properly linked nodes that can be rendered by MermaidJS version 8.11.0. The code must be formatted as a valid JSON string, with newline characters replaced by "\\n". All nodes within the code should contain strings to ensure compatibility and avoid issues with special characters.')
@@ -1827,106 +1733,6 @@ class HigherLevelMermaidFlowchart(APIView):
     def post(self, request):
         folder_id = request.data.get('id') 
         folder = FolderUpload.objects.get(folderId=folder_id)
-        
-        # mermaid_flowchart = process_folder_mermaid_flowchart(folder_id)
-        
-        # business_logic= folder.higherlevelbusinesslogic
-        # mermaid_flowchart=higher_level_mermaid_flowchart(business_logic)
-        
-        # business_logic= '''Based on the provided inputs, here is a high-level summary of the business logic for the Gau folder:
-
-        # The code in this folder relates to an ERP system handling various business functions like inventory management, sales order processing,
-        # customer relationship management, and analytics. 
-
-        # Key capabilities include:
-        # - User and rights management - Adding, editing, deleting user records and access rights
-        # - Master data maintenance - Updating inventory item master data, customer master records, partner records
-        # - Pricing and discounts - Determining pricing, discounts, and net prices based on complex hierarchical rules and customer attributes 
-        # - Order processing - Handling sales document types like quotes, orders, deliveries along with statuses, dates, quantities
-        # - Inventory transactions - Posting inventory movements, serial numbers, batches triggered by sales, purchase etc.
-        # - Batch management - Controlling, monitoring background jobs and batches
-        # - Reporting and analytics - Customer survey analysis, sales analytics, inventory reports
-        # - Auditing - Tracking changes to configuration and master data 
-        # - System configuration - Managing system parameters, defaults, schemas across various screens
-        # The programs leverage physical and logical database files, APIs, data structures, andbuilt-in RPG functions.
-        # The code demonstrates common RPG constructs - file I/O, data structures, modular procedures, calculations, branching, looping, error handling. 
-        # In summary, the folder contains a range of business logic required in an ERP system, interacting with databases, programs, interfaces and
-        # users. The logic covers both transaction processing as well as reporting/analytics capabilities.'''
-#         business_logic = '''
-#         The Test 2 folder contains RPG programs and data files related to an HR/payroll system. Key capabilities include:
-
-# User Management
-# - Maintain user records in physical file HSAMNPR (keys: user ID, personnel no)  
-# - Functions to add, edit, delete, copy, display users
-# - Validate required fields on add/edit 
-# - Allow adding user to all users or one personnel no
-# - Display users in subfile on screen
-
-# Job Configuration
-# - Store job-specific settings in HSHSSPF file (keys: short code, param type, user, flag type)
-# - Read/update job settings by passing key fields 
-# - Add new records if not found
-# - Blank fields before writing
-
-# Batch Processing
-# - Program to clean up job status records
-#    - Read HSHSSPF file 
-#    - Delete matching records from HSHSSPR where status = 'M'
-
-# Reporting
-# - Program to sum order line amounts
-#    - Read order details from AUFWAR
-#    - Sum amount field for given order/plant/week/split
-#    - Return total sum amount
-   
-# - Program to print customer survey analysis
-#    - Read responses from HSCSSLR1 into data structures
-#    - Summarize responses overall and by partner
-#    - Calculate average ratings
-#    - Print overall and partner reports
-   
-# Additional Capabilities:   
-# - String handling procedures (uppercase, lowercase, memory allocate/deallocate)
-# - Printer selection - retrieve and display printers based on user location
-# - Menu/selection screen - populate options from file, allow selection, pass to subroutine
-
-# Physical Files:
-# - HSAMNPR - User master file
-# - HSHSSPF - Job settings file
-# - HSHSSPR - Job status file 
-# - AUFWAR - Order details file
-# - HSCSSLR1 - Survey responses file
-#         '''    
-#         business_logic='''
-# The code in this folder deals with various aspects of customer and pricing data management, including:
-
-# - Rebate code handling - converting old rebate codes to new codes, linking customers to rebate codes, producing outputs for research and auditing (HSHI12.txt)
-
-# - Customer master data updates - updating customer numbers and branch codes, deleting and recreating customer number records (HSHI17.txt) 
-
-# - Pricing and discounts - looking up pricing, discounts, surcharges, etc. based on customer, product, quantity, and other criteria (HS0095.txt)
-
-# - Account master updates - converting account types, updating associated G/L accounts (HSHI_KL.txt) 
-
-# - Sales data integration - transferring sales data from Excel to CSV, merging into a database file (HSHI_ESZ.txt)
-
-# The core themes are:
-
-# - Master data management - updating critical master data like customer records, accounts, pricing
-
-# - Sales integration - bringing in external sales data and merging into databases
-
-# - Rebate processing - converting rebate codes and linking to customers
-
-# - Pricing/discount logic - applying pricing rules and discounts 
-
-# - Reporting/auditing - generating outputs for research, auditing, debugging 
-
-# - Data validation - type checking, error handling, duplicate checking
-
-# Key files used include customer masters, account ledgers, sales orders, pricing tables, and rebate codes.
-
-# The programs focus on batch processing and data integration. There is some interactivity via displays and subfiles. But core logic is file-based processing, merging data sources, master data management.'''
         existing_logic = HighLevel.objects.filter(user=request.user,folder_id=folder_id).first()
         
         if not existing_logic.flowChart:
@@ -1948,7 +1754,27 @@ class HigherLevelMermaidFlowchart(APIView):
             serializer = HighLevelSerializer(existing_logic)
             return Response(serializer.data, status=201)
         
-
+    def put(self, request):
+        folder_id = request.data.get('id') 
+        folder = FolderUpload.objects.get(folderId=folder_id)
+        existing_logic = HighLevel.objects.filter(user=request.user,folder_id=folder_id).first()
+        
+        
+        mermaid_flowchart=higher_level_mermaid_flowchart(existing_logic.logic)
+        data = {
+            'logic':existing_logic.logic,
+            'user':request.user,
+            'folder_id':folder_id,
+            'classDiagram':existing_logic.classDiagram,
+            'flowChart':mermaid_flowchart
+        }
+        serializer = HighLevelSerializer(existing_logic,data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        else:
+            return Response(serializer.errors, status=400)
+        
     
         
     def file_mermaid_flowchart(file_path):

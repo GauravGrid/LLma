@@ -488,6 +488,32 @@ export default function InteractiveArea(props) {
     }
   }
 
+  const generateHighMermaidDiagramFlowNew = async (id) => {
+    setHighDiagramLoader(true)
+    const jwtToken = sessionStorage.getItem("jwt");
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/mermaid_flowchart/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({
+          id: props.folderId
+        }),
+      })
+      const data = await response.json();
+      console.log(data)
+      mermaid.contentLoaded()
+      setHighFlowchartCode(data.flowChart)
+      setHighDiagramLoader(false)
+      mermaid.contentLoaded()
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const generateBusinessLogic = async () => {
     if (!selectedFile || !convertingFile) {
       setError('Select Source or Destination languages.');
@@ -853,7 +879,7 @@ export default function InteractiveArea(props) {
                                     <div className='flex h-full w-full'>
                                       <MermaidDiagram mermaidCode={highFlowchartCode} />
                                       <div className='flex flex-col h-full bg-black w-5' style={{ position: 'relative', top: '25px', right: '30px' }}>
-                                        <Fab size='small' sx={{ backgroundColor: '#42a5f5', marginTop: '10px', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateMermaidDiagramFlowNew(selectedLogicID)}>
+                                        <Fab size='small' sx={{ backgroundColor: '#42a5f5', marginTop: '10px', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateHighMermaidDiagramFlowNew(selectedLogicID)}>
                                           <ReplayOutlined sx={{ color: '#FFF' }} />
                                         </Fab>
                                       </div>
@@ -871,7 +897,7 @@ export default function InteractiveArea(props) {
                                           <div className='flex'>
                                           <MermaidDiagram mermaidCode={highClassDiagramCode} />
                                           <div className='flex flex-col h-full bg-black w-5' style={{ position: 'relative', top: '25px', right: '30px' }}>
-                                            <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateMermaidDiagramClassNew(selectedLogicID)}>
+                                            <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateHighMermaidDiagramClassNew(selectedLogicID)}>
                                               <ReplayOutlined sx={{ color: '#FFF' }} />
                                             </Fab>
                                           </div>
