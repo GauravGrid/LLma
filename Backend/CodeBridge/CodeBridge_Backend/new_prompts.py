@@ -1007,28 +1007,45 @@ def combine_business_logic(folder_name,
                            current_directory_business_logic):
     
     
-    template='''
-    I'd like to generate comprehensive business logic documentation for a specific directory named '{folder_name}' with the following 
-    folder structure: '{folder_structure}'. 
+    # template='''
+    # I want to generate higher level business logic of a codebase named '{folder_name}' which has folder structure: '{folder_structure}'. 
 
-    To accomplish this, I will aggregate business logic from each directory within this folder one by one. Specifically, I will merge the business 
-    logic from selected directories within the folder structure with the business logic from the current directory named '{current_directory_name}' 
-    within the same folder structure. This process will result in a combined business logic document, which includes the accumulated logic up to the
-    specified directory and the business logic of the current directory. The goal is to create an all-encompassing report that includes any imported
-    statements from other files and all significant statements originating from these files. Additionally, this report will list the names of all
-    files and folders involved and the business logic report for the specified directory and its subdirectories will also include specific variable
-    values relevant to the overall business logic. It will indicate functions imported from other files and specify their sources, maintain consistency
-    in variable and function names, and provide function parameter types for each function.
+    # To accomplish this, I will aggregate business logic from each directory within this folder one by one. Specifically, I will merge the business 
+    # logic from selected directories within the folder structure with the business logic from the current directory named '{current_directory_name}' 
+    # within the same folder structure. This process will result in a combined business logic document, which includes the accumulated logic up to the
+    # specified directory and the business logic of the current directory. The goal is to create an all-encompassing report that includes any imported
+    # statements from other files and all significant statements originating from these files. Additionally, this report will list the names of all
+    # files and folders involved and the business logic report for the specified directory and its subdirectories will also include specific variable
+    # values relevant to the overall business logic. It will indicate functions imported from other files and specify their sources, maintain consistency
+    # in variable and function names, and provide function parameter types for each function.
 
-    In cases where the previous file's business logic is empty, it signifies that the current file is the first file, and there is no previous file's
-    business logic.
+    # Now give me only Combined Business Logic of codebase Previous and Current Directory Logic given below: 
     
-    Now give me only Combined Business Logic of  Previous and Current Directory Logic given below: 
+    # Previous Business Logic: {previous_business_logic}
+    # Current Directory Business Logic: {current_directory_business_logic}
     
+    # '''
+
+    template='''Generate the combined business logic for a codebase named '{folder_name}' with the following folder structure: '{folder_structure}'. 
+    
+    To achieve this, aggregate business logic from each directory within this folder one by one. Merge the business logic from selected
+    directories with the business logic from the current directory named '{current_directory_name}' within the same folder structure.
+    This process will result in a combined business logic document, including the accumulated logic up to the specified directory and the
+    business logic of the current directory. The aim is to create a comprehensive report that encompasses imported statements from other 
+    files and all significant statements originating from these files.
+
+    The report should include:
+    - Names of all files and folders involved.
+    - Business logic report for the specified directory and its subdirectories.
+    - Specific variable values relevant to the overall business logic.
+    - Functions imported from other files, specifying their sources.
+    - Consistency in variable and function names.
+    - Function parameter types for each function.
+
+    Provide the combined business logic of the codebase for the previous and current directory logic:
+
     Previous Business Logic: {previous_business_logic}
-    Current Directory Business Logic: {current_directory_business_logic}
-    
-    '''
+    Current Directory Business Logic: {current_directory_business_logic}'''
 
     llm_chain = LLMChain(
         llm=ChatAnthropic(

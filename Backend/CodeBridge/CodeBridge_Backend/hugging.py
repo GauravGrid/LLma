@@ -9,66 +9,38 @@ from sentence_transformers import SentenceTransformer, util
 
 business_logic='''Based on the provided RPG code, here is my attempt to extract and explain the key business logic:
 
-The code appears to be for some kind of sales/customer discount system. There are procedures for:
-
-1. Converting strings to uppercase (toUppercase) and lowercase (toLowercase).
-
-2. Allocating and deallocating memory for a pointer variable (allocSpace, deallocSpace).
-
-3. Filling an array/file (HSHI12PF) with old discount codes (RCALT) from customer and order data.
-
-4. Converting old discount codes (RCALT) to new codes (RCNEU) and updating data. This seems to be the core logic:
-
-- It checks if discount code selection is made and only processes selected codes. 
-
-- It gets old code (RCALT) and chains to find matching record.
-
-- If old code not found, sets indicator that code was converted.
-
-- If new code (RCNEU) exists, moves it to old code field and updates.
-
-5. Building up old discount codes (RABAUF) by reading discount master file (RABSTAR).
-
-6. Getting customers (KUNDEN) for old and new discount codes by chaining between customer and order files.
-
-7. Displaying overview of new discount codes (UEBNEU) by reading discount mapping file (HSRAZPR):
-
-- Again checks for code selection. 
-
-- Evaluates discount code (RAZ012) to get description/purpose (ZWECK).
-
-- Moves new code (RAZ010) and gets discount percentages (FUELWG). 
-
-- Writes details to display file.
-
-
-So in summary, it involves:
-
-- String manipulation 
-
-- Memory allocation
-
-- File handling and chaining between customer, order and master files
-
-- Discount code conversion and mapping 
-
-- Generating displays/reports for users
-
-The code interacts with these files:
-
-- HSHI12PF: Internal array/file with old discount codes
-
-- RABSTAR: Discount code master file
-
-- AUFSTAR: Order file
-
-- HSKUIPR: Customer file 
-
-- HSRAZPR: Discount code mapping file
-
-- HSHI12S1-S4: Display files
-
-Let me know if any part needs more explanation!'''
+            The code appears to be for some kind of sales/customer discount system. There are procedures for:
+            1. Converting strings to uppercase (toUppercase) and lowercase (toLowercase).
+            2. Allocating and deallocating memory for a pointer variable (allocSpace, deallocSpace).
+            3. Filling an array/file (HSHI12PF) with old discount codes (RCALT) from customer and order data.
+            4. Converting old discount codes (RCALT) to new codes (RCNEU) and updating data. This seems to be the core logic:
+                - It checks if discount code selection is made and only processes selected codes. 
+                - It gets old code (RCALT) and chains to find matching record.
+                - If old code not found, sets indicator that code was converted.
+                - If new code (RCNEU) exists, moves it to old code field and updates.
+            5. Building up old discount codes (RABAUF) by reading discount master file (RABSTAR).
+            6. Getting customers (KUNDEN) for old and new discount codes by chaining between customer and order files.
+            7. Displaying overview of new discount codes (UEBNEU) by reading discount mapping file (HSRAZPR):
+                - Again checks for code selection. 
+                - Evaluates discount code (RAZ012) to get description/purpose (ZWECK).
+                - Moves new code (RAZ010) and gets discount percentages (FUELWG). 
+                - Writes details to display file.
+                
+            So in summary, it involves:
+                - String manipulation 
+                - Memory allocation
+                - File handling and chaining between customer, order and master files
+                - Discount code conversion and mapping 
+                - Generating displays/reports for users
+                
+            The code interacts with these files:
+                - HSHI12PF: Internal array/file with old discount codes
+                - RABSTAR: Discount code master file
+                - AUFSTAR: Order file
+                - HSKUIPR: Customer file 
+                - HSRAZPR: Discount code mapping file
+                - HSHI12S1-S4: Display files
+            '''
 
 def get_file_name(business_logic):
 
