@@ -2,7 +2,7 @@ from langchain import OpenAI, LLMChain, PromptTemplate
 from langchain.chat_models import ChatAnthropic
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.output_parsers import GuardrailsOutputParser
-import keys
+from . import keys
 
 def initialize_chain(instructions, memory=None):
 

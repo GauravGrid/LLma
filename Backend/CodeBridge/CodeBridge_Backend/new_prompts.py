@@ -10,7 +10,7 @@ from .prompt_code_to_business_logic import java_example1,python_example1,sql_exa
 from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2, dspf_exampler2,dspf_examplea2
 from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3
 from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4
-import keys
+from . import keys
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate

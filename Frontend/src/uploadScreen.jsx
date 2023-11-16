@@ -208,7 +208,7 @@ export default function UploadScreen(props) {
         if (branchName === '') {
             setBranchHelper('Required');
         }
-        if(projectName !== '' && repositoryURL !== '' && branchName !== '') {
+        if (projectName !== '' && repositoryURL !== '' && branchName !== '') {
             handleGitClone()
         }
     };
@@ -303,9 +303,6 @@ export default function UploadScreen(props) {
                 // Handle error
                 console.error(error);
             });
-
-
-        
     };
 
     return (
@@ -313,12 +310,9 @@ export default function UploadScreen(props) {
         <Box sx={{ display: "flex" }}>
             <SideNav />
             <div className='flex flex-col space-y-20 justify-center' style={{ backgroundColor: colorScheme.background, height: '100vh', width: '100vw', paddingTop: '64px' }}>
-
                 <Box>
                     <div className='flex items-center justify-center'>
                         <FileDropBox
-
-
                         >
                             <div className='flex flex-row justify-center uploadText'>
                                 {/* <p>
@@ -328,162 +322,162 @@ export default function UploadScreen(props) {
                                     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                                         <Tab label="Upload" {...a11yProps(0)} />
                                         <Tab label="Clone Repository" {...a11yProps(1)} />
-                                        
+
                                     </Tabs>
                                 </Box>
                             </div>
                             <CustomTabPanel value={value} index={0}>
-                            <div className="files flex mt-4 p-5 justify-between">
-                                <div className="flex items-center w-full">
-                                    <StyledTextField
-                                        className="project-label"
-                                        required
-                                        label="Project Name"
-                                        helperText={projectHelper}
-                                        variant="filled"
-                                        value={projectName}
-                                        onChange={(event) => {
-                                            setProjectName(event.target.value)
-                                            setProjectHelper('')
-                                        }}
-                                        sx={{
-                                            '.css-4ttn6k-MuiFormHelperText-root': {
-                                                color: 'red'
-                                            }
-                                        }}
-                                    />
-                                </div>
+                                <div className="files flex mt-4 p-5 justify-between">
+                                    <div className="flex items-center w-full">
+                                        <StyledTextField
+                                            className="project-label"
+                                            required
+                                            label="Project Name"
+                                            helperText={projectHelper}
+                                            variant="filled"
+                                            value={projectName}
+                                            onChange={(event) => {
+                                                setProjectName(event.target.value)
+                                                setProjectHelper('')
+                                            }}
+                                            sx={{
+                                                '.css-4ttn6k-MuiFormHelperText-root': {
+                                                    color: 'red'
+                                                }
+                                            }}
+                                        />
+                                    </div>
 
-                            </div>
-                            <div className='flex flex-col justify-center items-center py-10 dropBox'
-                                onDrop={handleDrop}
-                                onDragOver={handleDragOver}
-                            >
-                                <div className='file-arrow-up-solid-1'>
-                                    <FileEarmarkArrowUpFill />
                                 </div>
-                                <div className='flex'>
-                                    <p>
-                                        Drop your file(s) here or
+                                <div className='flex flex-col justify-center items-center py-10 dropBox'
+                                    onDrop={handleDrop}
+                                    onDragOver={handleDragOver}
+                                >
+                                    <div className='file-arrow-up-solid-1'>
+                                        <FileEarmarkArrowUpFill />
+                                    </div>
+                                    <div className='flex'>
+                                        <p>
+                                            Drop your file(s) here or
+                                        </p>
+
+                                        <div className="browse" onClick={handleBrowse}>
+                                            <p> browse</p>
+                                            <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleInputChange} />
+                                        </div>
+
+
+                                    </div>
+                                    <p className='max-file-size-25-mb'>
+                                        Max. file size: 25MB
+                                    </p>
+                                    <p id='file-error' style={{ color: 'red', display: 'none' }}>
+                                        File must be required*
                                     </p>
 
-                                    <div className="browse" onClick={handleBrowse}>
-                                        <p> browse</p>
-                                        <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleInputChange} />
-                                    </div>
-
-
                                 </div>
-                                <p className='max-file-size-25-mb'>
-                                    Max. file size: 25MB
-                                </p>
-                                <p id='file-error' style={{ color: 'red', display: 'none' }}>
-                                    File must be required*
-                                </p>
 
-                            </div>
+                                <div className="flex flex-col fileList mt-8">
+                                    {droppedFiles.map((file, index) => (
+                                        <div key={index} className="files flex mt-4 p-5 justify-between">
+                                            <div className="flex items-center">
+                                                <File className="file-pdf-regular-1" />
+                                                <div className="items-start flex flex-col ml-2">
+                                                    <p className="fileName1">{file.name}</p>
+                                                    <p className="fileSize">{file.size} bytes</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center">
 
-                            <div className="flex flex-col fileList mt-8">
-                                {droppedFiles.map((file, index) => (
-                                    <div key={index} className="files flex mt-4 p-5 justify-between">
-                                        <div className="flex items-center">
-                                            <File className="file-pdf-regular-1" />
-                                            <div className="items-start flex flex-col ml-2">
-                                                <p className="fileName1">{file.name}</p>
-                                                <p className="fileSize">{file.size} bytes</p>
+                                                <IconButton className='iconButton' onClick={() => handleRemoveFile(file)} >
+                                                    <Close className="x-solid" />
+                                                </IconButton>
                                             </div>
                                         </div>
-                                        <div className="flex items-center">
+                                    ))}
+                                </div>
 
-                                            <IconButton className='iconButton' onClick={() => handleRemoveFile(file)} >
-                                                <Close className="x-solid" />
-                                            </IconButton>
-                                        </div>
+                                <Button className="continue mt-8 p-2 mb-5" onClick={handleRequired}>
+                                    <p className="continueText">Continue</p>
+                                </Button>
+                            </CustomTabPanel>
+                            <CustomTabPanel value={value} index={1} >
+                                <div className="files flex mt-4 p-5 justify-between">
+                                    <div className="flex flex-col space-y-32 items-center w-full">
+
+                                        <StyledTextField
+                                            className="project-label"
+                                            required
+                                            label="Project Name"
+                                            helperText={projectHelper}
+                                            variant="filled"
+                                            value={projectName}
+                                            onChange={(event) => {
+                                                setProjectName(event.target.value)
+                                                setProjectHelper('')
+                                            }}
+                                            sx={{
+                                                '.css-4ttn6k-MuiFormHelperText-root': {
+                                                    color: 'red'
+                                                }
+                                            }}
+                                        />
                                     </div>
-                                ))}
-                            </div>
 
-                            <Button className="continue mt-8 p-2 mb-5" onClick={handleRequired}>
-                                <p className="continueText">Continue</p>
-                            </Button>
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={1} >
-      <div className="files flex mt-4 p-5 justify-between">
-                                <div className="flex flex-col space-y-32 items-center w-full">
-                                    
-                                    <StyledTextField
-                                        className="project-label"
-                                        required
-                                        label="Project Name"
-                                        helperText={projectHelper}
-                                        variant="filled"
-                                        value={projectName}
-                                        onChange={(event) => {
-                                            setProjectName(event.target.value)
-                                            setProjectHelper('')
-                                        }}
-                                        sx={{
-                                            '.css-4ttn6k-MuiFormHelperText-root': {
-                                                color: 'red'
-                                            }
-                                        }}
-                                    />
+                                </div>
+                                <div className="files flex mt-10 p-5 justify-between">
+                                    <div className="flex flex-col space-y-32 items-center w-full">
+
+                                        <StyledTextField
+                                            className="project-label"
+                                            required
+                                            label="Repository URL"
+                                            helperText={URLHelper}
+                                            variant="filled"
+                                            value={repositoryURL}
+                                            onChange={(event) => {
+                                                setRepositoryURL(event.target.value)
+                                                setURLHelper('')
+                                            }}
+                                            sx={{
+                                                '.css-4ttn6k-MuiFormHelperText-root': {
+                                                    color: 'red'
+                                                }
+                                            }}
+                                        />
+                                    </div>
+
+                                </div>
+                                <div className="files flex mt-10 p-5 justify-between">
+                                    <div className="flex flex-col space-y-32 items-center w-full">
+
+                                        <StyledTextField
+                                            className="project-label"
+                                            required
+                                            label="Branch Name"
+                                            helperText={branchHelper}
+                                            variant="filled"
+                                            value={branchName}
+                                            onChange={(event) => {
+                                                setBranchName(event.target.value)
+                                                setBranchHelper('')
+                                            }}
+                                            sx={{
+                                                '.css-4ttn6k-MuiFormHelperText-root': {
+                                                    color: 'red'
+                                                }
+                                            }}
+                                        />
+                                    </div>
+
                                 </div>
 
-                            </div>
-                            <div className="files flex mt-10 p-5 justify-between">
-                                <div className="flex flex-col space-y-32 items-center w-full">
-                                    
-                                    <StyledTextField
-                                        className="project-label"
-                                        required
-                                        label="Repository URL"
-                                        helperText={URLHelper}
-                                        variant="filled"
-                                        value={repositoryURL}
-                                        onChange={(event) => {
-                                            setRepositoryURL(event.target.value)
-                                            setURLHelper('')
-                                        }}
-                                        sx={{
-                                            '.css-4ttn6k-MuiFormHelperText-root': {
-                                                color: 'red'
-                                            }
-                                        }}
-                                    />
-                                </div>
+                                <Button className="continue mt-8 p-2 mb-5" onClick={handleGitRequired}>
+                                    <p className="continueText">Continue</p>
+                                </Button>
 
-                            </div>
-                            <div className="files flex mt-10 p-5 justify-between">
-                                <div className="flex flex-col space-y-32 items-center w-full">
-                                    
-                                    <StyledTextField
-                                        className="project-label"
-                                        required
-                                        label="Branch Name"
-                                        helperText={branchHelper}
-                                        variant="filled"
-                                        value={branchName}
-                                        onChange={(event) => {
-                                            setBranchName(event.target.value)
-                                            setBranchHelper('')
-                                        }}
-                                        sx={{
-                                            '.css-4ttn6k-MuiFormHelperText-root': {
-                                                color: 'red'
-                                            }
-                                        }}
-                                    />
-                                </div>
+                            </CustomTabPanel>
 
-                            </div>
-
-                            <Button className="continue mt-8 p-2 mb-5" onClick={handleGitRequired}>
-                                <p className="continueText">Continue</p>
-                            </Button>
-                            
-      </CustomTabPanel>
-                            
                         </FileDropBox>
                     </div>
 

@@ -13,6 +13,8 @@ import SignUp from './signup';
 import ResizableBoxes from './assets/components/test';
 import ResetOnPageReload from './assets/components/reset';
 import GithubLoginPage from './GithubLogin';
+import Search from './search';
+
 const theme = createTheme({
   typography: {
     fontFamily: [
@@ -40,6 +42,7 @@ function App() {
           <Route path='/dashboard' element={<Dashboard onNotLoggedIn={handleNotLoggedIn} />} />
           <Route path='/repositories' element={<Repositories onNotLoggedIn={handleNotLoggedIn}/>} />
           <Route path='/upload' element={<UploadScreen onNotLoggedIn={handleNotLoggedIn}/>} />
+          <Route path='/search' element={<Search onNotLoggedIn={handleNotLoggedIn}/>} />
           <Route path="/login" element={<Login />} />
           <Route path="/githublogin" element={<GithubLoginPage />} />
           <Route path="/signup" element={<SignUp />} />

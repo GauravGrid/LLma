@@ -9,7 +9,7 @@ from passlib.hash import pbkdf2_sha256
 from django.db.models import Q
 import jwt
 import datetime
-import keys
+from . import keys
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

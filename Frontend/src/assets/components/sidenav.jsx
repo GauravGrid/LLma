@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import { colorScheme } from './colors'
 import UploadIcon from '@mui/icons-material/Upload';
 import SourceIcon from '@mui/icons-material/Source';
+import SearchIcon from '@mui/icons-material/Search';
 import FolderStructure from './repositoryStructureView';
 import CodeIcon from '@mui/icons-material/Code';
 import useAppStore from './states';
@@ -136,6 +137,10 @@ export default function SideNav(props) {
   const handleRepositoryRouting = (urls) => {
     navigate('/repositories')
   }
+
+  const handleSearchRouting = (urls) => {
+    navigate('/search')
+  }
   const handleDrawerOpen = () => {
     updateOpen(true);
   };
@@ -210,10 +215,10 @@ export default function SideNav(props) {
                 justifyContent='center'
                 alignItems='center'
               >
-                <img src={GitHubLogo} alt="GitHub Logo" style={{ height: '2rem', paddingRight:'0.2rem' }} />
+                <img src={GitHubLogo} alt="GitHub Logo" style={{ height: '2rem', paddingRight: '0.2rem' }} />
                 Link to GitHub
               </MuiLink></MenuItem>
-              <MenuItem style={{ alignItems : 'center', justifyContent: 'center'}}  onClick={handleLogout} >Logout</MenuItem>
+              <MenuItem style={{ alignItems: 'center', justifyContent: 'center' }} onClick={handleLogout} >Logout</MenuItem>
             </Menu>
           </div>
 
@@ -307,6 +312,29 @@ export default function SideNav(props) {
                 <CodeIcon />
               </ListItemIcon>
               <ListItemText primary={'Code Converter'} sx={{ opacity: open ? 1 : 0, color: '#FFFFFF' }} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key={'Search'} disablePadding sx={{ display: 'block' }}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+                color: '#FFFFFF'
+              }}
+              onClick={handleSearchRouting}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : 'auto',
+                  justifyContent: 'center',
+                  color: '#FFFFFF'
+                }}
+              >
+                <SearchIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Search'} sx={{ opacity: open ? 1 : 0, color: '#FFFFFF' }} />
             </ListItemButton>
           </ListItem>
         </List>

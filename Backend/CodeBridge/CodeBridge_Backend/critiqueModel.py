@@ -1,7 +1,7 @@
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatAnthropic
 from langchain.chains import LLMChain
-import keys
+from . import keys
 from langchain.output_parsers import GuardrailsOutputParser
 
 
