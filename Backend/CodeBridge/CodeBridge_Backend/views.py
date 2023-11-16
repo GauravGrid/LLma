@@ -1535,7 +1535,7 @@ def higher_level_business_logic(business_logic,folder_name):
     logic= llm_chain.predict(input=business_logic,folder_name=folder_name)
     return logic
 
-def process_folder_business_logic(parent_folder_id):    
+def process_folder_business_logic_1(parent_folder_id):    
     
     try:
         folder = FolderUpload.objects.get(folderId=parent_folder_id)
@@ -1693,6 +1693,57 @@ def process_folder_business_logic_1Y1(parent_folder_id):
 
 # Higher Level Business API View
 
+def process_folder_business_logic(parent_folder_id):    
+    
+    try:
+        folder = FolderUpload.objects.get(folderId=parent_folder_id)
+        folder_name = folder.foldername
+        logic=""
+        folder_business_logic_dict = {}
+        folder_structure=get_folder_structure(parent_folder_id)
+        
+        files_name=[]
+        
+        files = FileUpload.objects.filter(parentFolder=folder)
+        
+        for file in files:
+            try:
+                existing_logic = Logic.objects.get(file=file)
+                file_logic = existing_logic.logic
+            except:
+                file_logic = file_business_logic(file.file)
+            folder_business_logic_dict[file.filename] = file_logic
+        
+        subfolders = FolderUpload.objects.filter(parentFolder=folder)
+        
+        for subfolder in subfolders:
+            subfolder_logic = process_folder_business_logic(subfolder.folderId)
+            folder_business_logic_dict[subfolder.foldername] = subfolder_logic
+            
+        try:
+            token=num_tokens_from_dict(folder_business_logic_dict,"cl100k_base")
+            if(token>100000):
+                for file in folder_business_logic_dict:
+                    if(logic==""):
+                        files_name.append(file)
+                        logic=folder_business_logic_dict[file]
+                    else:
+                        files_name.append(file)
+                        logic = combine_business_logic(folder_name,folder_structure,files_name,logic,file,folder_business_logic_dict[file])
+            else:
+                logic = higher_level_business_logic(folder_business_logic_dict,folder_name)
+            return logic  
+            
+        except:
+            return "Error"
+        
+    except FolderUpload.DoesNotExist:
+        logging.error(f"Folder with ID {parent_folder_id} not found.")
+        return ""
+    except Exception as e:
+        logging.error(f"An error occurred while processing folder {parent_folder_id}: {str(e)}")
+        return ""
+
 class HigherLevelBusinessLogic(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -1705,8 +1756,14 @@ class HigherLevelBusinessLogic(APIView):
             serializer = HighLevelSerializer(existing_logic)
             return Response(serializer.data, status=201)
         else:
-            business_logic = process_folder_business_logic(folder_id)
+            # We pass all files business logic in one prompt
+            # business_logic = process_folder_business_logic_1(folder_id)
+            
+            # We pass files busienss logic one by one
             # business_logic = process_folder_business_logic_1Y1(folder_id)
+            
+            # For both case
+            business_logic = process_folder_business_logic(folder_id)
 
             logicData = {
                 'logic':business_logic,
@@ -2017,64 +2074,13 @@ class HigherLevelMermaidFlowchart(APIView):
 
 # Pratice
 
-
-
-def process_folder_business_logicP(parent_folder_id):    
-    
-    try:
-        folder = FolderUpload.objects.get(folderId=parent_folder_id)
-        folder_name = folder.foldername
-        logic=""
-        folder_business_logic_dict = {}
-        folder_structure=get_folder_structure(parent_folder_id)
-        
-        files_name=[]
-        
-        files = FileUpload.objects.filter(parentFolder=folder)
-        for file in files:
-            try:
-                existing_logic = Logic.objects.get(file=file)
-                file_logic = existing_logic.logic
-            except:
-                file_logic = file_business_logic(file.file)
-            folder_business_logic_dict[file.filename] = file_logic
-        
-        subfolders = FolderUpload.objects.filter(parentFolder=folder)
-        for subfolder in subfolders:
-            subfolder_logic = process_folder_business_logic(subfolder.folderId)
-            folder_business_logic_dict[subfolder.foldername] = subfolder_logic
-            
-        try:
-            token=num_tokens_from_dict(folder_business_logic_dict,"cl100k_base")
-            if(token>100000):
-                for file in folder_business_logic_dict:
-                    if(logic==""):
-                        files_name.append(file)
-                        logic=folder_business_logic_dict[file]
-                    else:
-                        files_name.append(file)
-                        logic = combine_business_logic(folder_name,folder_structure,files_name,logic,file,folder_business_logic_dict[file])
-            else:
-                logic = higher_level_business_logic(folder_business_logic_dict,folder_name)
-            return logic  
-            
-        except:
-            return "Error"
-        
-    except FolderUpload.DoesNotExist:
-        logging.error(f"Folder with ID {parent_folder_id} not found.")
-        return ""
-    except Exception as e:
-        logging.error(f"An error occurred while processing folder {parent_folder_id}: {str(e)}")
-        return ""
-
 class HigherLevelBusinessLogicP(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def post(self, request):
         folder_id = request.data.get('id') 
-        business_logic = process_folder_business_logicP(folder_id)
+        business_logic = process_folder_business_logic(folder_id)
         return Response({"response":business_logic}, status=200)
  
 
