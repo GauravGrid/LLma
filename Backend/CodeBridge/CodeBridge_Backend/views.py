@@ -1431,6 +1431,20 @@ def num_tokens_from_string(string: str, encoding_name: str) -> int:
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
+# num_tokens_from_string(logic, "cl100k_base")
+
+def num_tokens_from_dict(input_dict: dict, encoding_name: str) -> int:
+    encoding = tiktoken.get_encoding(encoding_name)
+    concatenated_values = ' '.join(map(str, input_dict.values()))
+    num_tokens = len(encoding.encode(concatenated_values))   
+    return num_tokens
+
+# num_tokens_from_dict(logic, "cl100k_base")
+
+
+
+# File Business Logic
+
 def file_business_logic(code): 
     source="RPG"   
     if source.lower() not in ["sql", "python", "java","mongodb","react","angular","rpg","sas","dspfr","dspfa","assembly"]:
@@ -2003,7 +2017,7 @@ class HigherLevelMermaidFlowchart(APIView):
 
 # Pratice
 
-# num_tokens_from_string(logic, "cl100k_base")
+
 
 def process_folder_business_logicP(parent_folder_id):    
     
@@ -2011,19 +2025,19 @@ def process_folder_business_logicP(parent_folder_id):
         folder = FolderUpload.objects.get(folderId=parent_folder_id)
         folder_name = folder.foldername
         logic=""
-        folder_business_logic_dict = {'HS0095.txt': ' Here is the extracted business logic from the provided RPG code:\n\nThe code contains several procedures:\n\n1. toUppercase:\n   - Accepts a string parameter\n   - Calls the built-in %xlate function to translate the string to uppercase\n   - Returns the uppercase string\n\nThis implements the logic to convert a string to uppercase.\n\n2. toLowercase:\n   - Accepts a string parameter\n   - Calls the built-in %xlate function to translate the string to lowercase \n   - Returns the lowercase string\n\nThis implements the logic to convert a string to lowercase.\n\n3. allocSpace:\n   - Accepts a pointer and a byte size \n   - Checks if pointer is null\n     - If null, allocates new memory of given size and assigns to pointer\n   - If not null, reallocates memory of given size to pointer\n\nThis implements the logic to dynamically allocate and reallocate memory for a pointer variable.\n\n4. deallocSpace:\n   - Accepts a pointer\n   - Checks if pointer is not null\n     - If not null, deallocates the memory for the pointer\n\nThis implements the logic to free dynamically allocated memory for a pointer variable.\n\nIn summary, these procedures provide string case conversion, dynamic memory allocation, and deallocation capabilities that can be utilized in an RPG application.\n\nThe code interacts with memory and strings but does not seem to access any files or UI. It is a self-contained RPG code module focused on string and memory handling functions.','HS0097.txt': " Here is the business logic extracted from the provided RPG code:\n\nThe code appears to be for a user interface that allows selecting and displaying printers/output queues. The key steps are:\n\n1. Determine the user ID and translate to uppercase\n2. Lookup the user's organization information like region, office code etc from a file\n3. Based on input parameter 'Display', load printers into a subfile:\n   - If 'REG' - Show all printers in region\n     - First load printer for current office\n     - Load other offices in region\n     - Load other offices in country \n   - If 'NDL' - Show all printers in office\n     - First load printer for current office  \n     - Load other offices in office\n   - If 'BST' - Show only current office printer\n4. The printer records are read from a file and filtered based on criteria\n5. The selected printer is returned in output field 'Outq'\n\nFiles Used:\n- Adusrf - User Details file\n- Cdorgl1 - Organization Details file \n- Hioutqpf - Printer Details file\n- Hs0097s1 - Printer Subfile\n\nThe code displays the subfile, handles paging and allows selecting a printer. It is focused on retrieving the printer records and presenting them in a subfile for selection. The key business logic is filtering and loading the printer records based on the region/office scope selected."}
+        folder_business_logic_dict = {}
         folder_structure=get_folder_structure(parent_folder_id)
         
         files_name=[]
         
         files = FileUpload.objects.filter(parentFolder=folder)
-        # for file in files:
-        #     try:
-        #         existing_logic = Logic.objects.get(file=file)
-        #         file_logic = existing_logic.logic
-        #     except:
-        #         file_logic = file_business_logic(file.file)
-        #     folder_business_logic_dict[file.filename] = file_logic
+        for file in files:
+            try:
+                existing_logic = Logic.objects.get(file=file)
+                file_logic = existing_logic.logic
+            except:
+                file_logic = file_business_logic(file.file)
+            folder_business_logic_dict[file.filename] = file_logic
         
         subfolders = FolderUpload.objects.filter(parentFolder=folder)
         for subfolder in subfolders:
@@ -2031,22 +2045,18 @@ def process_folder_business_logicP(parent_folder_id):
             folder_business_logic_dict[subfolder.foldername] = subfolder_logic
             
         try:
-            flag=0
-            # If folder_business_logic_dict token limit is greater than 100000 token
-            for file in folder_business_logic_dict:
-                if(flag==0):
-                    flag=flag+1
-                    files_name.append(file)
-                    logic=folder_business_logic_dict[file]
-                else:
-                    files_name.append(file)
-                    logic = combine_business_logic(folder_name,folder_structure,files_name,logic,file,folder_business_logic_dict[file])
-            return logic
-            
-            
-            # If folder_business_logic_dict is less than 100000
-            # logic = higher_level_business_logic(folder_business_logic_dict,folder_name)
-            # return logic   
+            token=num_tokens_from_dict(folder_business_logic_dict,"cl100k_base")
+            if(token>100000):
+                for file in folder_business_logic_dict:
+                    if(logic==""):
+                        files_name.append(file)
+                        logic=folder_business_logic_dict[file]
+                    else:
+                        files_name.append(file)
+                        logic = combine_business_logic(folder_name,folder_structure,files_name,logic,file,folder_business_logic_dict[file])
+            else:
+                logic = higher_level_business_logic(folder_business_logic_dict,folder_name)
+            return logic  
             
         except:
             return "Error"
@@ -2067,6 +2077,13 @@ class HigherLevelBusinessLogicP(APIView):
         business_logic = process_folder_business_logicP(folder_id)
         return Response({"response":business_logic}, status=200)
  
+
+
+
+
+
+
+
 
 
 
@@ -2150,11 +2167,6 @@ class HigherLevelBL023(APIView):
         folder_id = request.data.get('id') 
         # business_logic = process_folder_023(folder_id)
         return Response({"response":business_logic}, status=200)
-
-
-
-
-
 
 # HS06 Files Higher Level Business Logic
 
@@ -2449,12 +2461,6 @@ class HigherLevelBL06(APIView):
         }
         return Response(response_data, status=200)
 
-
-
-
-
-
-
 # HS06 Number Files Higher Level Business Logic
 
 business_06N=[
@@ -2560,12 +2566,6 @@ class HigherLevelBL06N(APIView):
             "elapsed_time_seconds": elapsed_time
         }
         return Response(response_data, status=200)
-
-
-
-
-
-
 
 # Customer Search Higher Level Business Logic, Mermaid Diagram and Mermaid Flowchart
 
