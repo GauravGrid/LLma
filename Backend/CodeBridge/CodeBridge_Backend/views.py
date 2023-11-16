@@ -5,7 +5,7 @@ from .service import business_logic
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponse
 from .service import generateJava,generateFlowChart,generateClassDiagram,javaCompiler,detectLanguage
-from .new_prompts import business_logic_to_mermaid_diagram,business_logic_to_code,business_logic_to_mermaid_flowchart,code_to_business_logic, file_business_logic,file_mermaid_diagram,file_mermaid_flowchart,combine_business_logic,combine_mermaid_diagram,combine_mermaid_flowchart
+from .new_prompts import updated_business_logic, business_logic_to_mermaid_diagram,business_logic_to_code,business_logic_to_mermaid_flowchart,code_to_business_logic, file_business_logic,file_mermaid_diagram,file_mermaid_flowchart,combine_business_logic,combine_mermaid_diagram,combine_mermaid_flowchart
 import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -1530,8 +1530,10 @@ def process_folder_business_logic(parent_folder_id):
             existing_logic = Logic.objects.get(file=file)
             if existing_logic:
                 file_logic = existing_logic.logic
+                file_logic = updated_business_logic(file_logic)
             else:
                 file_logic = file_business_logic(file.file)
+                file_logic = updated_business_logic(file_logic)
             folder_business_logic_dict[file.filename] = file_logic
 
         subfolders = FolderUpload.objects.filter(parentFolder=folder)
@@ -1697,11 +1699,9 @@ def higher_level_mermaid_flowchart(business_logic):
     
     template='''
     Convert Business Logic to Mermaid Flow chart Diagram of a codebase.
-    I want to generate code for Mermaid Flow chart diagram using business logic of a codebase and Remember this mermaid class diagram code is used by
-    developers to visualize the codebase's code logic. Also give code in correct syntax so that it can be rendered by mermaidjs 8.11.0 . Make sure the
-    blocks are properly linked . Here is also an example how to generate mermaid class diagram using the business logic. and remember also don't give
-    any inital word and sentence like here is mermaid flow chart diagram of this business logic.Mermaid flow chart diagram that visually represents 
-    this logic.The Mermaid flow chart diagram also should visually represent the flow and sequence of the business logic,including key decision points
+    I want to generate code for Mermaid Flow chart diagram using business logic of a codebase and Remember this mermaid flowchart code is used by
+    developers to visualize the codebase's business logic. Also give code in correct syntax so that it can be rendered by mermaidjs 8.11.0 . Make sure the
+    blocks are properly linked . Here is also an example how to generate mermaid flowchart using the business logic. The Mermaid flow chart diagram also should visually represent the flow and sequence of the business logic,including key decision points
     and data dependencies. Ensure that the resulting diagram is comprehensive and self-explanatory. 
     
     Remember this Mermaid Flowchart diagram serves the purpose of visualizing the interplay of business logic within a codebase, showcasing how 
@@ -1746,6 +1746,7 @@ class HigherLevelMermaidFlowchart(APIView):
         folder = FolderUpload.objects.get(folderId=folder_id)
         existing_logic = HighLevel.objects.filter(user=request.user,folder_id=folder_id).first()
         
+        
         if not existing_logic.flowChart:
             mermaid_flowchart=higher_level_mermaid_flowchart(existing_logic.logic)
             data = {
@@ -1769,9 +1770,24 @@ class HigherLevelMermaidFlowchart(APIView):
         folder_id = request.data.get('id') 
         folder = FolderUpload.objects.get(folderId=folder_id)
         existing_logic = HighLevel.objects.filter(user=request.user,folder_id=folder_id).first()
+        folder = FolderUpload.objects.get(folderId=folder_id)
+        folder_name = folder.foldername
+        folder_business_logic_dict = {}
+        
+        files = FileUpload.objects.filter(parentFolder=folder)
+        for file in files:
+            existing_logic2 = Logic.objects.get(file=file)
+            if existing_logic2:
+                file_logic = existing_logic2.logic
+                file_logic = updated_business_logic(file_logic)
+                
+            else:
+                file_logic = file_business_logic(file.file)
+                file_logic = updated_business_logic(file_logic)
+            folder_business_logic_dict[file.filename] = file_logic
         
         
-        mermaid_flowchart=higher_level_mermaid_flowchart(existing_logic.logic)
+        mermaid_flowchart=higher_level_mermaid_flowchart(folder_business_logic_dict)
         data = {
             'logic':existing_logic.logic,
             'user':request.user,
@@ -1880,3 +1896,62 @@ class HigherLevelMermaidFlowchart(APIView):
                                                         item,Mermaid_Flowchart)
         
         return mermaid_flowchart
+from .models import ScaniaBusinessLogic as SBL
+from .serializers import ScaniaLogicSerializer
+import logging
+logging.basicConfig(
+    filename='Scania.log',  
+    level=logging.INFO,   
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+logger = logging.getLogger(__name__)
+class ScaniaBusinessLogic(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request):
+        user = request.user
+        path = '/Users/vjain/Scania Source Code copy 2/HSSRC.LIB/QRPGLESRC.FILE'
+        if os.path.exists(path):
+            file_list = os.listdir(path)
+            for file_name in file_list:
+                if file_name.endswith('.txt'):
+                    print(file_name)
+                    file_path = os.path.join(path, file_name)
+                    try:
+                        with open(file_path, 'r') as file:
+                            file_content = file.read()
+                            source = 'RPG'
+                            try:
+                                existing_logic = SBL.objects.get(file_name=file_name)
+                            except:
+                                business_logic = code_to_business_logic(file_content, source)
+                                logic_data = {
+                                    'logic': business_logic,
+                                    'user': user,
+                                    'file_name': file_name,
+                                    'folder_name': 'QRPGSRC400.FILE'
+                                }
+                                serializer = ScaniaLogicSerializer(data=logic_data)
+                                if serializer.is_valid():
+                                    serializer.save()
+                                    logger.info(f'File Name: {file_name} processed and saved')
+                                else:
+                                    logger.error(f'Serializer errors for file: {file_name}')
+                    except Exception as e:
+                        logger.error(f'Error processing file: {file_name}, error: {str(e)}')
+        return Response({'Message': 'done'}, status=status.HTTP_201_CREATED)
+    
+from .search import get_search_list
+class Search(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request):
+        user = request.user
+        query = request.data.get('query') 
+        result = get_search_list(query)
+        print(result)
+        return Response({'data': result}, status=status.HTTP_201_CREATED)
+                        

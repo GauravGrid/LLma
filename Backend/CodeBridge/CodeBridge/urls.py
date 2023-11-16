@@ -48,4 +48,6 @@ urlpatterns = [
     path('api/mermaid_flowchart/', views.HigherLevelMermaidFlowchart.as_view(), name='mermaid_flowchart'),
     path('gen-share-code/',views.GenerateUUID.as_view(),name='generate_share_code'),
     path('get-access/',views.AccessRepository.as_view(),name='get_access_to_repository'),
+    path('scania-bus/',views.ScaniaBusinessLogic.as_view(),name='scania-business-logic'),
+    path('search/',views.Search.as_view(),name='search-business-logic'),
 ]

@@ -85,3 +85,9 @@ class HighLevel(models.Model):
     logic = models.TextField()
     classDiagram = models.TextField(null=True)
     flowChart = models.TextField(null=True)
+
+class ScaniaBusinessLogic(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    logic = models.TextField()
+    file_name = models.TextField()
+    folder_name= models.TextField()
