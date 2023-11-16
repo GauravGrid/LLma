@@ -17,6 +17,7 @@ import tempfile
 from .serializers import FileSerializer,LogicSerializer,JavaCodeSerializer,MermaidDiagramSerializer,GithubRepositorySerializer,ShareCodeSerializer,HighLevelSerializer
 from django.http import Http404
 import requests
+import tiktoken
 from django.shortcuts import redirect
 from rest_framework.decorators import permission_classes,authentication_classes
 from .newrepo import create_repository,get_git_repo_owner,create_github_branch,push_to_github
@@ -1391,10 +1392,6 @@ class CreatePullRequest(APIView):
             print(f"Failed to create pull request: {response.text}")
             return None
     
-    
-        
-
-
 class GenerateUUID(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -1427,9 +1424,12 @@ class AccessRepository(APIView):
         
 
 
+# Calculate Token
 
-
-# Higher Level Business Logic
+def num_tokens_from_string(string: str, encoding_name: str) -> int:
+    encoding = tiktoken.get_encoding(encoding_name)
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
 
 def file_business_logic(code): 
     source="RPG"   
@@ -1494,6 +1494,8 @@ def file_business_logic(code):
     logic= llm_chain.predict(input=code,source=source,example_code=example_code)
     return f"{logic}"
 
+# Higher Level Business Logic For all Files at a same time
+
 def higher_level_business_logic(business_logic,folder_name):
     
     template='''I would like to generate comprehensive higher-level business logic for a specific folder, which is identified by the name {folder_name}. This business logic
@@ -1552,6 +1554,130 @@ def process_folder_business_logic(parent_folder_id):
     except Exception as e:
         logging.error(f"An error occurred while processing folder {parent_folder_id}: {str(e)}")
         return ""
+    
+# Higher Level Business Logic one by one to handle token problems
+ 
+def get_folder_structure(folder_id):
+    
+    folder = FolderUpload.objects.get(folderId=folder_id)
+    
+    folder_structure = {
+        'files': [],
+    }
+
+    subfolders = FolderUpload.objects.filter(parentFolder=folder)
+    files = FileUpload.objects.filter(parentFolder=folder)
+
+    for subfolder in subfolders:
+        subfolder_structure = get_folder_structure(subfolder.folderId)
+        folder_structure.setdefault('sub_folders', []).append({
+            'folder_name': subfolder.foldername,
+            'content': subfolder_structure
+        })
+
+    for file in files:
+        folder_structure['files'].append(file.filename)
+
+    return folder_structure
+ 
+def combine_business_logic(folder_name,
+                           folder_structure,
+                           files_name,
+                           previous_business_logic,
+                           current_directory_name,
+                           current_directory_business_logic):
+    
+    template='''Assume the role of a system design expert.
+
+    You are tasked with creating a comprehensive high-level business logic overview for a module identified by the name {folder_name}. 
+    This overview should encompass the entire module, providing developers with a clear and concise understanding of its business logic.
+    The primary goal is to facilitate developers' comprehension of the module's overall business logic.
+
+    The process involves users supplying business logic for all files and subfolder files within the specified directory individually. Once this
+    information is gathered, you will synthesize higher-level business logic that summarizes the individual inputs. It is essential to note that 
+    this higher-level business logic should be easy for developers to understand and suitable for generating a mermaid flowchart diagram, serving
+    as a visual representation of the folder's code structure. This diagram will utilize the synthesized business logic to create an informative
+    visual aid.
+
+    Higher-Level Business Logic includes the interaction of files and higher business logic encompasses all files' logic.
+
+    The folder structure is as follows: '{folder_structure}'.
+
+    Please combine the previously provided business logic with the current directory's business logic. The previous business logic pertains to 
+    the files named {files_name}, while the current directory business logic relates to the file named {current_directory_name}.
+
+    Previous Business Logic =
+
+    {previous_business_logic}
+
+    Current Directory Business Logic =
+
+    {current_directory_business_logic}
+
+    Combined Business Logic =
+    '''
+
+    llm_chain = LLMChain(llm=ChatAnthropic(temperature=0.8,model="claude-2.0",max_tokens_to_sample=100000),
+    prompt=PromptTemplate(input_variables=["folder_name","folder_structure","previous_business_logic","current_directory_name","current_directory_business_logic"],
+            template=template),
+        verbose=True,
+    )
+
+    logic= llm_chain.predict(folder_name=folder_name,
+                             folder_structure=folder_structure,
+                             files_name=files_name,
+                             previous_business_logic=previous_business_logic,
+                             current_directory_name=current_directory_name,
+                             current_directory_business_logic=current_directory_business_logic)
+    return f"{logic}"    
+
+def process_folder_business_logic_1Y1(parent_folder_id):    
+    
+    try:
+        folder = FolderUpload.objects.get(folderId=parent_folder_id)
+        folder_name = folder.foldername
+        folder_structure=get_folder_structure(parent_folder_id)
+        folder_business_logic=""
+        
+        files_name=[]
+        
+        files = FileUpload.objects.filter(parentFolder=folder)
+        
+        for file in files:
+            files_name.append(file.filename)
+            
+            try:
+                existing_logic = Logic.objects.get(file=file)
+                file_logic = existing_logic.logic
+            except:
+                file_logic = file_business_logic(file.file)
+                
+            if (folder_business_logic==""):
+                folder_business_logic = file_logic
+            else:
+                folder_business_logic = combine_business_logic(folder_name, folder_structure,files_name, folder_business_logic, file.filename, file_logic)
+    
+        subfolders = FolderUpload.objects.filter(parentFolder=folder)
+        
+        for subfolder in subfolders:
+            files_name.append(subfolder.foldername)
+            subfolder_business_logic = process_folder_business_logic(subfolder.folderId)
+            
+            if(folder_business_logic==""):
+                folder_business_logic=subfolder_business_logic
+            else:
+                folder_business_logic = combine_business_logic(folder_name, folder_structure,files_name, folder_business_logic, subfolder.foldername, subfolder_business_logic)
+
+        return folder_business_logic
+        
+    except FolderUpload.DoesNotExist:
+        logging.error(f"Folder with ID {parent_folder_id} not found.")
+        return ""
+    except Exception as e:
+        logging.error(f"An error occurred while processing folder {parent_folder_id}: {str(e)}")
+        return ""
+
+# Higher Level Business API View
 
 class HigherLevelBusinessLogic(APIView):
     permission_classes = [CustomIsAuthenticated]
@@ -1566,6 +1692,7 @@ class HigherLevelBusinessLogic(APIView):
             return Response(serializer.data, status=201)
         else:
             business_logic = process_folder_business_logic(folder_id)
+            # business_logic = process_folder_business_logic_1Y1(folder_id)
 
             logicData = {
                 'logic':business_logic,
@@ -1673,7 +1800,7 @@ class HigherLevelMermaidDiagram(APIView):
             return Response(serializer.data, status=201)
         else:
             return Response(serializer.errors, status=400)
-        
+         
 # Higher Level Mermaid Flowchart
 def higher_level_mermaid_flowchart(business_logic):
     
@@ -1873,9 +2000,94 @@ class HigherLevelMermaidFlowchart(APIView):
         return mermaid_flowchart
 
 
-# Higher Solve Token Problem
 
-# HS023 Files 
+# Pratice
+
+# num_tokens_from_string(logic, "cl100k_base")
+
+def process_folder_business_logicP(parent_folder_id):    
+    
+    try:
+        folder = FolderUpload.objects.get(folderId=parent_folder_id)
+        folder_name = folder.foldername
+        logic=""
+        folder_business_logic_dict = {'HS0095.txt': ' Here is the extracted business logic from the provided RPG code:\n\nThe code contains several procedures:\n\n1. toUppercase:\n   - Accepts a string parameter\n   - Calls the built-in %xlate function to translate the string to uppercase\n   - Returns the uppercase string\n\nThis implements the logic to convert a string to uppercase.\n\n2. toLowercase:\n   - Accepts a string parameter\n   - Calls the built-in %xlate function to translate the string to lowercase \n   - Returns the lowercase string\n\nThis implements the logic to convert a string to lowercase.\n\n3. allocSpace:\n   - Accepts a pointer and a byte size \n   - Checks if pointer is null\n     - If null, allocates new memory of given size and assigns to pointer\n   - If not null, reallocates memory of given size to pointer\n\nThis implements the logic to dynamically allocate and reallocate memory for a pointer variable.\n\n4. deallocSpace:\n   - Accepts a pointer\n   - Checks if pointer is not null\n     - If not null, deallocates the memory for the pointer\n\nThis implements the logic to free dynamically allocated memory for a pointer variable.\n\nIn summary, these procedures provide string case conversion, dynamic memory allocation, and deallocation capabilities that can be utilized in an RPG application.\n\nThe code interacts with memory and strings but does not seem to access any files or UI. It is a self-contained RPG code module focused on string and memory handling functions.','HS0097.txt': " Here is the business logic extracted from the provided RPG code:\n\nThe code appears to be for a user interface that allows selecting and displaying printers/output queues. The key steps are:\n\n1. Determine the user ID and translate to uppercase\n2. Lookup the user's organization information like region, office code etc from a file\n3. Based on input parameter 'Display', load printers into a subfile:\n   - If 'REG' - Show all printers in region\n     - First load printer for current office\n     - Load other offices in region\n     - Load other offices in country \n   - If 'NDL' - Show all printers in office\n     - First load printer for current office  \n     - Load other offices in office\n   - If 'BST' - Show only current office printer\n4. The printer records are read from a file and filtered based on criteria\n5. The selected printer is returned in output field 'Outq'\n\nFiles Used:\n- Adusrf - User Details file\n- Cdorgl1 - Organization Details file \n- Hioutqpf - Printer Details file\n- Hs0097s1 - Printer Subfile\n\nThe code displays the subfile, handles paging and allows selecting a printer. It is focused on retrieving the printer records and presenting them in a subfile for selection. The key business logic is filtering and loading the printer records based on the region/office scope selected."}
+        folder_structure=get_folder_structure(parent_folder_id)
+        
+        files_name=[]
+        
+        files = FileUpload.objects.filter(parentFolder=folder)
+        # for file in files:
+        #     try:
+        #         existing_logic = Logic.objects.get(file=file)
+        #         file_logic = existing_logic.logic
+        #     except:
+        #         file_logic = file_business_logic(file.file)
+        #     folder_business_logic_dict[file.filename] = file_logic
+        
+        subfolders = FolderUpload.objects.filter(parentFolder=folder)
+        for subfolder in subfolders:
+            subfolder_logic = process_folder_business_logic(subfolder.folderId)
+            folder_business_logic_dict[subfolder.foldername] = subfolder_logic
+            
+        try:
+            flag=0
+            # If folder_business_logic_dict token limit is greater than 100000 token
+            for file in folder_business_logic_dict:
+                if(flag==0):
+                    flag=flag+1
+                    files_name.append(file)
+                    logic=folder_business_logic_dict[file]
+                else:
+                    files_name.append(file)
+                    logic = combine_business_logic(folder_name,folder_structure,files_name,logic,file,folder_business_logic_dict[file])
+            return logic
+            
+            
+            # If folder_business_logic_dict is less than 100000
+            # logic = higher_level_business_logic(folder_business_logic_dict,folder_name)
+            # return logic   
+            
+        except:
+            return "Error"
+        
+    except FolderUpload.DoesNotExist:
+        logging.error(f"Folder with ID {parent_folder_id} not found.")
+        return ""
+    except Exception as e:
+        logging.error(f"An error occurred while processing folder {parent_folder_id}: {str(e)}")
+        return ""
+
+class HigherLevelBusinessLogicP(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request):
+        folder_id = request.data.get('id') 
+        business_logic = process_folder_business_logicP(folder_id)
+        return Response({"response":business_logic}, status=200)
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Higher Level For Specific Files
+
+# HS023 Files Higher Level Business Logic
+
 business_023={
 "HS023V":"Here is the business logic extracted from the provided RPG code:\n\nThis RPG program is named HS023V and titled \"SDPS Customer Master Default Values from SDE\". It appears to be called from program HS0230.\n\nThe purpose of this program is to retrieve default values for customer master records from an interface file and assign them to output parameters.\n\nIt does the following:\n\n1. Opens the interface file HSKUILF1 for reading. This is likely an extract file containing customer default values.\n\n2. Reads records from HSKUILF1 sequentially using a key of KEYKUD. \n\n3. Checks if the interface record has KUI000 = 'SDE', indicating it is a record from SDE (likely another system).\n\n4. If it is a record from SDE, copies values from the interface file to the output parameters:\n\n    - KUI180_SDE = KUI180 (AXA Customer Group)\n    - KUI190_SDE = KUI190 (AXA Tax Group)\n\n5. Continues reading records until end of file is reached.\n\nSo in summary, this program retrieves default customer group and tax group values from an SDE extract file and assigns them to output parameters that are likely used in another program that maintains customer master records.\n\nThe program interacts with two files:\n\n- HSKUILF1 - Input extract file containing customer default values \n- FKUDSTAM - Likely customer master file, not directly used here but based on program name\n\nNo database or UI interaction is indicated in this code.",
 "HS023S":"Here is the extracted business logic from the provided RPG code:\n\nThis code appears to be for customer management in an ordering system. The main functions are:\n\n1. Display and maintain customer contacts (subfile maintenance)\n\n- Allow adding, changing and deleting customer contacts \n- Contacts have name, email, date fields\n- Validate required fields on add/change\n- Show message if no contacts exist\n\n2. Link customers to operating sites\n\n- Allow selecting operating site (dropdown?) \n- Validate site is valid using site master file\n- Save site linkage in customer master record\n\n3. Save customer record \n\n- Validate contact and site data  \n- Save or update customer record with key fields, site, order type and date\n- Delete customer record if unlinking site\n\n4. Clean up orphaned contacts\n\n- Delete contacts not linked to customer records\n\nThe code interacts with these files:\n\n- SPOCUSF - Customer master file\n- SPOCUAF - Customer contact file\n- HSBTSPF - Site master file \n- Plus work files\n\nThe UI is a 5250 green screen using subfile for contact maintenance.\n\nThe core logic revolves around maintaining contacts, validating data, and linking records between the customer, contact and site files. Let me know if any part needs further explanation!",
@@ -1930,7 +2142,21 @@ def process_folder_023(parent_folder_id):
     logic = folder_business_logic
     return logic
 
-# HS06 Files
+class HigherLevelBL023(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request):
+        folder_id = request.data.get('id') 
+        # business_logic = process_folder_023(folder_id)
+        return Response({"response":business_logic}, status=200)
+
+
+
+
+
+
+# HS06 Files Higher Level Business Logic
 
 business_06=[
 { "logic":"Here is the extracted business logic from the provided RPG code:\n\nThis RPG program appears to handle the positioning/assignment of components to position numbers in a workshop job/work order. The key functions include:\n\n1. Positioning various component types to position numbers:\n- Work order texts (TYP#100) \n- AGA texts (TYP#200)\n- Multi labor times (TYP#300)\n- New labor times (TYP#350)\n- Workshop/hours (TYP#400) \n- Machine hours (TYP#430)\n- Campaigns (TYP#450)\n- AGA calculations (TYP#500)\n- AGA fixed prices (TYP#600) \n- External services (TYP#700)\n- Kits (TYP#800)\n- New kits (TYP#850) \n- Parts (TYP#900)\n\n2. Displaying components in a subfile for selection/update\n\n3. Allowing mass update of selected components to a single position\n\n4. Integration with new workshop route logic (when WKO280='AV') to also position new labor times\n\n5. Integration with new external services to also position those (when FLNEU='F') \n\n6. Additional logic to:\n- Fetch and position job header/description info if called from job order processing \n- Suppress positioning if certain splits (like EPS)\n- Handle parts packaging and text\n- Display parts/kits components in kits/packages\n- Link components to workshop damage coding\n- Protect position numbers linked to jobs\n- Allow job change for certain component types\n- Filter display based on F10 option\n\nThe file I/O includes chain/reads on various externally described files like AUFWRZ, AUFWKK, AUFWTE.\n\nSo in summary, this program's business logic centers around positioning/linking various work order and job components to position numbers, supporting new functions like labor routes, external services, etc. The output subfile provides a consolidated view for selection and update.","file_name":"HS0649.txt"},
@@ -2207,7 +2433,29 @@ def process_folder_06(parent_folder_id):
     logic = folder_business_logic
     return logic
 
-# HS06 Number Files
+class HigherLevelBL06(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
+    def post(self, request):
+        start_time = time()
+        folder_id = request.data.get('id')
+        business_logic = process_folder_06(folder_id)
+        end_time = time()  # Record the end time
+        elapsed_time = end_time - start_time 
+        response_data = {
+            "response": business_logic,
+            "elapsed_time_seconds": elapsed_time
+        }
+        return Response(response_data, status=200)
+
+
+
+
+
+
+
+# HS06 Number Files Higher Level Business Logic
 
 business_06N=[
     
@@ -2297,143 +2545,162 @@ def process_folder_06N(parent_folder_id):
     logic = folder_business_logic
     return logic
 
-
-# Combine Functions
-
-def combine_business_logic(folder_name,
-                           folder_structure,
-                           files_name,
-                           previous_business_logic,
-                           current_directory_name,
-                           current_directory_business_logic):
-    
-    
-    # template='''
-    # Assume you are a system design expert.
-
-    # You have to generate comprehensive high level business logic overview for a module, which is identified by the name {folder_name}. 
-    # This business logic should encompass the entirety of the module in order to provide developers with a clear and concise overview of the module. 
-    # The objective is to make it easier for developers to understand what the overall business logic of the module is.
-
-    # The process involves the user providing the business logic for all the files and subfolder files within the specified directory one by one. After gathering this information, 
-    # I will synthesize a higher-level business logic that summarizes the individual inputs. It's important to note that this higher-level business logic should also be
-    # suitable for generating a mermaid flowchart diagram. This diagram will serve as a visual representation of the folder's code structure, utilizing the synthesized 
-    # business logic to create an informative visual aid.
-    
-    # In Higher Level Business Logic there is also show which file interact with which files.
-    # show also functions of all files .
-    
-    # The folder structure is : '{folder_structure}'. 
-    
-    # Combine the previous business logic and current directory business logic.
-    # Previous business logic is the business logic of files named {files_name}
-    # Current Business Logic is the business logic of file named {current_directory_name}
-
-    # So Now generate a Combined Business logic for developers so that it is easy to understand.
-
-    # Previous Business Logic =
-    
-    # {previous_business_logic}
-    
-    # Current Directory Business Logic =
-    
-    # {current_directory_business_logic}
-    
-    # Combined Business Logic = '''
-
-    template='''Assume the role of a system design expert.
-
-    You are tasked with creating a comprehensive high-level business logic overview for a module identified by the name {folder_name}. 
-    This overview should encompass the entire module, providing developers with a clear and concise understanding of its business logic.
-    The primary goal is to facilitate developers' comprehension of the module's overall business logic.
-
-    The process involves users supplying business logic for all files and subfolder files within the specified directory individually. Once this
-    information is gathered, you will synthesize higher-level business logic that summarizes the individual inputs. It is essential to note that 
-    this higher-level business logic should be easy for developers to understand and suitable for generating a mermaid flowchart diagram, serving
-    as a visual representation of the folder's code structure. This diagram will utilize the synthesized business logic to create an informative
-    visual aid.
-
-    Higher-Level Business Logic includes the interaction of files and higher business logic encompasses all files' logic.
-
-    The folder structure is as follows: '{folder_structure}'.
-
-    Please combine the previously provided business logic with the current directory's business logic. The previous business logic pertains to 
-    the files named {files_name}, while the current directory business logic relates to the file named {current_directory_name}.
-
-    Previous Business Logic =
-
-    {previous_business_logic}
-
-    Current Directory Business Logic =
-
-    {current_directory_business_logic}
-
-    Combined Business Logic =
-    '''
-
-    llm_chain = LLMChain(
-        llm=ChatAnthropic(
-            temperature=0.8,
-            model="claude-2.0",
-            max_tokens_to_sample=100000
-        ),
-        prompt=PromptTemplate(
-            input_variables=[
-                "folder_name",
-                "folder_structure",
-                "previous_business_logic",
-                "current_directory_name",
-                "current_directory_business_logic"
-            ],
-            template=template
-        ),
-        verbose=True,
-    )
-
-    logic= llm_chain.predict(folder_name=folder_name,
-                             folder_structure=folder_structure,
-                             files_name=files_name,
-                             previous_business_logic=previous_business_logic,
-                             current_directory_name=current_directory_name,
-                             current_directory_business_logic=current_directory_business_logic)
-    return f"{logic}"
-      
-class HigherLevelBL(APIView):
+class HigherLevelBL06N(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
-
-    # def post(self, request):
-    #     folder_id = request.data.get('id') 
-    #     # business_logic = process_folder_023(folder_id)
-    #     return Response({"response":business_logic}, status=200)
-    
-    # def post(self, request):
-    #     start_time = time()
-    #     folder_id = request.data.get('id')
-    #     business_logic = process_folder_06(folder_id)
-    #     end_time = time()  # Record the end time
-
-    #     elapsed_time = end_time - start_time 
-        
-    #     response_data = {
-    #         "response": business_logic,
-    #         "elapsed_time_seconds": elapsed_time
-    #     }
-
-    #     return Response(response_data, status=200)
     
     def post(self, request):
         start_time = time()
         folder_id = request.data.get('id')
         business_logic = process_folder_06N(folder_id)
-        end_time = time()  # Record the end time
-
+        end_time = time()
         elapsed_time = end_time - start_time 
-        
         response_data = {
             "response": business_logic,
             "elapsed_time_seconds": elapsed_time
         }
-
         return Response(response_data, status=200)
+
+
+
+
+
+
+
+# Customer Search Higher Level Business Logic, Mermaid Diagram and Mermaid Flowchart
+
+business_logic_customer={
+    
+'HS0238.txt': "Here is the business logic extracted from the provided RPG code:\n\n1. Program Purpose:\n- This program is for customer master search and duplicate check. It allows searching for customers by various criteria like name, address, postcode etc. and shows search results in a subfile for selection.\n\n2. Input Parameters:\n- KZL (char 3): Branch number \n- KDNR (char 6): Customer number\n- KDMC (char 5): Program to call for details\n- RET (char 3): Return code \n\n3. Global Data Structures:\n- MATCHID (char 6): Matchcode value\n- DDUKPLE (char 5): Search criteria - postcode range\n- §RETURN (char 3): Return code\n\n4. Main Procedures:\n\n4.1 Initial Setup:\n- Initialize variables, subfile etc.\n- Read user profile for allowed branches\n- Set initial sort order and search criteria\n\n4.2 Search:\n- Based on input criteria, search by postcode range or matchcode\n- For postcode: Read postcode file, find matching addresses\n- For matchcode: Find matching customer numbers \n\n4.3 Selection Display:\n- Show results in subfile\n- Allow changing sort order and search criteria\n- On selection, return customer number and branch \n\n4.4 Subroutines:\n\n- SFLLOE: Clear subfile\n- PLZ: Build subfile by postcode\n- MATCH_KUD: Build subfile by matchcode on customer number\n- MATCH_KUI: Build subfile by matchcode on alternative customer number\n- FUELS1: Fill subfile with address details\n- SR16: Change sort order\n- TRIMBL: Remove blanks from search fields\n\n5. Called Programs/Files:\n- KUDSTAM: Customer master file\n- KUDSTLFF: Postcode file\n- HSKUILF1: Alternative customer number file\n- HSBTSLF1: User profile file\n\nSo in summary, this is an interactive search program for the customer master file allowing flexible search criteria and subfile display of results.",
+
+'HS0900.txt': "Here is the extracted business logic from the provided RPG code:\n\nThis appears to be an RPG program for searching and displaying customer information based on search criteria entered by the user.\n\nThe key steps are:\n\n1. Initialize data structures and variables \n\n2. Read search criteria entered by the user:\n    - Customer number (KDNR)\n    - Zip code (DUKPLE) \n    - Street (DUKSTR)\n    - City (DUKORT) \n    - First name (DUKNA1)\n    - Last name (DUKNA2)\n\n3. Clear previous search results from subfile (HS0900S1)\n\n4. Read customer master file (HSKUIPR)\n    - Validate record is not blocked (KUI070 <> 'S') \n\n5. For each customer record:\n    - Convert search criteria and master file fields to uppercase for comparison\n    - Check if search criteria matches customer fields\n        - Zip code (DUKPLE = KUD080)\n        - Street (DUKSTR scans KUD060)\n        - City (DUKORT scans KUD090)\n        - First name (DUKNA1 scans KUD030)\n        - Last name (DUKNA2 scans KUD040)\n    - If all criteria match, write customer to output subfile (HS0900S1)\n\n6. If no records match, indicate no records found\n\n7. Display subfile to user (HS0900C1)\n\n8. When user selects a record:\n    - Retrieve customer number (KUI010)\n    - Exit program\n\nThis program interacts with the following files:\n\n- HSKUIPR - Customer master file (input) \n- HS0900S1 - Output subfile with search results\n- HS0900C1 - Format for displaying subfile\n\nThe user interface consists of:\n\n- HS0900W2 - Input search criteria screen\n- HS0900C1 - Output subfile display\n\nIn summary, this is an interactive customer search program that allows users to search for customers based on various criteria and displays the matching results in a subfile for selection.",
+
+'HS0815.txt': "Here is the business logic extracted from the provided RPG code:\n\nThis RPG program appears to be part of an automotive dealer system for Scania. The main functions are:\n\n1. Customer Search\n- It calls another program HS0238 to search for a customer by customer number (RE1100). \n- The search criteria includes customer number (RE1100), clearing center (HS815), and clearing number (§KDNR).\n- The result is returned in §KDNR.\n\n2. Invoice Processing\n- It can process invoices by invoice number (RE1050) or by customer number (RE1100).\n- Invoice details like invoice date (RE108x), totals (RE106x) are moved to output files.\n- Output file HS0815S1 contains invoice header details.\n- Output file HS0815S2 contains invoice line details like quantity (RE2100), net amount (RE2110), VAT amount (RE2120). \n\n3. Display Invoices\n- Invoices from HS0815S1 and HS0815S2 are displayed after writing to output files.\n- Invoice selection happens based on user input.\n- Selected invoice details from HS0815S1 and HS0815S2 are shown in display files HS0815C1 and HS0815C2.\n\nIn summary, this RPG program enables search for customers, processing of invoice documents, and displaying invoices in an automotive dealer system.\n\nThe key files used are:\n\nInput Files:\n- HS0815S1 - Invoice Header\n- HS0815S2 - Invoice Lines\n\nOutput Files: \n- HS0815C1 - Invoice Header Display\n- HS0815C2 - Invoice Lines Display\n\nOther Files:\n- HS0238 - Customer Search Program\n- RE1SULF1 - Invoice Header Work File\n- RE1SULF3 - Invoice Header Work File \n- RE2SUM - Invoice Lines Work File\n\nThe program allows processing invoices either by invoice number or customer number as input.",
+
+'HS06009.txt':"Here is the extracted business logic from the provided RPG code:\n\nOverall purpose: This RPG program interacts with the Service Delivery Planning System (SDPS) to retrieve and display draft vehicle work orders for selection and further processing in SDPS.\n\nKey steps:\n\n1. Initialize\n   - Set date format to ISO\n   - Get site ID (kzlb) and description (kzlf)\n   - Define temporary storage for work order data (#sel1, Rec_#d) \n   \n2. Get draft work orders\n   - Build SQL statement to select draft work orders (#sel1)\n   - Execute SQL to populate work order details (Rec_#d)\n   \n3. Display work orders\n   - Write work order details from SQL to display file (HS06009S1)\n   - Allow searching/filtering records\n   - Page through results\n   \n4. Select work order\n   - When option 1 chosen, pass work order ID and other details to SDPS using parameter list\n   - This triggers subsequent processing of selected work order in SDPS\n   \n5. Additional logic\n   - Customer name lookup using multiple files (HSFAIPF, FARSTAM, HSKUIPF, KUDSTAM)\n   - Search logic:\n      - Convert input to uppercase\n      - Remove spaces\n      - Match against multiple fields\n   \n\nKey files:\n\nInput: \n- WOPWOF - Work order file\n- HSFAIPF - Partner file\n- FARSTAM - Partner role file \n- HSKUIPF - Customer file\n- KUDSTAM - Customer role file\n\nOutput:\n- HS06009S1 - Display file for work order selection\n- DD§PWO - Parameter list passed to SDPS\n\nThe program facilitates work order selection from Digital Dealer and transfer to SDPS for further processing. Key steps include SQL retrieval of open work orders, interactive search/select, and passing of selected order details to SDPS. Additional logic handles lookup of customer data from various source files.",
+
+'HS1061.txt':"Based on the provided RPG code, here is the extracted business logic along with the related files, databases and UI:\n\nThe code represents a program named HS1061 that performs customer/supplier/vehicle selection for letter writing in the SDPS-2000 application.\n\nKey Business Logic:\n\n1. Allow selecting customers, suppliers or vehicles based on various criteria like number range, search text, sales rep, etc. \n\n2. Build selection criteria SQL statements dynamically based on input parameters.\n\n3. Call HS1061C program after building selection criteria to retrieve selected records.\n\n4. Write selection criteria to database file HSBRSPF/HSBRSPR. \n\n5. Selection can be done for:\n   - Customers (BEREICH = 'KUD')\n   - Suppliers (BEREICH = 'LIF')  \n   - Vehicles (BEREICH = 'FZA')\n\nRelated Files:\n\n1. HSBRSPF/HSBRSPR - Database file to store selection criteria\n\n2. HSBTSLF1 - Database file that contains dealer short code\n\n3. S7L011A - Database file that contains open campaigns (for vehicles selection) \n\nUI Interaction:\n\n1. Program displays selection screens HS10610x to get input parameters\n\n2. Selection results are shown in grid to user\n\n3. User can select records and press F1 to call letter writing program HS1062C\n\nIn summary, the core logic is to provide selection capabilities for master data (customers, suppliers, vehicles) based on flexible criteria provided through selection screens. The results can then be consumed for downstream processing like letter writing.",
+
+'HS0870.txt':"Here is the business logic extracted from the provided RPG code:\n\n1. The program allows selecting and analyzing order/invoice data based on various criteria like customer number, order number, invoice number etc.\n\n2. It provides two different views for the selection results - View 1 shows workshop orders/invoices and View 2 shows service counter orders/invoices. \n\n3. The selection criteria include:\n   - Order/Invoice number\n   - Order/Invoice date \n   - Order number\n   - Order date\n   - Matchcode\n   - Customer number\n   - License plate number\n   - Package number\n   - Part number\n   - Revenue group\n\n4. The selection can be restricted to:\n   - Only own businesses\n   - Only workshop\n   - Only service counter\n\n5. The results can be sorted by:\n   - Invoice number\n   - Invoice date\n   - Order number  \n   - Order date\n   - Matchcode\n   - Customer number\n   - License plate number\n   - Part number\n\n6. The selection results can be printed or displayed in a subfile.\n\n7. For open orders, the order text is searched if a search term is specified.\n\n8. Archived order/invoice PDFs can be displayed or printed if allowed.\n\n9. Statistical overviews of packages (new/old) can be generated and printed. \n\n10. Selection results can be exported to Excel.\n\n11. Credit limit info and exceptions are displayed for daughter companies.\n\n12. Orders/invoices can be sent to or processed in WHI.\n\nSo in summary, it provides comprehensive selection and analysis of order and invoice data using various criteria and outputs the results in different formats like display, print, export etc. The key business purpose is to support order/invoice evaluation and statistics.",
+
+'HS0680.txt':"Here is the extracted business logic from the provided RPG code:\n\nThis appears to be an RPG program for displaying workshop orders. The key functions include:\n\n1. Displaying workshop orders\n- Allows displaying all workshop orders, only open orders, or orders for the current date\n- Displays details like order number, customer number, vehicle number, status etc in a subfile\n- Handles pagination and navigation of the subfile\n\n2. Lookup by customer number\n- Allows searching for orders by customer number using a matchcode\n- Displays matching orders in a subfile\n- Allows selecting a customer to filter orders\n\n3. Lookup by vehicle number  \n- Allows searching for orders by vehicle/chassis number\n- Displays matching orders in a subfile\n- Allows selecting a vehicle number to filter orders\n\n4. Lookup by repair code\n- Allows searching for orders by repair code \n- Displays matching orders in a subfile\n- Allows selecting a repair code to filter orders\n\n5. Display order details\n- Shows additional details for a selected order in subfiles\n- Displays order header, parts, labor, packages etc.\n- Calculates net values for parts and labor\n\n6. Integration with other programs/files\n- Reads data from workshop order (AUFWKR), customer (KUDSTAR), vehicle (HSFAILR), and other files\n- Calls other programs like HS0062C to retrieve archived data\n\nThe code interacts with display files like HS068000 for user interface. It handles subfile operations for output display. There is also some logic for handling pricing and totals.\n\nOverall, this program allows users to search, view and analyze workshop orders in an interactive manner by integrating with other programs and data files in the system. The business logic centers around order inquiry, lookup and display functions.",
+
+'HS0258.txt':"Here is the extracted business logic from the provided RPG code:\n\nThis RPG program appears to be for searching and displaying supplier master data records.\n\nThe key functions are:\n\n1. Search Criteria Entry\n\n- The user can enter search criteria such as postal code (DUKPLZ), city (DUKSTR), address (DUKORT), name (DUKNAM), and branch (DUKBRA).\n\n- The entered search criteria are converted to uppercase and used to find matching supplier records. \n\n2. Supplier Record Retrieval\n\n- The LIFSTLF2 file is opened for retrieval of supplier master records (LIFSTLR2). \n\n- The search criteria entered by the user are compared to the corresponding fields in the supplier records (LIF060, LIF090, LIF030, LIF040). \n\n- Matching supplier records are selected and added to an internal table (ZL1).\n\n3. Subfile Display\n\n- The selected supplier records are displayed in a subfile (HS0258S1).\n\n- The display shows key fields like supplier number (LIF010) and name (LIF030). \n\n- Additional indicators:\n    - Supplier blocked (LIF255) is shown in red.\n    - Own/foreign customer is shown in different colors.\n\n- The user can select a supplier record by entering a selection number (WAHL), which returns the supplier number (LIF010).\n\n4. Subfile Navigation\n\n- Logic is included to navigate between subfile pages.\n- The number of records per page is defined (PAG1).\n- Cursor position is controlled.\n\nIn summary, this is an interactive search program that allows users to find and select supplier master records based on selection criteria. The key files used are LIFSTLF2 for supplier master and HS0258S1 for the subfile display. The result is returned via LIF010 when a record is selected.",
+
+'RW0150.txt':"Here is the extracted business logic from the provided RPG code:\n\nThis appears to be an RPG program for managing partner data.\n\nMain logic:\n\n1. Read input parameters for search criteria (partner ID, customer number, name)\n\n2. Clear screen and display file headings \n\n3. Read partner data from VKSSPF file (likely a partner master file)\n\n4. Search for partners matching input criteria \n\n5. If no matches found, display message that no data was found\n\n6. Allow user to select a partner record \n\n7. Pass selected partner ID, customer number and name back to calling program\n\n8. Loop back to clear screen and search again until user exits\n\nSubroutines:\n\n1. SFL1LOE:\n   - Clear screen and display file headings\n\n2. SFL1LAD: \n   - Read partner file\n   - Search for matches\n   - Display results or no match message\n\n3. SFL1ANZ:\n   - Handle paging of results \n\n4. SFL1AUSW:\n   - Allow user to select a record\n   - Pass selected record details back to caller\n   \nFiles:\n\nVKSSPF - Partner master file (searched and read) \n\nRW0150D - Workstation file for user input\n\nRW0150S1 - Subfile for search results\n\nRW0150C1 - Format for screen headings \n\nRW015001 - Format for paging headings\n\nThis program allows searching the partner master file, displaying results, and selecting a partner record to pass back to the calling program. It handles typical RPG operations like file I/O, data selection and subfile management.",
+
+'HS0230.txt':"Here is the extracted business logic from the provided RPG code:\n\n1. Customer Master File (KUDSTAM)\n\n- Stores customer header data like customer number (KUD000), name (KUD030), address (KUD060-KUD090), etc.\n\n- New customers can be added by writing a new record.\n\n- Existing customers can be updated by changing field values and rewriting the record.\n\n- Customers can be deleted by deleting the record.\n\n2. Individual Customer Data File (HSKUIPF) \n\n- Stores additional customer data like payment terms (KUI060), credit status (KUI070), payment method (KUI080), etc.\n\n- A record exists for each relationship between a customer and a branch (KUI000). \n\n- New customer-branch relationships are added by writing a new record.\n\n- Existing records are updated by changing field values and rewriting.\n\n- Allows assigning multiple customer numbers (KUI010) to the same customer master record.\n\n3. Customer Search and Selection\n\n- Customers can be searched and selected using:\n  - Customer number (KUI010)\n  - Branch key (KUI000) \n  - Matchcode (KUD050)\n  - Salesperson (KUD310)\n  - Mailing indiciator (KUI140)\n\n- Selection results are displayed in a subfile for viewing and updating.\n\n4. Maintaining Customer History\n\n- All changes to customer master and customer-branch records are logged.\n\n- Complete change history can be displayed. \n\n5. Customer Statistics\n\n- Sales statistics per customer per branch can be displayed in a subfile.\n\n6. Integration with SAP AX\n\n- Special routines to interface with SAP AX for validation, default values, updating AX records, etc.\n\n7. Address Verification\n\n- Customer addresses are verified against postal database.\n\n- Duplicate checking is performed to find potential duplicate customers.\n\n8. User Authorization\n\n- Users must be authorized to add, change or delete customers.\n\n- Password checking for sensitive fields like credit status, payment terms, etc.\n\n9. ERP Integration\n\n- Interfaces with finance system (FIBU) for account validation, check for existing accounts, etc.\n\nThe key files used are KUDSTAM for customer master data, HSKUIPF for customer-branch specific data, and HSKUDPF for change history. The program allows maintaining customer records, relationship records, statistics, histories, integration with SAP AX and FIBU, address verification, and security.",
+
+'HS0341.txt':"Here is the extracted business logic from the provided RPG code:\n\nThis code seems to be for a parts/inventory management system. It focuses on looking up part prices for customers.\n\nMain logic flow:\n\n1. Get input parameters (fabrication plant code and part number)\n\n2. Validate input part number exists \n   - If not, exit\n\n3. Get default values\n   - Price query type = List price (BEREI='1') \n   - Price split = '01' (SPLITT='01')\n   - Price type = Customer price (WETE='2') \n\n4. If customer number blank:\n   - Prompt for customer number\n   - Lookup customer info\n   - If customer not found, exit\n\n5. Lookup part info\n   - Get part description, price\n   - Check if part has quantity breaks\n     - Call Pricing program (HS0095) to check for quantity breaks\n   - If quantity breaks exist:\n     - Call Pricing program (HS0095) to get quantity break price \n   - Else:\n     - Use base part price\n   - Calculate discounted price\n   - Store price details\n\n6. Set output flags\n   - Price found \n   - Additional text\n   - Errors if any\n\n7. Return to prompt for next part lookup\n\nThis program calls other programs:\n\n- HS0238 - Customer search \n- HS0095 - Pricing program\n- HS0087 - Store audit values\n\nAnd reads data from files:\n\n- TEISTAR - Part master file\n- HSKUIPR - Customer master file \n- KUDSTAR - Customer order file\n\nThe key data used:\n\n- Part number\n- Customer number \n- Pricing parameters like price type, quantity etc.  \n\nIn summary, the business logic focuses on retrieving the correct discounted price for a part based on customer, quantity and other pricing parameters. It handles error conditions and interfaces with other programs and data files.",
+
+'HS0061.txt':"Here is the business logic extracted from the provided RPG code:\n\nOverview:\n- This code is for a dealer management system for Scania on the AS/400\n- It retrieves outgoing invoices/credit memos\n- It handles both branches and dealerships\n\nProcedures:\n\n1. Initialize variables and data structures\n- Initialize system date (DATUM)\n- Define data structures for user (ALGUSR), Axapta (AXAPTA), key for branches (KEYFIL), and key for dealerships (KEYFIX)\n\n2. Determine if there are branches and/or dealerships\n- Check branch file (HSBTSLR1) to see if there are any branches (KZLANZ='0')  \n- Check dealership file (HSFILPR) to see if there are any dealerships\n- Set indicator 77 if there are dealerships \n\n3. Allow selection of branch or dealership\n- If branch entered, validate against branch file\n- If dealership entered, validate against dealership file\n- Retrieve invoices/credit memos for selection using program HS0061C\n- Pass indicators 71/72 to determine report type (invoices/credit memos)\n\n4. F14 command to print settlement lists \n- Calls program HS0067\n\n5. F4 command for operator lookup\n- Allows user to search for operator ID (BTS02X)\n- Calls program HS0021 to search operator file (BTSFIL)\n\nFiles:\n- HSBTSLR1 - Branch file\n- HSFILPR - Dealership file \n- BTSFIL - Operator file\n- Other files likely used:\n  - Invoice/credit memo files\n  - Customer files\n\nPrograms Called:\n- HS0021 - Operator lookup\n- HS0061C - Retrieve invoices/credit memos\n- HS0067 - Print settlement lists\n\nIn summary, the key business logic handles validation and selection of branches or dealerships, retrieval of invoices/credit memos, and provides additional functions like operator lookup and settlement printing. The code utilizes various data files and calls other programs to implement the required business functionality.",
+
+'HSCVSF.txt':"Here is the extracted business logic from the provided RPG code:\n\nOverall Purpose:\n- This code is for customer master data management and conversion of search fields.\n\nKey Files Used:\n- KUDSTAM (Customer Master File)\n\nProcedures:\n\n1. Main Logic:\n- Read customer master record (KUDSTAR) \n- Call subroutine SR001 to convert search fields\n- Update converted search fields back to customer master record\n- Read next record and loop\n\n2. SR001 - Convert Search Fields:\n- Populate search fields (SF1, SF2) from customer fields \n- Call SUCF to concatenate search fields\n- Convert search fields to uppercase (GROBU) \n- Convert umlauts in search fields (UMLAU)\n- Move converted search fields to customer master fields \n\n3. SUCF - Concatenate Search Fields:\n- Concatenate input search fields (SF1, SF2) into output SUFELD\n\n4. GROBU - Uppercase Conversion: \n- Convert input string KLEIN to uppercase in GROSS\n\n5. UMLAU - Umlaut Conversion:\n- Convert umlauts in input FG1 to AE, OE, UE in FG2\n\n6. PRUEF - Umlaut Check:\n- Check input character A for umlauts\n- If umlaut, convert to AE, OE, UE in A and B\n\nIn summary, the core logic converts customer fields to standardized search fields by concatenating, uppercasing, and converting umlauts. The search fields are updated back to the customer master file.",
+
+'RS0011.txt':"Here is the business logic extracted from the provided RPG code:\n\nThe code is for a retail sales management application's customer scoring module.\n\nIt reads customer scoring contact data from an input file RSCS3F and updates/writes to an output file RSCSCF. \n\nThe key fields used to uniquely identify records are:\n- CS3_VGRP \n- CS3_KDNR\n- CS3_ART\n- CS3_DAT \n- CS3_STS\n- CS3_STANR\n\nThe logic is:\n\n1. Set the input file RSCS3F to read records. \n\n2. Read a record from RSCS3F into the RSCS3R format. \n\n3. Search for the record in RSCSCF using the unique key fields.\n\n4. If not found in RSCSCF:\n   - Move field values from RSCS3R to RSCSCR format\n   - Write the record to RSCSCF\n   \n5. Read next record from RSCS3F\n\n6. Repeat steps 3-5 until end of file reached on RSCS3F.\n\nThis ensures only unique contact records from the input file are written to the output file. \n\nThe files used are:\n\n- Input File: \n  - Name: RSCS3F \n  - Format: RSCS3R\n  - Source: Customer scoring contact data CSV file\n  \n- Output File:\n  - Name: RSCSCF\n  - Format: RSCSCR\n  - Destination: Customer scoring contact database table\n  \nThe business logic handles the common use case of extracting data from a CSV file, filtering out duplicates, and inserting into a database table. The unique key fields, file names, formats provide the context needed to understand the logic.",
+
+'VK2108.txt':"Here is the extracted business logic from the provided RPG code:\n\nThe code appears to be related to some kind of vehicle rental system. \n\nProcedures/Functions:\n\n1. VK2108:\n   - Main driver program that calls other procedures to perform specific tasks.\n   - Retrieves user initials from a file (HSBTSLF1).\n   - Handles parameter input PARM1, PARM2, PARM3, PARM4.\n   - Calls different procedures based on PARM1 value.\n   - Displays results/output in a subfile (VK2108S1).\n\n2. SR_BELEG:\n   - Retrieves transaction/booking details from a file (SVWKXLF4 or AXBUCLR) and accumulates booking amount by booking number.\n   - Checks if booking already exists in subfile (VK2108S1). If yes, updates existing record. If no, writes new subfile record.\n\n3. SR_KUNDE: \n   - Retrieves customer details by customer number (VMV060) from files (HSKUIPF, KUDSTAM).\n   - Populates customer name (GWM040).\n\n4. SR_BETRAG:\n   - Retrieves booking amount (VMR050) by key (PKZ, VERTRAG) from file (VKVMRPF). \n   - Populates amount field (GWM050).\n\nParameters:\n\n- PARM1: Specifies the action to perform:\n  - KST: Retrieve bookings by cost object (PARM2).\n  - GWM: Update used car rental bookings (?) \n  - AUF: Generate new order number (PARM3).\n  - SUI: Retrieve saved search criteria (PARM4).\n  - SUO: Save search criteria (PARM4).\n\n- PARM2: Cost object or other key value.\n\n- PARM3: Order type (character 1-1).\n\n- PARM4: Search criteria text.\n\nFiles Used:\n\n- HSBTSLF1: User initials file\n- SVWKXLF4: Bookings file\n- AXAXTPF, AXBUCLR: Axapta files (?)\n- VKVMVLF1: Rental contracts file\n- VKVMRPF: Rental amounts file \n- VKGWBLF1, VKGWMLF1: Used car rental files (?)\n- VKVSSPF: Search criteria file\n- HSKUIPF, KUDSTAM: Customer files\n- VK2108S1: Output subfile\n\nIn summary, the code handles retrieval of bookings and related data by cost object or other criteria, populates a subfile with results, generates new order numbers, and saves/retrieves search criteria. The main business domain appears to be vehicle rentals.",
+
+'HS0069.txt':"Here is the extracted business logic from the provided RPG code:\n\n1. String Conversion Procedures\n\n- toUppercase: Converts a given input string to uppercase characters.\n\n- toLowercase: Converts a given input string to lowercase characters. \n\nBoth procedures use the built-in %xlate function to perform the case conversion.\n\n2. Memory Management Procedures  \n\n- allocSpace: Allocates or reallocates memory for a pointer variable. It checks if the pointer is null (unallocated) and allocates or reallocates memory of the specified size accordingly.\n\n- deallocSpace: Deallocates memory for a pointer if the pointer is not null (allocated).\n\n3. Vehicle Information Display\n\n- Retrieves vehicle information like vehicle registration number, vehicle description, customer number and name etc. from various files like FARSTLF4, HSFAIPF, HSKUIPF etc.\n\n- Displays vehicle comments, customer comments, order history, campaigns, extended warranty information etc. related to the vehicle. \n\n- Displays upcoming vehicle maintenance deadlines from scheduling system.\n\n- Allows searching within the displayed information.\n\n- Handles pagination of results.\n\n4. Interaction with External Systems\n\n- Calls external programs like HS00512, HS0873, HS1212C1 to retrieve additional information.\n\n- Interacts with database tables like HSFZKPF, HSKUKPF, HSAHKLF, WPCACF etc. to retrieve information.\n\n- Prepares SQL statements to interact with database to retrieve rental and insurance information. \n\nIn summary, the code provides a comprehensive vehicle information interface by aggregating relevant data from various systems and allowing users to view, search and paginate through it. The business logic focuses on data retrieval, preparation, display and navigation.",
+
+'HSCVMCA.txt':"Here is the business logic extracted from the provided RPG code:\n\nThis code appears to be for customer master data management and conversion of customer codes (HSAHKPF).\n\nThe main logic flow is:\n\n1. Read customer code records (HSAHKPR)\n2. For each record:\n\n- Extract customer code fields AHK270 and AHK410\n- Build search fields (SF1, SF2) from AHK270 and AHK410 \n- Call search field build subroutine (SUCHF)\n- Convert search field to uppercase (GROBU)  \n- Convert umlauts in search field (UMLAU)\n- Write converted search fields back to AHK270 and AHK410\n\nSubroutines:\n\nSUCHF:\n- Builds search field (SUFELD) by concatenating non-blank characters from input fields\n\nGROBU: \n- Converts search field (KLEIN) characters to uppercase except specific umlauts\n\nUMLAU:\n- Converts umlauts in search field (GROSS) to AE, OE, UE\n\nPRUEF:\n- Helper subroutine for UMLAU to check and convert specific umlaut characters\n\nIn summary, this program standardizes customer codes by converting them to uppercase and expanding umlauts. The converted codes are written back to the customer master records.\n\nThe program interacts with the following files:\n\n- HSAHKPF - Input - Customer master file\n- HSAHKPR - I/O - Customer code records \n\nNo database or UI interaction is indicated in the code.",
+
+'RSE5626035.txt':"Based on the provided RPG code, here is the extracted business logic:\n\nThe code defines two data structures - CUSTREC and ORDREC. \n\nCUSTREC represents a customer record and contains the following fields:\n- CUSTNUM - Customer number \n- NAME - Customer name\n- ADDRESS - Customer address\n- CITY - City \n- STATE - State\n- ZIP - Zip code\n\nORDREC represents an order record and contains the following fields:\n- ORDER# - Order number\n- CUSTNUM - Customer number (foreign key to CUSTREC)  \n- ORDERDATE - Order date\n- SHIPDATE - Ship date \n- SHIPMETHOD - Shipping method \n- SHIPPING - Shipping charge\n\nThe main logic in the code does the following:\n\n1. Opens the customer file CUSTMAST for input.\n\n2. Opens the order file ORDERS for input. \n\n3. Reads a record from the ORDERS file into ORDREC.\n\n4. Searches the CUSTMAST file by CUSTNUM to retrieve the corresponding CUSTREC record.\n\n5. If a valid CUSTREC is found, it prints the customer name, order details like order number, order date, shipping date, shipping method and shipping charge.\n\n6. If a valid CUSTREC is not found, it prints an error message. \n\n7. Repeats steps 3-6 in a loop until end of ORDERS file. \n\n8. Closes the ORDERS and CUSTMAST files.\n\nThis program links data from the ORDERS and CUSTMAST files by CUSTNUM to print a customer's name and order details. The files used are:\n\n- CUSTMAST - Customer master file\n- ORDERS - Order detail file\n\nNo UI or database interactions are indicated in the code. The input and output operations are done on physical files.",
+
+'HSCVMCK.txt':"Here is the business logic extracted from the provided RPG code:\n\nThis code is for customer master data conversion and matching code generation.\n\nIt reads a customer master record (KUDSTAR) and processes the matching code field (KUD050). \n\nThe key steps are:\n\n1. Initialize search fields SF1 and SF2 to blanks.\n\n2. Copy KUD050 to SF1. \n\n3. Call SUCF to populate SF2 with a condensed version of SF1 by removing blanks. \n\n4. Convert SF2 to uppercase by calling GROBU. This handles German umlauts.\n\n5. Call UMLAU to convert any umlauts in the uppercase version to AE, OE, UE.\n\n6. Move the final uppercase converted string to KUD050 to overwrite the original matching code.\n\n7. Update the customer master record (KUDSTAR).\n\nSo in summary, it generates a normalized matching code by:\n\n- Removing blanks\n- Converting to uppercase \n- Handling German umlauts\n\nThe processed matching code is stored back to the customer master record.\n\nThis program interacts with a customer master file (KUDSTAM). The matching code field is used for searching and matching customer records. By standardizing it, the matching process is improved.",
+
+'CD0500.txt':"Here is the business logic extracted from the provided RPG code:\n\nThe code is for a program named CD0500 which is used for managing corporate groups (Konzerngruppen).\n\nIt contains the following key procedures:\n\n1. SFL1AUSW - Evaluates user input on subfile 1 for managing corporate groups and customers. It allows creating a new group, searching for a group, updating group name/comments, adding/removing customers to a group etc. \n\n2. SR_KGSUCHE - Searches for corporate groups based on input criteria like group number, name, comments or customer number. It prepares a dynamic SQL statement based on input, executes search, displays results on subfile 2.\n\n3. SFL1LOE - Clears subfile 1.\n\n4. SFL1LAD - Loads details of a corporate group and assigned customers on subfile 1.\n\n5. SFL1ANZ - Displays subfile 1. \n\n6. SFL2LOE - Clears subfile 2.\n\n7. SFL2ANZ - Displays subfile 2.\n\n8. GETCUSTOMERNAM - RPG procedure to retrieve customer name by calling SQL stored procedures on SATZENTRAL and HDLZENTRAL databases.\n\nThe main database tables used are:\n\n- CDKGNF - Contains corporate group master data \n- CDKGZF - Links customers to corporate groups\n\nThe program interacts with the user through displays like CD0500W1, CD0500W2 for input and subfiles CD0500S1, CD0500S2 to show outputs.\n\nIn summary, the business logic focuses on managing corporate groups and customer assignments by allowing CRUD operations through an interactive green-screen interface. The data is stored in DB2 tables and retrieved using embedded SQL in the RPG program.",
+
+'CS0130.txt':"Based on the provided RPG code, here is the extracted business logic along with the related files and interactions:\n\nOverview:\n- This RPG program allows maintaining payment terms and print settings per customer for a specific division. \n- It is called from programs CS0100 and CS0120.\n\nKey Functions:\n1. Display customers\n- Retrieves a list of customers belonging to the input division who have entries in file CSFALF or fields KUI274,2,1 or KUI274,3,1 in file HSKUIPF.\n- Displays customer number, name, payment terms, payment term days, print individual invoices flag, and export invoice data excel flag.\n\n2. Add/update customer record\n- Allows adding or updating a record for a customer.\n- Validates payment terms code. Updates CSFALF and KUI274 in HSKUIPF.\n\n3. Delete customer record\n- Deletes the CSFALF record if present.\n- Resets KUI274,2,1 and KUI274,3,1 to blanks in HSKUIPF.\n\n4. Search for customer\n- Allows searching for a customer by number. Positions to the matching record.\n\nRelated files:\n- HSKUIPF (UF): Contains customer master data \n- CSFALF (UF): Contains payment terms data per customer and division\n- AXAXTPF (IF): Contains division data\n- KUDSTAM (PF): Contains customer master file\n- AXVALLF1 (PF): Contains valid payment terms codes\n\nInteractions:\n- Accepts division code, customer number as input parameters\n- Displays and updates interactive display file CS0130D\n- Reads customer master file HSKUIPF\n- Reads/updates payment terms file CSFALF\n- Validates payment terms code against AXVALLF1\n- Reads customer master file KUDSTAM \n- Reads division file AXAXTPF\n\nIn summary, this RPG program allows maintaining payment terms and print settings per customer by division through reading/updating various master files, validating inputs, and interacting with the user display file.",
+
+'HS1900C.txt':"Here is the business logic extracted from the provided RPG code:\n\nOverview:\n- This RPG program is named HS1900C and titled \"SDPS Telephone Book\". \n- It was created by programmer EL on 30.03.2007 for the customer SCANIA DEUTSCHLAND.\n- The program belongs to the \"General Administration\" area of the SDPS Central application.\n\nFunctionality:\n- The main logic of the program is in subroutine HS1900, which is called near the end.\n- Before calling HS1900, the program adds several libraries to the job using ADDLIBLE. These likely contain subroutines, data structures, etc needed by the program.\n  - The libraries added are:\n    - ESW_00764T\n    - ESW_E00000 \n    - ESWTEL10\n    - ESDPCSCR\n- Based on the program name and title, this program likely manages a telephone book for the SDPS application. \n  - It may allow users to view, search, add, edit, or delete telephone book entries.\n  - It likely interacts with a database file containing the telephone records.\n\nIn summary, this is an RPG program for maintaining a telephone book for the SDPS Central application. The core logic is in subroutine HS1900, which interacts with a database file that stores the telephone records. The program adds required libraries and calls HS1900 to perform the main telephone book management functions.",
+
+'HSMN09C.txt':"Here is the business logic extracted from the provided RPG code:\n\nThe code implements a financial accounting menu system with the following main functions:\n\n1. Daily Processing Menu:\n- Display/Print booking error logs \n- Display booking of revenues from daily closing\n- Display booking voucher \n- Display/Print account/cost center/cost object\n- Display account with all cost centers/cost objects \n- Display/Print cost center/cost object with all accounts\n- Display/Print margins on sold vehicles\n- Display number of sold vehicles\n- Display/Print EU/Non-EU revenues  \n- Print rental vehicle costs/revenues\n\n2. Account Current Menu: \n- Display account current\n- Clear account current\n- Print account statements  \n- Print open items\n- Print various outstanding lists\n- Search/Analyze open items\n- Maintain interest calculations\n- Generate interest calculations\n\n3. Dunning Menu:\n- Create/Reset dunning levels\n- Display/Change dunning blocking\n- Retrieve dunning from Scania\n- Print dunning by dunning level\n- Print dunning by customer number\n\n4. Manual Invoice/Credit Memo Menu:\n- Enter invoices/credit memos\n- Maintain text modules \n- Maintain number ranges\n- Maintain accounts for automatic posting\n- Maintain 3rd digit of G/L account related to customer numbers\n- Maintain VAT rates\n- Maintain default texts for manual invoices\n- Transfer accounts for automatic posting to new fiscal year or print\n- Transfer G/L account determination/customer numbers to new fiscal year or print\n- Print text modules\n\n5. Master Data Menu: \n- Maintain G/L accounts\n- Maintain customer accounts\n- Maintain posting text keys\n- Maintain cost center texts\n- Maintain sort keys\n- Print G/L account list \n- Print customer account list\n\n6. Axapta Menu:\n- Determine product code for vehicle number  \n- Display mapping of accounts/cost centers FI <-> Axapta\n- Manual invoice entry for Axapta\n- Cash book\n- Display/Select Axapta bookings\n- Display/Print account current\n- Send customer/vendor accounts to Axapta\n- Display/Print cost object list\n- Display/Print cost object list with margins\n- Display account with all cost centers/cost objects\n- Export open invoices with payment guarantee\n- Create booking file for external accounting e.g. SAP\n- Change order/revenue types\n- Internal order account/cost center\n\n7. Transfer bookings\n8. Create interim/month-end closing\n\nThe menu system controls user access to the programs and provides password protection for sensitive functions. Printer output is generated for many programs.\n\nThe code interacts with the following files:\n- Work files like HSMN09CD, HSMN09C1 etc. to display menus and pass data between programs\n- Authorization files like CTLHS1, CTLHS2 etc. to check user access rights\n- Shared data areas like AUSWKZ, BUCH etc. to share data between programs\n- Printer files like MANURG, LIST121 etc. to generate printed output\n\nIn summary, the RPG code implements a comprehensive menu-driven financial system for managing accounting processes including dunning, invoice processing, account management and integration with Axapta. The extracted business logic provides clarity on the end-to-end functionality.",
+
+'ADW0030.txt':"Here is the extracted business logic from the provided RPG code:\n\nThis code handles duplicate address checking for customer master data maintenance.\n\nThe main logic flow is:\n\n1. Initialize variables  \n   - Get current org code (ORGA), user/branch code (KZLB)\n   - Initialize return code (§RTNCDE), duplicate flag (DUBLETTE), etc\n\n2. Call webservice AWDUBPR to check for duplicate address\n   - Pass input: customer number (PKZ+ADRNR) \n   - Get output: duplicate flag, possible duplicate customer numbers (§PKZO, §ADRNRO)\n\n3. If duplicate address found\n   - Retrieve possible duplicate customer details from database using §PKZO and §ADRNRO\n   - Display duplicate search results grid for user to review\n   - Set duplicate flag (DUBLETTE) on\n  \n4. Set final return code  \n   - If duplicate found, set §RTNCDE='*FOUND' and warning message\n   - If no duplicate, set §RTNCDE='*OK'\n   \n5. Suppress duplicate check for change of existing customer record\n\n6. Write duplicate search results to output file ADW0030S1\n\n7. Format and display search results grid using SFL\n\nKey files used:\n\n- HSKUIPF - Partner customer file\n- KUDSTAM - Own customer master file \n- ADW0030S1 - Search results detail file\n- ADW0030C1 - Search results SFL format file\n\nThis program would be called from customer master maintenance programs to perform duplicate checking before creating a new customer record.\n\nThe duplicate check logic and results display allows users to identify and reuse existing customer records, avoiding creation of duplicates.",
+
+'HS0235.txt':"Here is the extracted business logic from the provided RPG code:\n\n**Overview:**\nThe code implements functionality to maintain payment guarantees for customers in the system. Key aspects include:\n\n- Displaying and editing payment guarantee details for customers\n- Adding new payment guarantees for customers\n- Restrictions on editing and adding payment guarantees based on user rights, customer status etc.  \n- Writing change flags and history records when payment guarantee details are modified\n\n**Procedures/Functions:**\n\n1. `CheckAuthority`: \n   - Purpose: Check if user has authority to edit/add payment guarantees. If not, exit program.\n   - Parameters:  \n     - `§PGMNAM`: Program name \n     - `§PGMTXT`: Program title\n     - `§PGMOPT`: Program option\n   - Logic:\n     - Call `CheckAuthority` API to validate authority\n     - If no authority, exit program\n\n2. `SR06N`: \n   - Purpose: Add new payment guarantee for a customer\n   - Parameters: \n     - `NEUKUD`: Customer number for new guarantee\n     - `NEUMAT`: Material number  \n     - `NEUNAM`: Name\n     - `NEUZAN`: Payment guarantee amount  \n     - `NEUDAT`: Valid to date\n     - `NEUUST`: VAT ID\n     - `NEULKZ`: VAT ID status\n     - `NEUOK`: VAT ID OK\n   - Logic:\n     - Validate if customer can have payment guarantee added\n       - Not an Axapta participant, not blocked, not cash payer\n       - Not a duplicate customer ID\n     - Default new payment guarantee values\n     - Allow editing based on user authority\n     - Validate maximum guarantee amount \n     - Write change flags and history records\n     - Add new payment guarantee to customer\n\n3. `SRHISF`:\n   - Purpose: Populate history record with current customer and payment guarantee header details\n   - Logic: \n     - Move current customer/payment guarantee header fields to history record format\n\n4. `SRHISS`:\n   - Purpose: Write history record to file\n   - Logic:\n     - Open history file\n     - Write history record\n     - Close history file\n\n5. `AENHIS`:\n   - Purpose: Write full record change history on update\n   - Logic:  \n     - Get current date and user\n     - Write to last change date, user in history format\n\n6. `SRAKT`:\n   - Purpose: Get current date and time\n   - Logic:\n     - Move current date to `AKTDAT` \n     - Move current time to `AKTTIM`\n     \n7. `WriteKui260SR`:\n   - Purpose: Write change flag KUI260\n   - Logic:\n     - Based on user type (Axapta or free) and customer type (Axapta or free), determine if change flag should be written and for which customer IDs.\n\n**Key Files**\n\n- `KUDSTAM`: Customer master file\n- `HSKUIPF`: Customer master index file\n- `HSKUDPF`: Customer history file\n\nThe code handles loading and interacting with these files to retrieve, update and store customer and payment guarantee details.\n\n**User Interface**\n\nThere appears to be user interface screens defined that allow:\n\n- Display and editing of existing payment guarantees \n- Adding new payment guarantees\n- Searching/filtering payment guarantees\n\nThese include:\n\n- `HS0235W6`: Add/edit payment guarantee screen\n- `HS0235C1`: Payment guarantee subfile 1\n- `HS0235C2`: Payment guarantee subfile 2 \n- `HS0235W9`: Search screen\n\nThe RPG code handles loading these screens, responding to user actions on the screens, and updating the display.\n\nLet me know if you need any clarification or have additional questions!",
+
+'HS0470.txt':"Here is the extracted business logic from the provided RPG code:\n\nOverview:\n- The code handles the manual recording of parts receipts/accessions in Scania's parts inventory system. It allows entering receipt quantities, supplier invoice numbers, etc. for received parts.\n\nKey functions:\n1. Accession input screen (HS047001)\n- Allows entering part number, quantity, supplier invoice number for each parts receipt\n- Validates required fields like quantity, supplier number\n- Displays warning if receipt value exceeds limit\n- Prints accession transactions (BA code 30) \n\n2. Part master file (TEISTAM)\n- Reads part data like description, unit price etc. from Scania's part master file for displaying on input screen\n- Updates file with new average unit cost after each receipt\n\n3. Supplier master file (LIFSTAM)\n- Validates entered supplier number against master file\n- Checks for supplier blocks\n\n4. Customer master file (FISTAM)  \n- Reads customer number and country code for validations\n\n5. Transaction file (TRANSAKT)\n- Outputs transaction records (BA 30) for each parts receipt \n\n6. Other functions:\n- Calculates new average unit cost after each receipt\n- Checks for customer overdues, prompts user if found\n- Validation/warnings for receipt value, unit cost variance\n- Default supplier number based on part master/customer codes\n- Multi-part number handling\n\nFiles Used:\n- TEISTAM: Part master file\n- LIFSTAM: Supplier master file  \n- FISTAM: Customer master file\n- TRANSAKT: Transaction file\n- FHSBTSLF1: Daughter company file\n- VKSSPL4: Daughter company/own customer numbers\n\nInterfaces:\n- User screen I/O on HS047001\n- Part number search screen HS0258\n- Overdue details screen HS0560\n- New order screen HS0471 (receipt via purchase order)\n\nLet me know if any part of the logic needs more explanation or if you would like me to expand on any area.",
+
+'HSTRG10.txt':"Based on the provided RPG code, here is the extracted business logic along with the related files and interactions:\n\nThe code represents a program named HSTRG10 that displays history records created by triggers.\n\nKey Files:\n- HTTSHF/HTTSHL1 (Physical File TEISTAM): Contains trigger history records for part number changes.\n- HTKSHF (Physical File KUDSTAM): Contains trigger history records for customer number changes.  \n- HTLSHF (Physical File LIFSTAM): Contains trigger history records for vendor number changes.\n\nAdditional Files: \n- CDTRFF (Copy File): Used to retrieve field descriptions.\n- VKSSPL4 (Physical File): Used to retrieve user name for a user ID.\n\nUser Interface Files:\n- HSTRG10C1 (Display File): Main display file.\n- HSTRG10S1 (Subfile): Shows the history records.\n- HSTRG10W5 (Display File): Shows record details on F5.\n\nParameters:\n- PARM1: Library/File name\n- PARM2: Search key \n- PARM3: Calling program name\n\nMain Logic:\n1. Initialize and get parameter values\n2. Allow user to select file for history\n3. Based on file selected, retrieve history records between date range\n   - Read records from HTTSHF/HTTSHL1 for part number file\n   - Read records from HTKSHF for customer number file\n   - Read records from HTLSHF for vendor number file\n4. Write records to subfile if they match search criteria\n5. Allow viewing of record details on F5\n6. On F11, toggle between showing old and new field values\n\nIn summary, the program displays historical changes to part numbers, customer numbers and vendor numbers by reading relevant trigger history files based on user selection. The results are shown in a subfile and record details can be displayed on F5.",
+
+'HS0560.txt':"Here is the extracted business logic from the provided RPG code:\n\nThe code contains several procedures/functions to perform the following:\n\n1. String Manipulation\n   - toUppercase() - Converts a string to uppercase\n   - toLowercase() - Converts a string to lowercase\n\n2. Memory Management\n   - allocSpace() - Allocates or reallocates memory for a pointer variable\n   - deallocSpace() - Deallocates memory for a pointer variable\n\n3. Processing Customer Balances:\n   - The main logic searches for overdue customer balances based on input criteria such as order date, order number, customer number etc.\n   - It retrieves relevant order data from files like customer master (KUDSTAR), order header (HSOBKLR2/3), order lines (HSOBKPR) etc.\n   - The selected orders are displayed in a subfile for selection. \n   - The user can then process the overdue balances by specifying delivery quantity. This generates output for delivery notes.\n   - The stock levels and order balances are updated based on deliveries.\n   - Various validations are performed during delivery processing.\n\n4. User Interface Handling:\n   - The display handling allows viewing orders in different sorted orders.\n   - It allows selection of orders by type - workshop, counter etc. \n   - Navigation between different subfile views is enabled using function keys.\n\n5. Reporting:\n   - The overdue balances subfile data can be printed after processing.\n\n6. Files Referenced:\n   - KUDSTAR - Customer master\n   - HSOBKLR2/3 - Order header\n   - HSOBKPR - Order lines\n   - HSAHKLR1 - Cost distribution\n   - AUFTKR - Counter order header \n   - AUFWKR - Workshop order header\n   - TEISTAR - Parts master\n   - AUFTTR/AUFWTR - Delivery notes\n   - TRANSAKT - Transaction file\n\nThe code handles the key business process of managing overdue customer balances and enabling delivery processing for selected orders. Let me know if you need any clarification or have additional questions!",
+
+'HS0239.txt':"Here is the business logic extracted from the provided RPG code:\n\nOverall Functionality:\n- This RPG program allows maintaining bank details for a given customer. It provides functions to view, add, change and delete bank accounts.\n\nParameters:\n- DEBLIF (Input): Customer number \n- KZL (Input): Central key of customer's home location\n- KONTO (Input): Account number of customer's home location  \n- BEREICH (Input): Bank detail type (e.g. payments, loans etc.)\n- ANZ (Input): Number of bank details to maintain\n- ParmIban (I/O): IBAN number\n- ParmBic (I/O): BIC code \n- ParmBN (I/O): Bank name\n\nAdditional Inputs: \n- FIRMA: Company name\n- UMGEBUNG: Company code  \n\nProcessing:\n1. Validate input parameters\n\n2. If home partner, set indicator *IN80 to '1'\n\n3. Get central key KZLZEN and account number KontoZen for customer's home location\n\n4. Get description BERBEZ for input bank detail type BEREICH\n\n5. Repeat until F3 or F12 is pressed:\n   - Call SFL1LOE to clear detail screen\n   - Call SFL1LAD to load bank details into subfile\n   - Call SFL1ANZ to display number of records in subfile\n   - Case of user action:\n      - F3 or F12 pressed - exit loop\n      - F6 pressed - call SR06 to add new bank detail\n      - Selection from subfile - call SFL1AUSW to process user action\n\n6. Set indicator *INLR to '1' to prevent re-display of screen\n\nSubroutines:\n\nSFL1LOE: Clear detail screen\nSFL1LAD: Read bank details from file HSBNKF into subfile HS0239S1 based on selection criteria\nSFL1ANZ: Count and display number of records in subfile\nSFL1AUSW: Process user action on subfile record\n   - F1 - Call SR_BANK to validate IBAN\n   - F2 - Allow change of bank detail \n         - Call PLAUSISR to validate input  \n         - If valid, update file HSBNKR\n         - If bank detail type changed, update sort order in HSBNKL1\n   - F4 - Allow delete of bank detail\n         - If confirmed, delete record from HSBNKR\nSR06: Allow user to add new bank detail\n   - Initialize fields  \n   - Loop until F12 pressed to exit without add:\n     - Display add screen HS023902\n     - Call PLAUSISR to validate input\n     - If valid:\n       - Determine next sort number\n       - Write new record to HSBNKR\nPLAUSISR: Validate input fields for add/change\n   - Check required fields  \n   - Validate IBAN \n   - Check for duplicate bank detail\n   - Validate country code\n   - Validate bank detail type\nSR04: Provide F4 search help\nSR_BANK: Call program ADW0010 to validate IBAN\n\nFiles Used:\nHSBNKF: File containing customer bank details\nHSBNKR/HSBNKL1: Files updated when adding/changing bank details\n\nIn summary, this RPG program provides maintenance of bank details for a customer by allowing users to view, add, change and delete records through an interactive subfile. It validates all user input and updates associated files.",
+
+'HSHI_SNUHP.txt':"Here is the business logic extracted from the provided RPG code:\n\nThis code is doing customer data migration from one region to another (Munich to Nuremberg) in an ERP system for Scania Deutschland.\n\n1. It first checks the current user's region code in the ALGUSR variable. If not 'SNU' (Nuremberg), it exits.\n\n2. It opens the input file KUDSNU_HP which contains the list of customers to be migrated from Munich (SBU) to Nuremberg (SNU). \n\n3. It reads each record from KUDSNU_HP and checks if the home partner (HP) should be changed to SNU and the change date (VDATUM) is blank.\n\n4. It searches for the customer in the KUDSTAR file using the customer number (KDNR).\n\n5. It then searches for the customer in the KUIL file to get the SNU customer number. \n\n6. If found, it updates the home partner and branch in KUIL, KUDSTAR, KUKPF, KUAPF files:\n\n   - KUIL: Updates home partner code (KUI020) and number (KUI030). If previous branch was 600, sets change indicator (KUI260).\n\n   - KUDSTAR: Updates home partner code (KUD000) and number (KUD010). If previous branch was 600, updates branch to 610.\n\n   - KUKPF/KUAPF: Updates home partner code and number.\n\n7. It updates the change date in KUDSNU_HP.\n\n8. It repeats for each record in KUDSNU_HP.\n\nIn summary, this program migrates customers from Munich to Nuremberg by changing the home partner and branch details in multiple customer files based on an input file. The core files used are:\n\n- KUDSNU_HP: Input file \n- KUIL: Customer master file\n- KUDSTAR: Customer master file\n- KUKPF: Customer file\n- KUAPF: Customer file\n\nIt is an ERP migration program specific to Scania Deutschland.",
+
+'HS0238C.txt':"Here is the business logic extracted from the provided RPG code:\n\nThis code appears to be a main program that calls another program HS0238 to perform some functionality related to customers.\n\nThe key points are:\n\n- Purpose: Main program that calls HS0238 to search/check duplicate customer master records\n\n- Modules Called: \n  - HS0238 (with 4 parameters passed):\n    - Param 1: Blank space \n    - Param 2: Blank space\n    - Param 3: 'ZGANZ' (seems to indicate full/complete search)\n    - Param 4: Blank space\n\n- Functionality:\n  - The main program doesn't contain much logic, it simply calls HS0238 while passing some parameters\n  - The purpose seems to be searching and checking for duplicate customer master records\n  - HS0238 likely contains the core logic for searching and deduplicating \n  - The parameters passed indicate some kind of full or complete search is desired\n\n- Other Details:\n  - This program is called HS0238C\n  - It's part of an application called SDPS-ZENTRAL\n  - The application area is customers\n  - Created by P.Wehn on 06.12.2004\n\nIn summary, this main RPG program calls another program HS0238 to perform customer master search and deduplication functions by passing it some parameters. The core logic resides within HS0238 which gets called from this main program.",
+
+'VK2117.txt':"Here is the business logic extracted from the provided RPG code:\n\nOverview:\n- This is an RPG program named VK2117 that appears to be related to vehicle rental contracts and their history.\n\nMain Functions:\n1. Display contract history in a subfile\n2. Allow searching the subfile records\n3. Retrieve and format subfile record details from associated files\n\nSubroutines:\n\nSR_ANZ1:\n- Purpose: Build and display subfile of contract records\n- Logic:\n  - Clear existing subfile records\n  - Call SR_SUB1 to populate subfile \n  - Set subfile cursor position\n  - Write subfile format and records to display subfile\n  \nSR_SUB1: \n- Purpose: Populate subfile with contract records\n- Logic:\n  - Read contract header records (VKVMHPF)\n  - For each header record:\n    - Get header record info like date, customer name etc.\n    - Determine contract type code\n    - Check if it matches search criteria\n    - If yes, write record to subfile\n  - If no records, write blank line with message\n  \nSR_ART:\n- Purpose: Determine contract type code \n- Logic:\n  - Get contract type code (VMH030)\n  - Lookup description in VSS file\n  - Set subtype field in subfile record\n  \nSR_SUCHEN:  \n- Purpose: Check if record matches search criteria\n- Logic:\n  - Initialize found flag to false\n  - If search term is blank or found in customer name, type code etc. \n    - Set found flag true\n    \nFiles Referenced:\n- VKVMHPF: Contract header/master file\n- VKVSSPF: Contract types file\n- KUDSTAM: Customer master file \n- HSKUIPF: Vehicle header file\n\nDisplays Referenced: \n- VK2117W1: Subfile display format\n- VK2117C1: Subfile control format \n\nSo in summary, this program allows users to view and search through vehicle rental contract history by fetching data from associated files, populating a subfile and allowing text searches on key fields.",
+
+'HS0921.txt':"Here is the extracted business logic from the provided RPG code:\n\nThe code appears to be for a dealer service application that processes customer accounts to select valid offset accounts.\n\nMain logic:\n\n1. Read fiscal year from file FISTAR into field GSJJ2.\n\n2. Move account segment values from file FISTAR into fields TEILN and BUCHH. \n\n3. Build keys using account segment values to search other files.\n\n4. Validate fiscal year:\n\n- Check if current fiscal year, if not subtract 1 from GSJJ2 to get previous fiscal year.\n\n- Check if GSJJ2 matches VGLJJ, if not set indicator for old fiscal year.\n\n5. Prompt for account number input using display file HS092101.\n\n6. Search file HSRKTR using key built from account segments. If not found:\n\n- Validate account number using file HSKUIPR.\n\n- If valid, write new record to HSRKTR. \n\n- If not valid, display error.\n\n7. If account is found in HSRKTR, display valid prior years from HSRKTR in subfile using display file HS0921C1.\n\n8. Allow updating, adding or deleting records in HSRKTR.\n\n9. On exit, set indicator showing process completed.\n\nThe code interacts with the following files:\n\n- FISTAR - Fiscal year and account segment values\n\n- HSRKTR - Account validation records\n\n- HSKUIPR - Account number validation\n\n- KUDSTAR - Account number validation\n\n- HS092101 - Account number input screen \n\n- HS0921C1 - Prior years subfile display\n\nAnd uses these data structures:\n\n- FIRMA - Company name\n\n- ALGUSR - User name\n\nThe main business purpose is to validate account numbers entered for a customer against prior year data, prompting for input, displaying valid options, and allowing maintainence of the account validation records.",
+
+'HSCVMCKSHA.txt':"Here is the business logic extracted from the provided RPG code:\n\nThis code is for customer master data conversion and focuses on converting match codes.\n\nMain logic:\n1. Read customer master record into memory (CHAIN KUDSTAR).\n2. Call subroutine SR001 to convert match code. \n3. Update customer master record (UPDATE KUDSTAR).\n4. Read next record and loop back (READE KUDSTAR).\n\nSR001 subroutine logic:\n1. Clear work fields SF1, SF2, KLEIN, GROSS.\n2. Move customer name (KUD050) to SF1. \n3. Call SUCHF to populate search field SF2 with non-blank chars from SF1.\n4. Convert SF2 to uppercase (GROBU) and replace umlauts (UMLAU). \n5. Move result to customer name (KUD050).\n\nSUCHF subroutine logic:\n- Loop through SF1 and move non-blank chars to SF2.\n- Return SF2.\n\nGROBU subroutine logic: \n- Convert lowercase letters in KLEIN to uppercase in GROSS, except for umlauts.\n- Return GROSS.\n\nUMLAU subroutine logic:\n- Loop through GROSS and check for umlauts.\n- Replace ä/Ä with Ae, ö/Ö with Oe, ü/Ü with Ue, ß with SS.\n- Return result in GROSS.\n\nPRUEF subroutine logic:\n- Check input letter A for umlauts.\n- If umlaut, replace with equivalent and set output letter B. \n- Check if A is lowercase.\n- Return flags indicating umlaut found and lowercase found.\n\nIn summary, this RPG code handles converting a customer name field to a standardized match code format by:\n- Extracting non-blank chars \n- Converting to uppercase\n- Replacing umlauts with two-letter equivalents\n- Updating the customer master record\n\nIt interacts with a customer master file (KUDSTAR). The converted match code is updated back to the customer name field (KUD050) on the file.",
+
+'VK2100.txt':"Here is the business logic extracted from the provided RPG code:\n\nThe code contains several procedures, each serving a specific purpose:\n\n1. Validation procedures:\n- SR_CHECKLOCK: Checks if a rental contract is locked by another user.\n- SR_PRUEFEN: Validates rental dates, calculates rental costs and checks for errors.\n- SR_PRUEFENF: Checks if approval is required for a rental contract.\n\n2. Lookup procedures:  \n- SR_KUNDE: Looks up customer details based on customer number.\n- SR_FZG: Looks up vehicle details like make, model etc based on chassis number.\n- SR_STATUS: Looks up rental status text based on status code.\n- SR_ART: Looks up rental type text based on vehicle usage code.\n\n3. Calculation procedures:\n- SR_DAUER: Calculates rental duration in days, weeks and months.\n- SR_KM: Calculates extra kilometers driven.\n- SR_TARIF: Looks up rental rates based on tariff code.\n\n4. Display procedures: \n- SR_ANZ1/2/3: Displays rental contracts in different views.\n- SR_NEU: Initializes screen fields with blank values.\n- SR_VER: Displays rental contract details for editing.\n\n5. Update procedures:\n- SR_VMV: Updates rental contract master file (VMV) with new values. \n- SR_UPDATE: Validates and writes changed rental data to database.\n- SR_HISTORIE: Logs changes to rental history file (VMH).\n\n6. Other procedures:\n- SR_SPEICHERN: Creates new rental contract.\n- SR_FILTER: Applies search filters to only show specific contracts.  \n- SR_TARIF: Looks up rental tariff details like rates.\n- SR_GWLINK: Generates link to used vehicle system for the rented vehicle.\n\nThe main database files are:\n- VMV: Rental contract master data\n- VMR: Rental contract accounting data \n- VMH: Rental contract history of changes\n\nThe UI files are:\n- VK2100D: Display file format\n- VK2100Cx: Subfile formats\n\nIn summary, the code provides a full business process to manage rental contracts - from creating new contracts, calculating rental costs, updating details, displaying contracts, and logging history. The key steps are validating contracts, looking up relevant data, performing calculations, updating databases, and displaying results.",
+
+'HS0614.txt':"Here is the business logic extracted from the provided RPG code:\n\nOverview:\n- This code is for damage coding on work orders in a workshop management system. It allows entering damage codes by customer and workshop.\n\nKey Files:\n- AUFWKO: Work order header file\n- AUFWSK: Work order damage coding file\n- AUFWSKF: Damage coding file layout \n- CWPMSGF: CWP message file \n- CWPMSRF: CWP message relations file\n\nProcedures:\n\n1. SR_WSK: Displays and maintains damage coding screen\n- Clears damage coding subfile \n- Reads work order damage codes into subfile\n- Allows adding, changing and deleting damage codes\n- Validates codes against CWP message file\n- Displays related CWP messages as search help for codes\n- Writes changed codes back to AUFWSK file\n\n2. SR_HINZU: Adds new damage code\n- Validates code against CWP message file\n- Writes new code to AUFWSK file\n\n3. SR_AENDERN_K: Changes existing customer damage code\n- Validates changed code against CWP message file  \n- Updates code in AUFWSK file\n\n4. SR_AENDERN_W: Changes existing workshop damage code\n- Validates changed code against CWP message file\n- Updates code in AUFWSK file\n\n5. SR_LOESCHEN: Deletes existing damage code\n- Deletes code from AUFWSK file\n\n6. SR_MSG_ID_K: Validates customer damage code against CWP message file\n\n7. SR_MSG_ID_W: Validates workshop damage code against CWP message file\n\n8. SR_AUFPOS: Checks if damage code is assigned to a valid work order position\n\n9. SR_COD_POS: Checks for damage codes without positions\n\n10. SR_POS_COD: Checks for positions without damage codes\n\n11. SR_CODW_OK: Checks if workshop damage coding is complete\n\n12. SR_EPA_I: Displays related extended prices (EPS)\n\n13. SR_EPA_DEL: Deletes related EPS when damage code is deleted\n\n14. SR_JOB: Retrieves related work order job UUID \n\nIn summary, the code provides maintenance of damage coding on work orders, validating codes and related positions, with integration to CWP message file.",
+
+'HS0340.txt':"Here is the extracted business logic from the provided RPG code:\n\n1. String Conversion Procedures\n\n- toUppercase: Converts a given input string to uppercase.\n  - Parameters:\n    - string (Input): The string to convert to uppercase\n  - Logic: \n    - Uses the `%xlate` built-in function to replace lowercase letters with their uppercase counterparts.\n    - Returns the uppercase version of the input string.\n\n- toLowercase: Converts a given input string to lowercase.\n  - Parameters: \n    - string (Input): The string to convert to lowercase\n  - Logic:\n    - Uses the `%xlate` built-in function to replace uppercase letters with their lowercase counterparts. \n    - Returns the lowercase version of the input string.\n      \n2. Memory Management Procedures\n\n- allocSpace: Allocates or reallocates memory space for a pointer variable.\n  - Parameters:\n    - ptr (Input/Output): A pointer variable to allocate or reallocate\n    - bytes (Input): The amount of memory space to allocate/reallocate\n  - Logic:\n    - Checks if ptr is null (unallocated)\n      - If null, allocates memory space of the specified size (bytes) and assigns it to ptr\n      - If not null, reallocates memory space to ptr with the new size (bytes)\n      \n- deallocSpace: Deallocates memory space for a pointer variable if not null\n  - Parameters: \n    - ptr (Input): The pointer variable to potentially deallocate\n  - Logic:\n    - Checks if ptr is not null (allocated)\n      - If not null, deallocates the memory associated with ptr\n        \n3. Part Lookup and Display\n\n- Allows searching for parts by part number, part description, manufacturer part number, or reference part numbers\n- Retrieves and displays inventory information, pricing, replacements, stock levels, etc. for a selected part\n- Includes lookup in local databases and interfaces to external systems like SPAS\n- Handles selection between multiple potential matches on search criteria\n- Navigation between parts using next/previous part number or description\n\n4. Order Status Lookup\n\n- Looks up order status information from external system for a given customer order\n- Displays current order status details relevant to the selected part\n\n5. Subfile Search and Selection\n\n- Builds a subfile result set from a search \n- Allows interactive selection of a record from the subfile search results\n- Navigation through subfile search results\n\n6. Part Replacement Information\n\n- Checks for replacement parts information from SPAS\n- Displays available replacement parts for the selected part\n  \n7. Pricing and Discounts\n\n- Determines pricing, discounts, customer or contract prices for a part\n- Factors in pricing dimensions, product groups, franchises, etc.\n\n8. Inventory Transactions\n\n- Retrieves inventory transaction history for a part across locations\n- Navigation through the transaction history\n\n9. Ordering History\n\n- Gets ordering history for a part \n- Navigation through the order history records\n\n10. Customer Backorder Information\n\n- Checks for and displays backorders for a part by customer\n\nThe code handles database access, user interaction, business logic processing, and integration with external systems to deliver part search and information lookup functionality. The extracted logic provides a high-level view of the core business capabilities supported.",
+ 
+'ESW050.txt':"Here is the extracted business logic from the provided RPG code:\n\nThe code appears to be doing the following:\n\n1. Reading the FARSTAM file (vehicle master data) to blank out certain fields (FAR420 and FAR460) before re-populating them.\n\n2. Reading FARSTAM again to identify vehicles that were never in the workshop and flag them in FAR420:\n  - Check if vehicle chassis number (FAR190) is valid\n  - Search for chassis number in SVASFGST and PIPPMST files \n  - If not found, set 1st position of FAR420 to 'F' for invalid chassis\n  - If found but vehicle owner (PIIMF1) is foreign, set 1st position to 'A' \n  - If not 'F' or 'A', check if ever in workshop (HSAHKLFF)\n  - If not found, set FAR420 to 'L' for never in workshop\n  - Update FARSTAM\n\n3. Build SQL table with duplicate chassis numbers (FAR190) from FARSTAM\n\n4. Read SQL table and flag duplicates:\n  - For each duplicate chassis number:\n    - Set 1st position of FAR420 to 'D' \n\n5. Read FARSTAM again to determine vehicle owners:\n  - For each record:\n    - If FAR420 not 'L', 'F', or 'A'\n      - Get owner data from HSAHKLFF (use longest ownership period)\n      - Lookup owner partner ID in HSBTSLF1\n      - Lookup owner address in HSKUIPF\n        - If found:\n          - Set FAR420 positions 2-3 and 5-6 with owner ID\n          - Set FAR460 with ownership period\n          - Update FARSTAM\n        - Else:\n          - Set FAR420 positions 2-9 to 'XXXXXXXXX'\n          - Clear FAR460\n          - Update FARSTAM\n  \n  - If FAR420 is 'D' (duplicate):\n    - Get ownership data as above\n    - Also get matching chassis number record's owner\n    - If owner found in FARSTAM, clear 1st position of FAR420 and update owner info\n    - Else set FAR420 positions 2-9 to 'XXXXXXXXX' and update\n  \n  - Chain logic on FARSTAM to find next record after updates\n  \n6. Read FARSTAM again:\n  - If FAR420 position 1 is blank:\n    - Lookup owner ID in KUDSTAM \n    - If duplicate found:\n      - Set FAR420 position 1 to 'N'\n    - Else:\n      - Update FAR420 with info from KUDSTAM\n  - Update FARSTAM\n\nFiles used:\n- FARSTAM - Vehicle master data\n- HSAHKLFF - Vehicle ownership periods \n- HSBTSLF1 - Partner master data\n- HSKUIPF - Partner addresses\n- SVBMRELM45 - Vehicle chassis numbers\n- PIPPMST - Vehicle owners\n- KUDSTAM - Customer master data\n\nThe code is doing duplicate checking and linking vehicles to owners by traversing these master data files. The end result is FARSTAM getting updated with flags and owner information."
+
+}
+
+def process_folder_customer_search(parent_folder_id):
+    folder_name = "Customer Search Code Module "
+    folder_business_logic = ""
+    
+    folder_structure={"files":['HS0238.txt','HS0900.txt','HS0815.txt','HS0870.txt','HSCVSF.txt','HSCVMCA.txt','HSCVMCK.txt','HS0235.txt',
+                               'HS0239.txt','HS0238C.txt','CS0130.txt','HS1061.txt']}
+    
+    files=['HS0238.txt','HS0900.txt','HS0815.txt','HS0870.txt','HSCVSF.txt','HSCVMCA.txt','HSCVMCK.txt','HS0235.txt','HS0239.txt','HS0238C.txt',
+           'CS0130.txt','HS1061.txt']
+    
+    files_name=[]
+    
+    for file in files:
+        if(folder_business_logic==""):
+            folder_business_logic=business_logic_customer[file]
+            files_name.append(file)
+        else:
+            folder_business_logic = combine_business_logic(folder_name,folder_structure,files_name,folder_business_logic,file,business_logic_customer[file])
+            files_name.append(file)
+    
+    logic = folder_business_logic
+    return logic
+
+class HigherLevelBLcustomersearch(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+  
+    def post(self, request):
+        folder_id = request.data.get('id') 
+        business_logic = process_folder_customer_search(folder_id)
+        return Response({"response":business_logic}, status=200)   
+
+class HigherLevelMDcustomersearch(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request):
+        business_logic = '''
+        " Here is the combined high-level business logic overview for the Customer Search Code Module including the new logic from HS1061.txt:\n\nThe module enables searching for customer, supplier, and vehicle records, processing related invoices, converting codes, generating standardized matching codes, maintaining payment guarantees, calling duplicate check programs, maintaining payment terms and print settings, and selecting records for letter writing.\n\nIt contains customer, supplier, vehicle search programs, invoice processing, code conversion, matching code generation, payment guarantee maintenance, duplicate checking, payment terms maintenance, and letter writing selection programs: \n\n1. HS0238 - Customer master search and duplicate check\n\n2. HS0900 - Customer search by multiple criteria \n\n3. HS0815 - Invoice processing\n\n4. HS0870 - Order/invoice analysis and selection\n\n5. HSCVMCA - Customer code conversion \n\n6. HSCVMCK - Matching code generation\n\n7. HS0235 - Payment guarantee maintenance\n\n8. HS0239 - Maintenance of customer bank details\n\n9. HS0238C - Main program that calls HS0238 for duplicate check\n\n10. CS0130 - Payment terms and print settings maintenance per customer/division \n\n11. HS1061 - Customer/supplier/vehicle selection for letter writing\n\n- Allows selection of customers, suppliers or vehicles based on criteria\n- Builds SQL selection statements dynamically based on input\n- Calls HS1061C to retrieve selected records\n- Writes selection criteria to HSBRSPF/HSBRSPR\n- Selection can be done for customers, suppliers or vehicles\n- Displays selection screens HS10610x to get input  \n- Shows selection results in grid for user selection \n- User can select records and call letter writing program HS1062C\n\nKey Files:\n\n- Customer, supplier, vehicle master files\n- Invoice header and lines files  \n- Output subfiles\n- Screen formats\n- Code conversion records\n- Payment guarantee history file\n- Bank detail files\n- Payment terms file CSFALF\n- Division file AXAXTPF\n- HSBRSPF/HSBRSPR - Selection criteria file\n- HSBTSLF1 - Dealer short code file\n- S7L011A - Open campaigns file\n\nIn summary, the module provides comprehensive search, selection, processing, and maintenance capabilities for customer, supplier, and vehicle data, transactions, codes, terms, and bank details. HS1061 specifically enables flexible selection of records for letter writing."
+        '''
+        mermaid_diagram= higher_level_mermaid_diagram(business_logic)
+        return Response(mermaid_diagram, status=400) 
+ 
+class HigherLevelMFcustomersearch(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request):
+        business_logic = '''
+        " Here is the combined high-level business logic overview for the Customer Search Code Module including the new logic from HS1061.txt:\n\nThe module enables searching for customer, supplier, and vehicle records, processing related invoices, converting codes, generating standardized matching codes, maintaining payment guarantees, calling duplicate check programs, maintaining payment terms and print settings, and selecting records for letter writing.\n\nIt contains customer, supplier, vehicle search programs, invoice processing, code conversion, matching code generation, payment guarantee maintenance, duplicate checking, payment terms maintenance, and letter writing selection programs: \n\n1. HS0238 - Customer master search and duplicate check\n\n2. HS0900 - Customer search by multiple criteria \n\n3. HS0815 - Invoice processing\n\n4. HS0870 - Order/invoice analysis and selection\n\n5. HSCVMCA - Customer code conversion \n\n6. HSCVMCK - Matching code generation\n\n7. HS0235 - Payment guarantee maintenance\n\n8. HS0239 - Maintenance of customer bank details\n\n9. HS0238C - Main program that calls HS0238 for duplicate check\n\n10. CS0130 - Payment terms and print settings maintenance per customer/division \n\n11. HS1061 - Customer/supplier/vehicle selection for letter writing\n\n- Allows selection of customers, suppliers or vehicles based on criteria\n- Builds SQL selection statements dynamically based on input\n- Calls HS1061C to retrieve selected records\n- Writes selection criteria to HSBRSPF/HSBRSPR\n- Selection can be done for customers, suppliers or vehicles\n- Displays selection screens HS10610x to get input  \n- Shows selection results in grid for user selection \n- User can select records and call letter writing program HS1062C\n\nKey Files:\n\n- Customer, supplier, vehicle master files\n- Invoice header and lines files  \n- Output subfiles\n- Screen formats\n- Code conversion records\n- Payment guarantee history file\n- Bank detail files\n- Payment terms file CSFALF\n- Division file AXAXTPF\n- HSBRSPF/HSBRSPR - Selection criteria file\n- HSBTSLF1 - Dealer short code file\n- S7L011A - Open campaigns file\n\nIn summary, the module provides comprehensive search, selection, processing, and maintenance capabilities for customer, supplier, and vehicle data, transactions, codes, terms, and bank details. HS1061 specifically enables flexible selection of records for letter writing."
+        '''
+        mermaid_diagram= higher_level_mermaid_flowchart(business_logic)
+        return Response(mermaid_diagram, status=400)
+
 

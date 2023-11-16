@@ -43,10 +43,36 @@ urlpatterns = [
     path('create-branch/',views.CreateGitHubBranch.as_view(),name='create_branch'),
     path('get-branch/',views.ListBranches.as_view(),name='list_branch'),
     path('git-pull/',views.PullCodeFromGitHub.as_view(),name='git_pull'),
-    path('api/business_logic/', views.HigherLevelBusinessLogic.as_view(), name='business-logic'),
-    path('api/mermaid_diagram/', views.HigherLevelMermaidDiagram.as_view(), name='mermaid_diagram'),
-    path('api/mermaid_flowchart/', views.HigherLevelMermaidFlowchart.as_view(), name='mermaid_flowchart'),
     path('gen-share-code/',views.GenerateUUID.as_view(),name='generate_share_code'),
     path('get-access/',views.AccessRepository.as_view(),name='get_access_to_repository'),
-    path('api/business/', views.HigherLevelBL.as_view(), name='business-logic'),
+    
+    # Urls for Higher Level business Logic For a repo
+    path('api/business_logic/', views.HigherLevelBusinessLogic.as_view(), name='higher_level_business_logic'),
+    
+    # Urls for Higher Level Mermaid Diagram For a repo
+    path('api/mermaid_diagram/', views.HigherLevelMermaidDiagram.as_view(), name='higher_level_mermaid_diagram'),
+    
+    # Urls for Higher Level Mermaid Flowchart For a repo
+    path('api/mermaid_flowchart/', views.HigherLevelMermaidFlowchart.as_view(), name='higher_level_mermaid_flowchart'),
+    
+    # Urls for Higher Level business Logic for files in context of HS023.txt
+    path('api/business_logic_023/', views.HigherLevelBL023.as_view(), name='business_logic_023'),
+    
+    # Urls for Higher Level business Logic for files in context of HS06.txt
+    path('api/business_logic_06/', views.HigherLevelBL06.as_view(), name='business_logic_06'),
+    
+    # Urls for Higher Level business Logic for files in context of HS06N.txt
+    path('api/business_logic_06N/', views.HigherLevelBL06N.as_view(), name='business_logic_06N'),
+    
+    # Urls for Higher Level business Logic for files in context of customer search files
+    path('api/business_logic_customer_search/', views.HigherLevelBLcustomersearch.as_view(), name='business_logic_customer_search'),
+    
+    # Urls for Higher Level Mermaid Diagram for files in context of customer search files
+    path('api/mermaid_diagram_customer_search/', views.HigherLevelMDcustomersearch.as_view(), name='mermaid_diagram_customer_search'),
+    
+    # Urls for Higher Level Mermaid Flowchart for files in context of customer search files
+    path('api/mermaid_flowchart_customer_search/', views.HigherLevelMFcustomersearch.as_view(), name='mermaid_flowchart_customer_search'),
+    
+    # Urls for Pratice
+    path('api/business/', views.HigherLevelBusinessLogicP.as_view(), name='higher_level_business_logic'),
 ]
