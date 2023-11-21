@@ -1,5 +1,5 @@
 import SideNav from "./assets/components/sidenav";
-import { Box, TextField } from '@mui/material';
+import { Box, Button, TextField } from '@mui/material';
 import './search.css';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -28,6 +28,13 @@ const data = [
 
 
 export default function Search() {
+    const [state, setState] = React.useState({
+        top: false,
+        left: false,
+        bottom: false,
+        right: false,
+      });
+
     const columns = useMemo(
         //column definitions...
         () => [
@@ -47,6 +54,7 @@ export default function Search() {
         [], //end
     );
 
+    
     //optionally, you can manage the row selection state yourself
     const [rowSelection, setRowSelection] = useState({});
 
@@ -60,8 +68,30 @@ export default function Search() {
         enableGlobalFilter: false,
         enableFullScreenToggle: false,
         getRowId: (originalRow) => originalRow.fileID,
+        renderTopToolbarCustomActions: ({ table }) => (
+            <Box sx={{ display: 'flex', gap: '1rem', p: '4px' }}>
+              <Button
+                color="secondary"
+                onClick={() => {
+                  alert('Create New Account');
+                }}
+                variant="contained"
+              >
+                Create Account
+              </Button>
+              </Box>
+              )
+              
     });
 
+    const toggleDrawer = (anchor, open) => (event) => {
+        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+          return;
+        }
+    
+        setState({ ...state, [anchor]: open });
+      };
+      
     //do something when the row selection changes...
     useEffect(() => {
         // console.log({ rowSelection }); //read your managed row selection state
@@ -72,15 +102,17 @@ export default function Search() {
         <Box sx={{ display: "flex" }}>
             <SideNav />
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-                <div className='flex flex-col justify-center items-center' style={{ paddingTop: '64px' }}>
+                <div className='flex flex-col justify-center items-center' style={{ paddingTop: '64px', paddingBottom: '2rem' }}>
                     <p>Identify Feature Groups</p>
-                    <TextField InputProps={{
+                    <TextField 
+                    InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
                                 <SearchIcon />
                             </InputAdornment>
                         ),
-                    }} className="searchBox" placeholder="Search all modules" variant="outlined" />
+                    }}
+                     className="searchBox" placeholder="Search all modules" variant="outlined" />
                     {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
                 </div>
                 <MaterialReactTable table={table} />
