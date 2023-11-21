@@ -2,7 +2,7 @@ from langchain.chat_models import ChatAnthropic
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel,Field
 from typing import List
-
+import keys
 from langchain.chains import LLMChain
 from langchain.prompts.prompt import PromptTemplate
 from langchain.output_parsers import GuardrailsOutputParser
@@ -237,7 +237,7 @@ prompt = PromptTemplate(
 llm =  ChatAnthropic(
         temperature=0,
         model="claude-2.0",
-        anthropic_api_key="sk-ant-Ua2LBOypbfXo3Smxsq7HoU-ornoK_ofWpFaeeXryZnOqvIXn1ioFxS65TxuL-0rC8n2sxhTCWWSSAOhhHnHTcA"
+        anthropic_api_key=keys.anthropic_key
 )
 
 
@@ -265,13 +265,13 @@ import sqlite3
 import pinecone
 
 pinecone.init(
-    api_key="7ec3ba51-19b2-4ef6-b713-c54087f55f2d",
+    api_key=keys.pinecone_key,
     environment="us-east-1-aws"
 )
 
 index = pinecone.Index("scania-business-logic")
 import os
-os.environ['OPENAI_API_KEY'] = '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'
+os.environ['OPENAI_API_KEY'] = keys.openai_key
 from openai import OpenAI
 client = OpenAI()
 

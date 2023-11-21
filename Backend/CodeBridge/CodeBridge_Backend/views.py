@@ -1952,6 +1952,6 @@ class Search(APIView):
         user = request.user
         query = request.data.get('query') 
         result = get_search_list(query)
-        print(result)
+        # print(result)
         return Response({'data': result}, status=status.HTTP_201_CREATED)
                         

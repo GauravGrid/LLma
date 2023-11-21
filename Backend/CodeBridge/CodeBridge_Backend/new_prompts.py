@@ -721,8 +721,6 @@ def code_to_business_logic(code,source):
     5.Any important information about the file structure should be identified and added to the interactions. 
     6.Please specify these interactions towards the end of the generated response in a well formatted manner.
     7.Be as verbose as needed.
-    8.Avoid using etc and list everything.
-    9.For database files
     Make sure that the output provides a clear and concise representation of the business logic within the {source} code. If the {source} code is complex,
     please include comments or explanations to clarify the logic.I am providing an example how to generate business logic 
     using the {source} code as shown in the following example.
