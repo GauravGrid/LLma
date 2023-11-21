@@ -72,15 +72,17 @@ export default function Search() {
         <Box sx={{ display: "flex" }}>
             <SideNav />
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-                <div className='flex flex-col justify-center items-center' style={{ paddingTop: '64px' }}>
+                <div className='flex flex-col justify-center items-center' style={{ paddingTop: '64px', paddingBottom: '2rem' }}>
                     <p>Identify Feature Groups</p>
-                    <TextField InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon />
-                            </InputAdornment>
-                        ),
-                    }} className="searchBox" placeholder="Search all modules" variant="outlined" />
+                    <TextField 
+                    // InputProps={{
+                    //     startAdornment: (
+                    //         <InputAdornment position="start">
+                    //             <SearchIcon />
+                    //         </InputAdornment>
+                    //     ),
+                    // }}
+                     className="searchBox" placeholder="Search all modules" variant="outlined" />
                     {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
                 </div>
                 <MaterialReactTable table={table} />
