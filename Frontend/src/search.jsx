@@ -105,7 +105,7 @@ export default function Search() {
     enableRowSelection: true,
     getRowId: (row) => row.fileID, //give each row a more useful id
     onRowSelectionChange: setRowSelection, //connect internal row selection state to your own
-    state: { isLoading },
+    state: { rowSelection, isLoading },
     rowCount, //pass our managed row selection state to the table to use
     enableGlobalFilter: false,
     enableFullScreenToggle: false,
