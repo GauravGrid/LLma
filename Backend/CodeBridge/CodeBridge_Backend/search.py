@@ -300,7 +300,7 @@ def get_ids(query):
     return ids
 
 def get_search_list(query):
-    ids = get_ids(query)
+    # ids = get_ids(query)
     corpus_embedding_openai = get_embedding(getText(preprocess(query)),model='text-embedding-ada-002')
     matches_preprocessed = index.query(
         vector = corpus_embedding_openai,
