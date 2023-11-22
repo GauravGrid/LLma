@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,FileUpload,FolderUpload,Logic,JavaCode,MermaidDiagrams,GitHubRepository,HighLevel
+from .models import User,FileUpload,FolderUpload,Logic,JavaCode,MermaidDiagrams,GitHubRepository,HighLevel,ScaniaBusinessLogic
 class UserSerializer(serializers.ModelSerializer):
     class Meta : 
         model = User
@@ -48,4 +48,9 @@ class ShareCodeSerializer(serializers.Serializer):
 class HighLevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = HighLevel
+        fields = '__all__'
+
+class ScaniaLogicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScaniaBusinessLogic
         fields = '__all__'

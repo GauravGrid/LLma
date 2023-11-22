@@ -950,6 +950,8 @@ def business_logic_to_code(logic,source, destination,srccode):
     
     Now the User will provide business logic , please generate correct {destination} code for business logic as shown in above 
     example without any initial text. Also include proper comments in the code. 
+
+    Take a deep breath and think step by step to solve this task.
     
     User: {input}
     Code:
@@ -1239,6 +1241,7 @@ def process_folder_mermaid_flowchart(folder_path):
 
 
 # Pinecone
+
 
 
 

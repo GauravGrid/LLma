@@ -103,6 +103,7 @@ export default function Search() {
             <SideNav />
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <div className='flex flex-col justify-center items-center' style={{ paddingTop: '64px', paddingBottom: '2rem' }}>
+                <div className='flex flex-col justify-center items-center' style={{ paddingTop: '64px', paddingBottom: '2rem' }}>
                     <p>Identify Feature Groups</p>
                     <TextField 
                     InputProps={{
