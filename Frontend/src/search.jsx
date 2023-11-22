@@ -27,6 +27,7 @@ const data = [
 ];
 
 
+
 export default function Search() {
     const [state, setState] = React.useState({
         top: false,
@@ -57,7 +58,37 @@ export default function Search() {
     
     //optionally, you can manage the row selection state yourself
     const [rowSelection, setRowSelection] = useState({});
-
+    const [searchValue, setSearchValue] = useState('');
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+          handleAPICall(searchValue);
+        }
+      };
+      const handleChange = (event) => {
+        setSearchValue(event.target.value);
+      };
+      const handleAPICall = async (value) => {
+    
+        const jwtToken = sessionStorage.getItem("jwt");
+        try {
+          const response = await fetch(`http://127.0.0.1:8000/search/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${jwtToken}`,
+            },
+            body: JSON.stringify({
+              query: value
+            }),
+          })
+          const data = await response.json();
+          console.log(data)
+          
+    
+        } catch (error) {
+          console.log(error)
+        }
+      }
     const table = useMaterialReactTable({
         columns,
         data,
@@ -71,13 +102,13 @@ export default function Search() {
         renderTopToolbarCustomActions: ({ table }) => (
             <Box sx={{ display: 'flex', gap: '1rem', p: '4px' }}>
               <Button
-                color="secondary"
+                color="primary"
                 onClick={() => {
                   alert('Create New Account');
                 }}
                 variant="contained"
               >
-                Create Account
+                Create sub-module
               </Button>
               </Box>
               )
@@ -103,7 +134,6 @@ export default function Search() {
             <SideNav />
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <div className='flex flex-col justify-center items-center' style={{ paddingTop: '64px', paddingBottom: '2rem' }}>
-                <div className='flex flex-col justify-center items-center' style={{ paddingTop: '64px', paddingBottom: '2rem' }}>
                     <p>Identify Feature Groups</p>
                     <TextField 
                     InputProps={{
@@ -113,7 +143,12 @@ export default function Search() {
                             </InputAdornment>
                         ),
                     }}
-                     className="searchBox" placeholder="Search all modules" variant="outlined" />
+                     className="searchBox"  
+                     placeholder="Search all modules" 
+                     variant="outlined" 
+                     onKeyDown={handleKeyPress}
+                     onChange={handleChange}
+                     value={searchValue}/>
                     {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
                 </div>
                 <MaterialReactTable table={table} />
