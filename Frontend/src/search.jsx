@@ -8,6 +8,19 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
+//drawer
+
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import Divider from '@mui/material/Divider';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import MailIcon from '@mui/icons-material/Mail';
+
+//drawer-end
 
 const data = [
   {
@@ -26,12 +39,61 @@ const data = [
 ];
 
 export default function Search() {
+
+    const [drawerOpen, setDrawerOpen] = useState(false)
+
+
+
+
   const [state, setState] = React.useState({
     top: false,
     left: false,
     bottom: false,
     right: false,
   });
+  //drawer
+  const [stateA, setStateA] = React.useState({
+    top: false,
+    left: false,
+    bottom: false,
+    right: false,
+  });
+
+  const toggleDrawerA = (anchor, open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+
+    setState({ ...state, [anchor]: open });
+  };
+
+  const list = (anchor) => (
+    <Box
+      sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
+      role="presentation"
+      onClick={toggleDrawer(anchor, false)}
+      onKeyDown={toggleDrawer(anchor, false)}
+    >
+      {
+        <h4>create sub module</h4>
+      }
+      <Divider />
+      {/* <List>
+        {['All mail', 'Trash', 'Spam'].map((text, index) => (
+          <ListItem key={text} disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+              </ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List> */}
+    </Box>
+  );
+
+  //drawer-end
 
   const columns = useMemo(
     //column definitions...
@@ -115,7 +177,10 @@ export default function Search() {
         <Button
           color="primary"
           onClick={() => {
-            alert("Create New Account");
+            // alert("Create New Account");
+            setState({ ...state, right: true });
+         
+            
           }}
           variant="contained"
         >
@@ -169,6 +234,29 @@ export default function Search() {
           {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
         </div>
         {tableData.length !== 0 && <MaterialReactTable table={table} />}
+        
+
+
+
+        <div>
+      {['right'].map((anchor) => (
+        <React.Fragment key={anchor}>
+          {/* <Button onClick={toggleDrawerA(anchor, true)}>{anchor}</Button> */}
+          <Drawer 
+            anchor={anchor}
+            open={state[anchor]}
+            onClose={toggleDrawerA(anchor, false)}
+            
+          >
+            {list(anchor)}
+          </Drawer>
+        </React.Fragment>
+      ))}
+    </div>
+
+
+
+
       </Box>
     </Box>
   );
