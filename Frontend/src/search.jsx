@@ -68,14 +68,19 @@ export default function Search() {
       onClick={toggleDrawer(anchor, false)}
       onKeyDown={toggleDrawer(anchor, false)}
     >
-      {
+      
        
-      }
+      
       <Divider />
-      {
+      
       <><p sx={{ fontSize: '160px' }}>create sub module</p><p>sub module name</p></>
-     
-      }
+    <input
+    placeholder="customer search">
+
+    </input>
+    <button>close</button>
+    <Button>create</Button>     
+      
     </Box>
   );
 
