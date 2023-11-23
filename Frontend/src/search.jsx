@@ -73,13 +73,14 @@ export default function Search() {
       
       <Divider />
       
-      <><p sx={{ fontSize: '160px' }}>create sub module</p><p>sub module name</p></>
-    <input
+      <><p className="heading">create sub module</p><p className="sub-heading">sub module name</p></>
+    <input 
+    className="customer-search"
     placeholder="customer search">
 
     </input>
-    <button>close</button>
-    <Button>create</Button>     
+    <button className="close-button">close</button>
+    <button className="create-button">create</button>     
       
     </Box>
   );
