@@ -63,6 +63,7 @@ export default function Search() {
 
   const list = (anchor) => (
     <Box 
+      
       sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
       role="presentation"
       onClick={toggleDrawer(anchor, false)}
@@ -235,6 +236,7 @@ export default function Search() {
         <React.Fragment key={anchor}>
           {/* <Button onClick={toggleDrawerA(anchor, true)}>{anchor}</Button> */}
           <Drawer 
+        
             anchor={anchor}
             open={state[anchor]}
             onClose={toggleDrawerA(anchor, false)}
