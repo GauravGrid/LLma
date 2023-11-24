@@ -8,8 +8,8 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import Drawer from '@mui/material/Drawer';
-import Divider from '@mui/material/Divider';
+import Drawer from "@mui/material/Drawer";
+import Divider from "@mui/material/Divider";
 
 const data = [
   {
@@ -28,11 +28,7 @@ const data = [
 ];
 
 export default function Search() {
-
-    const [drawerOpen, setDrawerOpen] = useState(false)
-
-
-
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [state, setState] = React.useState({
     top: false,
@@ -49,7 +45,10 @@ export default function Search() {
   });
 
   const toggleDrawerA = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
       return;
     }
 
@@ -57,27 +56,22 @@ export default function Search() {
   };
 
   const list = (anchor) => (
-    <Box className="drawer"
-      
-      sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
+    <Box
+      className="drawer"
+      sx={{ width: anchor === "top" || anchor === "bottom" ? "auto" : 250 }}
       role="presentation"
       onClick={toggleDrawer(anchor, false)}
       onKeyDown={toggleDrawer(anchor, false)}
     >
-      
-       
-      
       <Divider />
-      
-      <><p className="heading">create sub module</p><p className="sub-heading">sub module name</p></>
-    <input 
-    className="customer-search"
-    placeholder="customer search">
 
-    </input>
-    <button className="close-button">close</button>
-    <button className="create-button">create</button>     
-      
+      <>
+        <p className="heading">create sub module</p>
+        <p className="sub-heading">sub module name</p>
+      </>
+      <input className="customer-search" placeholder="customer search"></input>
+      <button onClick={ () => setDrawerOpen(false)} className="close-button">close</button>
+      <button className="create-button">create</button>
     </Box>
   );
 
@@ -144,7 +138,6 @@ export default function Search() {
       setIsLoading(() => false);
 
       console.log("tableData after set state: ", tableData);
-
     } catch (error) {
       console.log(error);
     }
@@ -166,9 +159,8 @@ export default function Search() {
           color="primary"
           onClick={() => {
             // alert("Create New Account");
-            setState({ ...state, right: true });
-         
-            
+            // setState({ ...state, right: true });
+            setDrawerOpen(true);
           }}
           variant="contained"
         >
@@ -222,30 +214,27 @@ export default function Search() {
           {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
         </div>
         {tableData.length !== 0 && <MaterialReactTable table={table} />}
-        
 
-
-
-        <div >
-      {['right'].map((anchor) => (
-        <React.Fragment key={anchor}>
-          {/* <Button onClick={toggleDrawerA(anchor, true)}>{anchor}</Button> */}
-          <Drawer 
-        
-            anchor={anchor}
-            open={state[anchor]}
-            onClose={toggleDrawerA(anchor, false)}
-            
-            >
-            {list(anchor)}
+        <div>
+          <Drawer
+            anchor={"right"}
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            sx={{
+              paddingBottom: "10rem",
+              height: "100vh",
+            }}
+            PaperProps={{
+              sx: {
+                paddingBottom: "1rem",
+                boxSizing: "border-box",
+                height: "100vh",
+              },
+            }}
+          >
+            {list("right")}
           </Drawer>
-        </React.Fragment>
-      ))}
-    </div>
-
-
-
-
+        </div>
       </Box>
     </Box>
   );
