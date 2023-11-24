@@ -5,22 +5,27 @@
     font-size: 25px;
     padding-top: 100px;
     margin-left: 20px;
+    color: white;
 }
 .sub-heading{
     padding-top: 20px;
     margin-left: 20px;
+    color: white;
 }
 .customer-search{
     margin-left: 20px;
-    border: 2px solid #2B3140;
+    border: 2px solid white;
     border-radius: 5px;
     margin-top: 5px;
+   
 }
 .close-button{
 margin-right: 10px;
 margin-left: 40px;
-margin-top: 550px;
+margin-top: 598px;
+
 }
-/* .drawer{
+
+.drawer{
     background-color: #2B3140;
-} */
+}

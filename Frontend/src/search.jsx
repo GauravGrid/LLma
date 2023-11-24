@@ -8,13 +8,8 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-//drawer
-
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
-
-
-//drawer-end
 
 const data = [
   {
@@ -62,7 +57,7 @@ export default function Search() {
   };
 
   const list = (anchor) => (
-    <Box 
+    <Box className="drawer"
       
       sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
       role="presentation"
