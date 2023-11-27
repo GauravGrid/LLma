@@ -2,34 +2,44 @@
     width: 80%;
 }
 .heading{
-    font-size: 25px;
+    font-size: 26px;
     padding-top: 100px;
     margin-left: 20px;
     color: white;
 }
 .sub-heading{
-    padding-top: 20px;
+    font-size: 20px;
+    padding-top: 15px;
     margin-left: 20px;
     color: white;
 }
 .customer-search{
     margin-left: 20px;
-    border: 2px solid white;
+    border: 2px solid  #808080 ;
     border-radius: 5px;
-    margin-top: 5px;
-   
+    margin-top: 7px;
+    height: 30px;
+    background-color:#2B3140 ;   
+    color: white;
 }
 .close-button{
 margin-right: 10px;
 margin-left: 40px;
-margin-top: 598px;
-/* padding-bottom: 5px; */
-
+margin-top: 593px;
+background-color:#403c4c;
+color: white;
+width: 90px;
 }
 .create-button{
-    /* padding-bottom: 5px; */
+    background-color:#7783A0;
+color: white;
 }
-
 .drawer{
     background-color: #2B3140;
+    width: 600px;
+    
+}
+.drawerDiv{
+    padding-bottom: 0%;
+    overflow-y: hidden;
 }

@@ -65,13 +65,17 @@ export default function Search() {
     >
       <Divider />
 
-      <>
-        <p className="heading">create sub module</p>
+      <div className="drawerDiv">
+        <p className="heading">create sub-module</p>
         <p className="sub-heading">sub module name</p>
-      </>
+     
       <input className="customer-search" placeholder="customer search"></input>
+      
       <button onClick={ () => setDrawerOpen(false)} className="close-button">close</button>
-      <button className="create-button">create</button>
+      <button onClick={ () => { setDrawerOpen(false);
+     
+    }}className="create-button">create</button>
+      </div>
     </Box>
   );
 
@@ -98,6 +102,7 @@ export default function Search() {
   const [tableData, setTableData] = useState([]);
   const [rowCount, setRowCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  let success=false;
 
   //optionally, you can manage the row selection state yourself
   const [rowSelection, setRowSelection] = useState({});
@@ -188,6 +193,7 @@ export default function Search() {
   }, [rowSelection]);
 
   return (
+    
     <Box sx={{ display: "flex" }}>
       <SideNav />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
@@ -214,21 +220,21 @@ export default function Search() {
           {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
         </div>
         {tableData.length !== 0 && <MaterialReactTable table={table} />}
-
+        {/* <Alert severity="success" if="success">Sub Module successfully created</Alert> */}
         <div>
           <Drawer
             anchor={"right"}
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
             sx={{
-              paddingBottom: "10rem",
-              height: "100vh",
+            //   paddingBottom: "10rem",
+            //   height: "100vh",
             }}
             PaperProps={{
               sx: {
-                paddingBottom: "1rem",
+                // paddingBottom: "1rem",
                 boxSizing: "border-box",
-                height: "100vh",
+                // height: "100vh",
               },
             }}
           >
