@@ -1,5 +1,5 @@
 import SideNav from "./assets/components/sidenav";
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, MenuItem, Modal, TextField, Typography } from "@mui/material";
 import "./search.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -10,7 +10,9 @@ import {
 } from "material-react-table";
 import Drawer from "@mui/material/Drawer";
 import Divider from "@mui/material/Divider";
+//modal
 
+//modal-end
 const data = [
   {
     fileID: "3f25309c-8fa1-470f-811e-cdb082ab9017", //we'll use this as a unique row id
@@ -70,7 +72,9 @@ export default function Search() {
         <p className="sub-heading">sub module name</p>
       </>
       <input className="customer-search" placeholder="customer search"></input>
-      <button onClick={ () => setDrawerOpen(false)} className="close-button">close</button>
+      <button onClick={() => setDrawerOpen(false)} className="close-button">
+        close
+      </button>
       <button className="create-button">create</button>
     </Box>
   );
@@ -102,6 +106,11 @@ export default function Search() {
   //optionally, you can manage the row selection state yourself
   const [rowSelection, setRowSelection] = useState({});
   const [searchValue, setSearchValue] = useState("");
+  //modal
+  const [openModal, setOpenModal] = React.useState(false);
+const handleOpen = () => setOpenModal(true);
+const handleClose = () => setOpenModal(false);
+
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
       handleAPICall(searchValue);
@@ -158,8 +167,6 @@ export default function Search() {
         <Button
           color="primary"
           onClick={() => {
-            // alert("Create New Account");
-            // setState({ ...state, right: true });
             setDrawerOpen(true);
           }}
           variant="contained"
@@ -168,6 +175,13 @@ export default function Search() {
         </Button>
       </Box>
     ),
+    enableRowActions:true,
+    renderRowActionMenuItems: ({ row }) => [
+      <MenuItem key="open" onClick={() => handleOpen()}>
+        open
+      </MenuItem>,
+     
+    ],
   });
 
   const toggleDrawer = (anchor, open) => (event) => {
@@ -188,54 +202,76 @@ export default function Search() {
   }, [rowSelection]);
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <SideNav />
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <div
-          className="flex flex-col justify-center items-center"
-          style={{ paddingTop: "64px", paddingBottom: "2rem" }}
-        >
-          <p>Identify Feature Groups</p>
-          <TextField
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            className="searchBox"
-            placeholder="Search all modules"
-            variant="outlined"
-            onKeyDown={handleKeyPress}
-            onChange={handleChange}
-            value={searchValue}
-          />
-          {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
-        </div>
-        {tableData.length !== 0 && <MaterialReactTable table={table} />}
-
+    <>
+      <>
         <div>
-          <Drawer
-            anchor={"right"}
-            open={drawerOpen}
-            onClose={() => setDrawerOpen(false)}
-            sx={{
-              paddingBottom: "10rem",
-              height: "100vh",
-            }}
-            PaperProps={{
-              sx: {
-                paddingBottom: "1rem",
-                boxSizing: "border-box",
-                height: "100vh",
-              },
-            }}
+          <Button onClick={handleOpen}>Open modal</Button>
+          <Modal
+            open={openModal}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
           >
-            {list("right")}
-          </Drawer>
+            <Box>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Text in a modal
+              </Typography>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+              </Typography>
+            </Box>
+          </Modal>
         </div>
-      </Box>
-    </Box>
+        <Box sx={{ display: "flex" }}>
+          <SideNav />
+          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <div
+              className="flex flex-col justify-center items-center"
+              style={{ paddingTop: "64px", paddingBottom: "2rem" }}
+            >
+              <p>Identify Feature Groups</p>
+              <TextField
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                className="searchBox"
+                placeholder="Search all modules"
+                variant="outlined"
+                onKeyDown={handleKeyPress}
+                onChange={handleChange}
+                value={searchValue}
+              />
+              {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
+            </div>
+            {tableData.length !== 0 && <MaterialReactTable table={table} />}
+
+            <div>
+              <Drawer
+                anchor={"right"}
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+                sx={{
+                  paddingBottom: "10rem",
+                  height: "100vh",
+                }}
+                PaperProps={{
+                  sx: {
+                    paddingBottom: "1rem",
+                    boxSizing: "border-box",
+                    height: "100vh",
+                  },
+                }}
+              >
+                {list("right")}
+              </Drawer>
+            </div>
+          </Box>
+        </Box>
+      </>
+    </>
   );
 }
