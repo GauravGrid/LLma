@@ -66,7 +66,7 @@ export default function Search() {
       <Divider />
 
       <>
-        <p className="heading">create sub module</p>
+        <p className="heading">create sub-module</p>
         <p className="sub-heading">sub module name</p>
       </>
       <input className="customer-search" placeholder="customer search"></input>
