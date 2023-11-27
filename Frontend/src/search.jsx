@@ -1,5 +1,5 @@
 import SideNav from "./assets/components/sidenav";
-import { Box, Button, MenuItem, Modal, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, MenuItem, Modal, TextField, Typography } from "@mui/material";
 import "./search.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -10,7 +10,9 @@ import {
 } from "material-react-table";
 import Drawer from "@mui/material/Drawer";
 import Divider from "@mui/material/Divider";
-import { Diversity1TwoTone } from "@mui/icons-material";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 //modal
 
 //modal-end
@@ -31,6 +33,20 @@ const data = [
 ];
 
 export default function Search() {
+
+  const [openAlert, setOpenAlert] = React.useState(false);
+
+  const handleClick = () => {
+    setOpenAlert(true);
+  };
+
+  const handleCloseA = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenAlert(false);
+  };
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [state, setState] = React.useState({
@@ -73,13 +89,18 @@ export default function Search() {
         <p className="sub-heading">sub module name</p>
      
       <input className="customer-search" placeholder="customer search"></input>
-      
       <button onClick={ () => setDrawerOpen(false)} className="close-button">close</button>
-      <button onClick={ () => { setDrawerOpen(false);
+      <button  onClick={handleClick}
      
-    }}className="create-button">create</button>
-      </div>
+     className="create-button">create</button>
+      <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleCloseA}>
+  <Alert onClose={handleCloseA} severity="success" sx={{ width: '100%' }}>
+    successfully created
+  </Alert>
+</Snackbar> 
+</div>  
     </Box>
+   
   );
 
   //drawer-end
@@ -239,7 +260,6 @@ const handleClose = () => setOpenModal(false);
               {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
             </div>
             {tableData.length !== 0 && <MaterialReactTable table={table} />}
-        {/* <Alert severity="success" if="success">Sub Module successfully created</Alert> */}
             <div>
               <Drawer
                 anchor={"right"}
@@ -262,18 +282,22 @@ const handleClose = () => setOpenModal(false);
             </div>
           </Box>
           <Modal
+          className="modal-box"
             open={openModal}
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
           >
             <div className="modal-content"> 
-              <Typography id="modal-modal-title" variant="h6" component="h2">
+
+              {/* <Typography id="modal-modal-title" variant="h6" component="h2">
                 Text in a modal
               </Typography>
               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                 Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-              </Typography>
+              </Typography> */}
+
+              hello
             </div>
           </Modal>
         </Box>

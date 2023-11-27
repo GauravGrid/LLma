@@ -43,3 +43,12 @@ color: white;
     padding-bottom: 0%;
     overflow-y: hidden;
 }
+.modal-content {
+    background-color: white;
+    color: black;
+}
+.modal-box {
+    background-color: white;
+    color: black;
+    padding-left: 20rem;
+}
