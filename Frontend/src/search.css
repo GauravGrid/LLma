@@ -37,4 +37,9 @@ color: white;
 .drawer{
     background-color: #2B3140;
     width: 600px;
+    
+}
+.drawerDiv{
+    padding-bottom: 0%;
+    overflow-y: hidden;
 }

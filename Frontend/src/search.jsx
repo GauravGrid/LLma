@@ -1,5 +1,5 @@
 import SideNav from "./assets/components/sidenav";
-import { Box, Button, MenuItem, Modal, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, MenuItem, Modal, TextField, Typography } from "@mui/material";
 import "./search.css";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -10,6 +10,9 @@ import {
 } from "material-react-table";
 import Drawer from "@mui/material/Drawer";
 import Divider from "@mui/material/Divider";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 //modal
 
 //modal-end
@@ -30,6 +33,20 @@ const data = [
 ];
 
 export default function Search() {
+
+  const [openAlert, setOpenAlert] = React.useState(false);
+
+  const handleClick = () => {
+    setOpenAlert(true);
+  };
+
+  const handleCloseA = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenAlert(false);
+  };
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [state, setState] = React.useState({
@@ -67,16 +84,23 @@ export default function Search() {
     >
       <Divider />
 
-      <>
+      <div className="drawerDiv">
         <p className="heading">create sub-module</p>
         <p className="sub-heading">sub module name</p>
-      </>
+     
       <input className="customer-search" placeholder="customer search"></input>
-      <button onClick={() => setDrawerOpen(false)} className="close-button">
-        close
-      </button>
-      <button className="create-button">create</button>
+      <button onClick={ () => setDrawerOpen(false)} className="close-button">close</button>
+      <button  onClick={handleClick}
+     
+     className="create-button">create</button>
+      <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleCloseA}>
+  <Alert onClose={handleCloseA} severity="success" sx={{ width: '100%' }}>
+    successfully created
+  </Alert>
+</Snackbar> 
+</div>  
     </Box>
+   
   );
 
   //drawer-end
@@ -102,6 +126,7 @@ export default function Search() {
   const [tableData, setTableData] = useState([]);
   const [rowCount, setRowCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  let success=false;
 
   //optionally, you can manage the row selection state yourself
   const [rowSelection, setRowSelection] = useState({});
@@ -202,76 +227,54 @@ const handleClose = () => setOpenModal(false);
   }, [rowSelection]);
 
   return (
-    <>
-      <>
-        <div>
-          <Button onClick={handleOpen}>Open modal</Button>
-          <Modal
-            open={openModal}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                Text in a modal
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-              </Typography>
-            </Box>
-          </Modal>
+    <Box sx={{ display: "flex" }}>
+      <SideNav />
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <div
+          className="flex flex-col justify-center items-center"
+          style={{ paddingTop: "64px", paddingBottom: "2rem" }}
+        >
+          <p>Identify Feature Groups</p>
+          <TextField
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            className="searchBox"
+            placeholder="Search all modules"
+            variant="outlined"
+            onKeyDown={handleKeyPress}
+            onChange={handleChange}
+            value={searchValue}
+          />
+          {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
         </div>
-        <Box sx={{ display: "flex" }}>
-          <SideNav />
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-            <div
-              className="flex flex-col justify-center items-center"
-              style={{ paddingTop: "64px", paddingBottom: "2rem" }}
-            >
-              <p>Identify Feature Groups</p>
-              <TextField
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-                className="searchBox"
-                placeholder="Search all modules"
-                variant="outlined"
-                onKeyDown={handleKeyPress}
-                onChange={handleChange}
-                value={searchValue}
-              />
-              {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
-            </div>
-            {tableData.length !== 0 && <MaterialReactTable table={table} />}
+        {tableData.length !== 0 && <MaterialReactTable table={table} />}
 
-            <div>
-              <Drawer
-                anchor={"right"}
-                open={drawerOpen}
-                onClose={() => setDrawerOpen(false)}
-                sx={{
-                  paddingBottom: "10rem",
-                  height: "100vh",
-                }}
-                PaperProps={{
-                  sx: {
-                    paddingBottom: "1rem",
-                    boxSizing: "border-box",
-                    height: "100vh",
-                  },
-                }}
-              >
-                {list("right")}
-              </Drawer>
-            </div>
-          </Box>
-        </Box>
-      </>
-    </>
+        <div>
+          <Drawer
+            anchor={"right"}
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            sx={{
+              paddingBottom: "10rem",
+              height: "100vh",
+            }}
+            PaperProps={{
+              sx: {
+                paddingBottom: "1rem",
+                boxSizing: "border-box",
+                height: "100vh",
+              },
+            }}
+          >
+            {list("right")}
+          </Drawer>
+        </div>
+      </Box>
+    </Box>
   );
 }
