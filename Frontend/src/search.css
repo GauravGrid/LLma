@@ -1,3 +1,35 @@
 .searchBox {
     width: 80%;
 }
+.heading{
+    font-size: 25px;
+    padding-top: 100px;
+    margin-left: 20px;
+    color: white;
+}
+.sub-heading{
+    padding-top: 20px;
+    margin-left: 20px;
+    color: white;
+}
+.customer-search{
+    margin-left: 20px;
+    border: 2px solid white;
+    border-radius: 5px;
+    margin-top: 5px;
+   
+}
+.close-button{
+margin-right: 10px;
+margin-left: 40px;
+margin-top: 598px;
+/* padding-bottom: 5px; */
+
+}
+.create-button{
+    /* padding-bottom: 5px; */
+}
+
+.drawer{
+    background-color: #2B3140;
+}

@@ -8,6 +8,8 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
+import Drawer from "@mui/material/Drawer";
+import Divider from "@mui/material/Divider";
 
 const data = [
   {
@@ -26,12 +28,54 @@ const data = [
 ];
 
 export default function Search() {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const [state, setState] = React.useState({
     top: false,
     left: false,
     bottom: false,
     right: false,
   });
+  //drawer
+  const [stateA, setStateA] = React.useState({
+    top: false,
+    left: false,
+    bottom: false,
+    right: false,
+  });
+
+  const toggleDrawerA = (anchor, open) => (event) => {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+
+    setState({ ...state, [anchor]: open });
+  };
+
+  const list = (anchor) => (
+    <Box
+      className="drawer"
+      sx={{ width: anchor === "top" || anchor === "bottom" ? "auto" : 250 }}
+      role="presentation"
+      onClick={toggleDrawer(anchor, false)}
+      onKeyDown={toggleDrawer(anchor, false)}
+    >
+      <Divider />
+
+      <>
+        <p className="heading">create sub module</p>
+        <p className="sub-heading">sub module name</p>
+      </>
+      <input className="customer-search" placeholder="customer search"></input>
+      <button onClick={ () => setDrawerOpen(false)} className="close-button">close</button>
+      <button className="create-button">create</button>
+    </Box>
+  );
+
+  //drawer-end
 
   const columns = useMemo(
     //column definitions...
@@ -94,7 +138,6 @@ export default function Search() {
       setIsLoading(() => false);
 
       console.log("tableData after set state: ", tableData);
-
     } catch (error) {
       console.log(error);
     }
@@ -115,7 +158,9 @@ export default function Search() {
         <Button
           color="primary"
           onClick={() => {
-            alert("Create New Account");
+            // alert("Create New Account");
+            // setState({ ...state, right: true });
+            setDrawerOpen(true);
           }}
           variant="contained"
         >
@@ -169,6 +214,27 @@ export default function Search() {
           {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
         </div>
         {tableData.length !== 0 && <MaterialReactTable table={table} />}
+
+        <div>
+          <Drawer
+            anchor={"right"}
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            sx={{
+              paddingBottom: "10rem",
+              height: "100vh",
+            }}
+            PaperProps={{
+              sx: {
+                paddingBottom: "1rem",
+                boxSizing: "border-box",
+                height: "100vh",
+              },
+            }}
+          >
+            {list("right")}
+          </Drawer>
+        </div>
       </Box>
     </Box>
   );
