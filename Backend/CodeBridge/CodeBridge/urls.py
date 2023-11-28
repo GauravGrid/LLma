@@ -50,4 +50,5 @@ urlpatterns = [
     path('get-access/',views.AccessRepository.as_view(),name='get_access_to_repository'),
     path('scania-bus/',views.ScaniaBusinessLogic.as_view(),name='scania-business-logic'),
     path('search/',views.Search.as_view(),name='search-business-logic'),
+    path('getlogic/',views.ScaniaBusinessLogic.as_view(),name='scania-business-logic'),
 ]

@@ -1955,3 +1955,23 @@ class Search(APIView):
         # print(result)
         return Response({'data': result}, status=status.HTTP_201_CREATED)
                         
+class ScaniaBusinessLogic(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request):
+        user = request.user
+        filename = request.data.get('filename') 
+        result_folder_path = '/Users/vjain/Program Grouper/BusinessLogic'
+        if os.path.exists(result_folder_path):
+            result_file_list = os.listdir(result_folder_path)
+
+            for result_file_name in result_file_list:
+                result_file_path = os.path.join(result_folder_path, result_file_name)
+
+                if result_file_name == filename:
+                    with open(result_file_path, 'r') as result_file:
+                        print(f'Extracting content from {result_file_name}')
+                        content = result_file.read()
+        # print(result)
+        return Response({'data': content}, status=status.HTTP_201_CREATED)

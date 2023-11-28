@@ -14,6 +14,8 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from collections import defaultdict
 import pickle
+import re
+
 
 def preprocess(text):
     text = text.replace('/',' ')
@@ -180,9 +182,14 @@ def getText(tokens):
         text += str(token) + " "
     return text.rstrip(" ")
 
+class Entitites(BaseModel):
+    module_name : List[str] = Field(description="Individual module mentioned in the list provided")
+    functionality : List[str] = Field(description="Functionality name corresponding to that specific module/sub-module")
+
+
 class Output(BaseModel):
-    module_names : List[str] = Field(description="Collection of all the modules mentioned in the list provided")
-    functionalities : List[str] = Field(description="Collection of all the functionalities of module/sub-modules")
+    named_entities : List[Entitites] = Field(description="Collection of all the named-enitity/keywords objects from the list provided")
+    
 
 template = """
 Assistant is a large language model trained by Anthropic AI.
@@ -241,20 +248,36 @@ llm =  ChatAnthropic(
 )
 
 
+    
+
+
+    
+
 def getEntities(query):
+    
     _input = prompt.format_prompt(input=query)
     output = llm.predict(_input.to_string())
-    output=parser.parse(output)
+    parsed_output=parser.parse(output)
     try :
-        result = []
-        print(output.module_names+output.functionalities)
-        for a in output.module_names+output.functionalities:
-            result = result + preprocess(a)
-        return result
+        collections = []
+        for named_entity in parsed_output.named_entities:
+            modules = named_entity.module_name
+            functionalities = named_entity.functionality
+            for module in modules:
+                if(len(functionalities)>0):
+                    for functionality in functionalities:
+                        search = []
+                        search = search + preprocess(module)
+                        search = search + preprocess(functionality)
+                        collections.append(search)
+                else :
+                    search = []
+                    search = search + preprocess(module)
+                    collections.append(search)
+        return collections
     except Exception as e:
         print("Error in identifying named entities")
 
-import sqlite3
 
 
 
@@ -269,7 +292,7 @@ pinecone.init(
     environment="us-east-1-aws"
 )
 
-index = pinecone.Index("scania-business-logic")
+index = pinecone.Index("scania-business-logic-chunked")
 import os
 os.environ['OPENAI_API_KEY'] = keys.openai_key
 from openai import OpenAI
@@ -279,28 +302,88 @@ def get_embedding(text, model="text-embedding-ada-002"):
    text = text.replace("\n", " ")
    return client.embeddings.create(input = [text], model=model).data[0].embedding
 
-def get_ids(query):
-    connection = sqlite3.connect('/Users/vjain/V2/LLma/Backend/CodeBridge/db2.sqlite3')
-    cursor = connection.cursor()
-    sql_statement = 'SELECT file_name,logic FROM CodeBridge_Backend_scaniabusinesslogic'
-    cursor.execute(sql_statement)
-    rows = cursor.fetchall()
+def build_inverted_index_summary(documents):
+    inverted_index = defaultdict(list)
+
+    for doc_id, document in enumerate(documents):
+        try:
+            print(document,"-->doc")
+            text = document['summary']
+            tokens = preprocess(text)
+
+            term_frequency = defaultdict(int)
+            for position, token in enumerate(tokens):
+                term_frequency[token] += 1
+                inverted_index[token].append((document['id'], term_frequency[token], position))
+        except Exception as e:
+            print(e)
+
+    return inverted_index
+    
+def get_ner_ids_summary(query):
+
+    result_folder_path = '/Users/vjain/Program Grouper/BusinessLogic'
     documents = []
-    for row in rows:
-        document = { 'id': row[0], 'business_logic': row[1] }
-        documents.append(document)
-    ids=[]
-    customer_index = build_inverted_index(documents)
-    query = preprocess(query)
+
+    if os.path.exists(result_folder_path):
+        result_file_list = os.listdir(result_folder_path)
+
+        for result_file_name in result_file_list:
+            result_file_path = os.path.join(result_folder_path, result_file_name)
+
+            if result_file_name.endswith('.txt'):
+                with open(result_file_path, 'r') as result_file:
+                    print(f'Extracting content from {result_file_name}')
+                    content = result_file.read()
+                    chunks = content.split('*' * 40)
+                    chunks = [chunk.strip() for chunk in chunks if chunk.strip()]
+                    for i, chunk_content in enumerate(chunks):
+                        chunk_id = f'{result_file_name}_chunk_{i+1}'
+                        document = {'id': chunk_id, 'business_logic': chunk_content}
+
+                        overall_module_match = re.search(r'Overall Module:(.*?)Sub-Module:', chunk_content, re.DOTALL)
+                        sub_module_match = re.search(r'Sub-Module:(.*?)1\)', chunk_content, re.DOTALL)
+                        summary_match = re.search(r'Summary:?\s*(.*?)(?=\*{9,}|$)', chunk_content, re.DOTALL)
+                        if overall_module_match:
+                            document['overall_module'] = overall_module_match.group(1).strip()
+                        if sub_module_match:
+                            document['sub_module'] = sub_module_match.group(1).strip()
+                        if summary_match:
+                            summary_content = summary_match.group(1).strip()
+                            document['summary'] = summary_content
+                        else:
+                            print(f"Summary not found in {chunk_id}")
+                            print(f"Chunk content:\n{chunk_content}")
+
+
+                        documents.append(document)
+    else:
+        print(f'The folder {result_folder_path} does not exist.')
+
+    customer_index_summary = build_inverted_index_summary(documents)
     query = getEntities(str(query))
-    results = search_inverted_index_customer(customer_index, query)
+    print(query)
+    ner_ids=[]
+    results = search_inverted_index(customer_index_summary, query)
     for doc_id, score in results:
+        
         if score > 1:
-            ids.append(doc_id)
-    return ids
+            ner_ids.append(doc_id)
+            # print(f"Document ID: {doc_id}, Relevance Score: {score}")
+    return ner_ids
+
+def extract_unique_filenames_ordered(data):
+    seen = set()
+    unique_filenames = []
+    for entry in data:
+        filename = entry['id'].split('_chunk_')[0]
+        if filename not in seen:
+            seen.add(filename)
+            unique_filenames.append(filename)
+    return unique_filenames
 
 def get_search_list(query):
-    # ids = get_ids(query)
+    ids = get_ner_ids_summary(query)
     corpus_embedding_openai = get_embedding(getText(preprocess(query)),model='text-embedding-ada-002')
     matches_preprocessed = index.query(
         vector = corpus_embedding_openai,
@@ -309,8 +392,8 @@ def get_search_list(query):
     result = []
     
     for match in matches_preprocessed['matches']:
-        # if (match['id'] in ids):
-            result.append(match['id'])
+        if (match['id'] in ids):
+            result.append(match)
             print(match)
             
-    return result[:10]
+    return extract_unique_filenames_ordered(result)

@@ -48,7 +48,7 @@ export default function Search() {
     setOpenAlert(false);
   };
   const [drawerOpen, setDrawerOpen] = useState(false);
-
+  const [businessLogic, setBusinessLogic] = useState('');
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -133,7 +133,11 @@ export default function Search() {
   const [searchValue, setSearchValue] = useState("");
   //modal
   const [openModal, setOpenModal] = React.useState(false);
-const handleOpen = () => setOpenModal(true);
+const handleOpen = (value) => {
+    console.log(value)
+    setOpenModal(true);
+    handleBusinessLogicCall(value)                            
+}
 const handleClose = () => setOpenModal(false);
 
   const handleKeyPress = (event) => {
@@ -143,6 +147,27 @@ const handleClose = () => setOpenModal(false);
   };
   const handleChange = (event) => {
     setSearchValue(event.target.value);
+  };
+  const handleBusinessLogicCall = async (value) => {
+    const jwtToken = sessionStorage.getItem("jwt");
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/getlogic/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({
+          filename: value,
+        }),
+      });
+      const data = await response.json();
+      setBusinessLogic(data.data)
+
+      
+    } catch (error) {
+      console.log(error);
+    }
   };
   const handleAPICall = async (value) => {
     const jwtToken = sessionStorage.getItem("jwt");
@@ -202,7 +227,7 @@ const handleClose = () => setOpenModal(false);
     ),
     enableRowActions:true,
     renderRowActionMenuItems: ({ row }) => [
-      <MenuItem key="open" onClick={() => handleOpen()}>
+      <MenuItem key="open" onClick={() => handleOpen(row.original.fileName)}>
         open
       </MenuItem>,
      
@@ -288,19 +313,19 @@ const handleClose = () => setOpenModal(false);
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
           >
-            <div className="modal-content"> 
+            <div className="modal-content h-2/3 overflow-y-scroll p-3"> 
 
-              {/* <Typography id="modal-modal-title" variant="h6" component="h2">
-                Text in a modal
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Business Logic
               </Typography>
               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-              </Typography> */}
+                {businessLogic.split(/\n/).map(line => <div key={line}>{line}</div>)}
+              </Typography>
 
-              hello
+              
             </div>
           </Modal>
-        </Box>
+                  </Box>
 
       </>
       
