@@ -383,7 +383,7 @@ def extract_unique_filenames_ordered(data):
     return unique_filenames
 
 def get_search_list(query):
-    ids = get_ner_ids_summary(query)
+    # ids = get_ner_ids_summary(query)
     corpus_embedding_openai = get_embedding(getText(preprocess(query)),model='text-embedding-ada-002')
     matches_preprocessed = index.query(
         vector = corpus_embedding_openai,
@@ -392,7 +392,7 @@ def get_search_list(query):
     result = []
     
     for match in matches_preprocessed['matches']:
-        if (match['id'] in ids):
+        # if (match['id'] in ids):
             result.append(match)
             print(match)
             

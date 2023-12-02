@@ -320,8 +320,8 @@ export default function UploadScreen(props) {
                                 </p> */}
                                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                                     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                                        <Tab label="Upload" {...a11yProps(0)} />
-                                        <Tab label="Clone Repository" {...a11yProps(1)} />
+                                        <Tab label="Upload" {...a11yProps(0)}  sx={{color:"white"}}/>
+                                        <Tab label="Clone Repository" {...a11yProps(1)} sx={{color:"white"}} />
 
                                     </Tabs>
                                 </Box>

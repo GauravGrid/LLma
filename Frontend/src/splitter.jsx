@@ -28,7 +28,19 @@ import NewRepModal from './assets/components/newrepmodal';
 import NewBranchModal from './assets/components/newbranchmodal';
 import SelectFilesModal from './assets/components/selectfilesmodal';
 
-
+//modal
+const styleA= {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 600,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+//modal-end
 
 
 
@@ -126,6 +138,12 @@ const useStyles = {
   },
 };
 export default function InteractiveArea(props) {
+
+  //modal
+  const [openModalA, setOpenModalA] = React.useState(false);
+  const handleOpenModalA = () => setOpenModalA(true);
+  const handleCloseModalA= () => setOpenModalA(false);
+  //modal-end
 
 
 
@@ -917,9 +935,17 @@ export default function InteractiveArea(props) {
                                       (classDiagramCode === '') ?
                                         <></> :
                                         <div className='flex mt-2'>
-                                          <p className='text-lg font-black'>
-                                            Class Diagram
-                                          </p>
+                                      
+                                         <div>
+                                         <Button onClick={handleOpenModalA}>Class Diagram</Button>
+                                         <Modal 
+                                         open={openModalA}
+                                         onClose={handleCloseModalA}
+                                         aria-labelledby="modal-modal-title"
+                                         aria-describedby="modal-modal-description"
+                                         >
+                                         <Box sx={styleA}>
+          
                                           <div className='flex'>
                                           <MermaidDiagram mermaidCode={highClassDiagramCode} />
                                           <div className='flex flex-col h-full bg-black w-5' style={{ position: 'relative', top: '25px', right: '30px' }}>
@@ -928,6 +954,10 @@ export default function InteractiveArea(props) {
                                             </Fab>
                                           </div>
                                           </div>
+                                         </Box>
+                                         </Modal>
+                                         </div>
+                                        
                                         </div>
 
 
@@ -981,10 +1011,17 @@ export default function InteractiveArea(props) {
                                       (classDiagramCode === '') ?
                                         <></> :
                                         <div className='flex mt-2'>
-                                          <p className='text-lg font-black'>
-                                            Class Diagram
-                                          </p>
-                                          <div className='flex'>
+
+                                          <div>
+                                         <Button onClick={handleOpenModalA}>Class Diagram</Button>
+                                         <Modal 
+                                         open={openModalA}
+                                         onClose={handleCloseModalA}
+                                         aria-labelledby="modal-modal-title"
+                                         aria-describedby="modal-modal-description"
+                                         >
+                                         <Box sx={styleA}>
+                                         <div className='flex'>
                                           <MermaidDiagram mermaidCode={classDiagramCode} />
                                           <div className='flex flex-col h-full bg-black w-5' style={{ position: 'relative', top: '25px', right: '30px' }}>
                                             <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateMermaidDiagramClassNew(selectedLogicID)}>
@@ -992,6 +1029,10 @@ export default function InteractiveArea(props) {
                                             </Fab>
                                           </div>
                                           </div>
+                                          
+                                         </Box>
+                                         </Modal>
+                                         </div>
                                         </div>
 
 
