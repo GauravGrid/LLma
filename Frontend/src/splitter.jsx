@@ -27,6 +27,8 @@ import GitPushModal from './assets/components/gitpushmodal';
 import NewRepModal from './assets/components/newrepmodal';
 import NewBranchModal from './assets/components/newbranchmodal';
 import SelectFilesModal from './assets/components/selectfilesmodal';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 //modal
 const styleA= {
@@ -936,8 +938,18 @@ export default function InteractiveArea(props) {
                                         <></> :
                                         <div className='flex mt-2'>
                                       
-                                         <div>
-                                         <Button onClick={handleOpenModalA}>Class Diagram</Button>
+                                         <div style={{display: 'flex', width:'100%'}}>
+                                         <Button sx={{flexGrow: 1}} onClick={handleOpenModalA}>Class Diagram</Button>
+                                         <Button sx={{marginLeft: 'auto'}} 
+                                         onClick={()=>{
+                                              // handleope
+                                              console.log(mdvalue);
+                                              setMdValue(1);
+                                            }}>
+
+                                         <ArrowForwardIosIcon ></ArrowForwardIosIcon>
+                                            </Button>
+                                         </div>
                                          <Modal 
                                          open={openModalA}
                                          onClose={handleCloseModalA}
@@ -956,7 +968,6 @@ export default function InteractiveArea(props) {
                                           </div>
                                          </Box>
                                          </Modal>
-                                         </div>
                                         
                                         </div>
 
@@ -1012,8 +1023,17 @@ export default function InteractiveArea(props) {
                                         <></> :
                                         <div className='flex mt-2'>
 
-                                          <div>
-                                         <Button onClick={handleOpenModalA}>Class Diagram</Button>
+                                          <div style={{ display: 'flex', width: '100%'}}>
+                                            <Button
+                                             onClick={()=>{
+                                              // handleope
+                                              setMdValue(0);
+                                            }}>
+
+                                         <ArrowBackIosIcon></ArrowBackIosIcon>
+                                            </Button>
+                                         <Button sx={{flexGrow: 1}} onClick={handleOpenModalA}>Class Diagram</Button>
+                                         </div>
                                          <Modal 
                                          open={openModalA}
                                          onClose={handleCloseModalA}
@@ -1032,7 +1052,6 @@ export default function InteractiveArea(props) {
                                           
                                          </Box>
                                          </Modal>
-                                         </div>
                                         </div>
 
 
