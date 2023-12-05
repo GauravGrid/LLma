@@ -1975,3 +1975,67 @@ class ScaniaBusinessLogic(APIView):
                         content = result_file.read()
         # print(result)
         return Response({'data': content}, status=status.HTTP_201_CREATED)
+    
+class SubModule(APIView):
+    permission_classes = [CustomIsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_logic(self,filename):
+        result_folder_path = '/Users/vjain/Program Grouper/User Stories'
+        if os.path.exists(result_folder_path):
+            result_file_list = os.listdir(result_folder_path)
+            print(result_file_list)
+            if filename in result_file_list:
+                result_file_path = os.path.join(result_folder_path, filename)
+                with open(result_file_path, 'r') as result_file:
+                    print(f'Extracting content from {filename}')
+                    content = result_file.read()
+                    return content
+
+    def post(self,request):
+        file_list = request.data.get('file_list')
+        module_name = request.data.get('module_name')
+
+        username = request.user
+        folder_path = '/Users/vjain/Scania Source Code copy 2/HSSRC.LIB/QRPGLESRC.FILE'
+        user = User.objects.get(username=username)
+        parent_folder = FolderUpload.objects.create(foldername=module_name, parentFolder=None, user=user)
+        root_folder = parent_folder.folderId
+
+        for item in os.listdir(folder_path):
+            if item in file_list: 
+                item_path = os.path.join(folder_path, item) 
+                with open(item_path, 'rb') as file:
+                    print('fileSelected',item)
+                    file_contents = file.read().decode('utf-8')
+                    code_language = 'RPG'
+                    file_upload = FileUpload(
+                        filename=item,
+                        file=file_contents,
+                        parentFolder=parent_folder,
+                        user=user,
+                        code_language = code_language,
+                        rootFolder = root_folder
+                    )
+                    file_upload.save()
+                    print('fileUploaded',item)
+
+        for file in file_list:
+            print(file)
+            file_uploaded = FileUpload.objects.get(parentFolder_id=root_folder,filename=file)
+            businessLogic =  self.get_logic(file)
+            # print(businessLogic)
+            logicData = {
+                'logic':businessLogic,
+                'user':request.user,
+                'file':file_uploaded.fileId
+            }
+            print(logicData)
+            serializer = LogicSerializer(data=logicData)
+            if serializer.is_valid():
+                print('hi')
+                serializer.save() 
+
+
+
+        return Response({'message': 'Created Successfully'}, status=status.HTTP_201_CREATED)

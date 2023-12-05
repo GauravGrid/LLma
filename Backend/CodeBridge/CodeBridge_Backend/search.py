@@ -307,7 +307,6 @@ def build_inverted_index_summary(documents):
 
     for doc_id, document in enumerate(documents):
         try:
-            print(document,"-->doc")
             text = document['summary']
             tokens = preprocess(text)
 
@@ -351,6 +350,7 @@ def get_ner_ids_summary(query):
                         if summary_match:
                             summary_content = summary_match.group(1).strip()
                             document['summary'] = summary_content
+                            print(summary_content)
                         else:
                             print(f"Summary not found in {chunk_id}")
                             print(f"Chunk content:\n{chunk_content}")
@@ -390,10 +390,9 @@ def get_search_list(query):
         top_k = 2033,
     )
     result = []
-    
+    print(ids)
     for match in matches_preprocessed['matches']:
         if (match['id'] in ids):
             result.append(match)
-            print(match)
             
     return extract_unique_filenames_ordered(result)

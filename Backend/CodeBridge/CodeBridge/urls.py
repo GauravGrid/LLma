@@ -51,4 +51,5 @@ urlpatterns = [
     path('scania-bus/',views.ScaniaBusinessLogic.as_view(),name='scania-business-logic'),
     path('search/',views.Search.as_view(),name='search-business-logic'),
     path('getlogic/',views.ScaniaBusinessLogic.as_view(),name='scania-business-logic'),
+    path('create_module/',views.SubModule.as_view(),name='sub-module'),
 ]

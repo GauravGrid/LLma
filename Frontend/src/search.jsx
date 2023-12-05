@@ -35,9 +35,36 @@ const data = [
 export default function Search() {
 
   const [openAlert, setOpenAlert] = React.useState(false);
-
-  const handleClick = () => {
+  const [moduleName,setModuleName] = React.useState('')
+  const [fileSelection, setFileSelection] = useState([]);
+  const handleModuleNameChange = (event) => {
+    setModuleName(event.target.value);
+  };
+  const handleClick = async () => {
     setOpenAlert(true);
+    try {
+      const selectedRows = tableData.filter((row, index) => rowSelection[index]);
+      const jwtToken = sessionStorage.getItem("jwt");
+
+      // Extract filenames from selected rows
+      const selectedFilenames = selectedRows.map((row) => row.fileName);
+      console.log(selectedFilenames)
+      const response = await fetch(`http://127.0.0.1:8000/create_module/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({
+          module_name: moduleName,
+          file_list: selectedFilenames
+        }),
+      });
+      const data = await response.json()
+    }
+    catch (error) {
+      console.log(error);
+    }
   };
 
   const handleCloseA = (event, reason) => {
@@ -88,7 +115,7 @@ export default function Search() {
         <p className="heading">create sub-module</p>
         <p className="sub-heading">sub module name</p>
      
-      <input className="customer-search" placeholder="customer search"></input>
+      <input className="customer-search" value={moduleName} onChange={handleModuleNameChange} placeholder="customer search"></input>
       <button onClick={ () => setDrawerOpen(false)} className="close-button">close</button>
       <button  onClick={handleClick}
      
