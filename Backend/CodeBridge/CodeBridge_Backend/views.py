@@ -1,11 +1,8 @@
 from django.http import JsonResponse
 from . import keys
 import base64
-from .service import business_logic
-from django.http import HttpResponseBadRequest
-from django.http import HttpResponse
-from .service import generateJava,generateFlowChart,generateClassDiagram,javaCompiler,detectLanguage
-from .new_prompts import updated_business_logic, business_logic_to_mermaid_diagram,business_logic_to_code,business_logic_to_mermaid_flowchart,code_to_business_logic, file_business_logic,file_mermaid_diagram,file_mermaid_flowchart,combine_business_logic,combine_mermaid_diagram,combine_mermaid_flowchart
+from .service import detectLanguage
+from .new_prompts import updated_business_logic, business_logic_to_mermaid_diagram,business_logic_to_code,business_logic_to_mermaid_flowchart,code_to_business_logic, file_business_logic
 import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -18,30 +15,20 @@ from .serializers import FileSerializer,LogicSerializer,JavaCodeSerializer,Merma
 from django.http import Http404
 import requests
 from django.shortcuts import redirect
-from rest_framework.decorators import permission_classes,authentication_classes
 from .newrepo import create_repository,get_git_repo_owner,create_github_branch,push_to_github
 import os
-from pydantic import BaseModel
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatAnthropic
 from langchain.output_parsers import StructuredOutputParser,ResponseSchema
 from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1,assembly_example1,rpg_exampleh
-from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2, dspf_exampler2,dspf_examplea2,assembly_example2
-from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3,assembly_example3
-from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4,assembly_example4
+from .prompt_business_logic_to_mermaid_diagram import rpg_example2
+from .prompt_business_logic_to_mermaid_flowchart import rpg_example3
 from .prompt_code_to_business_logic import java_example1,python_example1,sql_example1,mongodb_example1,react_example1,angular_example1,rpg_example1,sas_example1, dspf_exampler1,dspf_examplea1,rpg_example11,rpg_example12
-from .prompt_business_logic_to_mermaid_diagram import java_example2,python_example2,sql_example2,mongodb_example2,react_example2,angular_example2,rpg_example2,sas_example2, dspf_exampler2,dspf_examplea2
-from .prompt_business_logic_to_mermaid_flowchart import java_example3,python_example3,sql_example3,mongodb_example3,react_example3,angular_example3,rpg_example3,sas_example3, dspf_exampler3,dspf_examplea3
-from .prompt_business_logic_to_code import java_example4,python_example4,sql_example4,mongodb_example4,react_example4,angular_example4,rpg_example4,sas_example4, dspf_exampler4,dspf_examplea4
-from . import keys
-from dotenv import load_dotenv
-load_dotenv()
-ChatAnthropic.api_key=os.getenv("ANTHROPIC_API_KEY")
+from .prompt_business_logic_to_mermaid_diagram import rpg_example2
+from .prompt_business_logic_to_mermaid_flowchart import rpg_example3
 ChatAnthropic.api_key=keys.anthropic_key
 import logging
-
-import hashlib 
 
 def index(request):
     return JsonResponse({'Message':'Hello World. Welcome to CodeBridge'})
@@ -193,244 +180,6 @@ class FileContentAPIView(APIView):
             except:
                 return Response({'error': 'File not found'}, status=404)
         
-class LogicDetailAPIView(APIView):
-    permission_classes = [CustomIsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
-    def get_object(self, file_id, logic_id=None):
-        try:
-            file = FileUpload.objects.get(fileId=file_id, user=self.request.user)
-            if logic_id:
-                logic = Logic.objects.get(id=logic_id, file=file)
-                return logic
-            return file
-        except FileUpload.DoesNotExist:
-            raise Http404
-        except Logic.DoesNotExist:
-            raise Http404
-
-    def get(self, request, file_id):
-        file = self.get_object(file_id)
-        try:
-            logic = Logic.objects.get(file=file, user=request.user)
-            serializer = LogicSerializer(logic)
-        except Logic.DoesNotExist:
-            return Response({'error': 'File not found'}, status=404)
-        return Response(serializer.data)
-
-    def post(self, request, file_id):
-        
-        username = request.user
-        user = User.objects.get(username=username)
-        
-        if not file_id:
-            return Response({'error': 'file_id is required'}, status=400)
-        try:
-            file = FileUpload.objects.get(fileId=file_id, user=user)
-        except FileUpload.DoesNotExist:
-            return Response({'error': 'File not found'}, status=404)
-        logic_exists = Logic.objects.filter(file=file, user=user).exists()
-        if logic_exists:
-            logic = Logic.objects.filter(file=file, user=request.user).first()
-            serializer = LogicSerializer(logic)
-            return Response(serializer.data,status=200)
-        code=file.file
-        businessLogic =  business_logic(code)
-        logicData = {
-            'logic':businessLogic,
-            'user':request.user,
-            'file':file_id
-        }
-        serializer = LogicSerializer(data=logicData)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        else:
-         return Response(serializer.errors, status=400)
-
-    def put(self, request, file_id, logic_id):
-        logic = self.get_object(file_id, logic_id)
-        serializer = LogicSerializer(logic, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
-
-    def delete(self, request, file_id, logic_id):
-        logic = self.get_object(file_id, logic_id)
-        logic.delete()
-        return Response(status=204)
-    
-class JavaCodeAPIView(APIView):
-    permission_classes = [CustomIsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
-    def get_object(self, file_id, logic_id=None):
-        try:
-            file = FileUpload.objects.get(fileId=file_id, user=self.request.user)
-            if logic_id:
-                logic = Logic.objects.get(id=logic_id, file=file)
-                return logic
-            return file
-        except FileUpload.DoesNotExist:
-            raise Http404
-        except Logic.DoesNotExist:
-            raise Http404
-
-    def generate_code(self, file_id, logic_id):
-        file = self.get_object(file_id)
-        logic = self.get_object(file_id, logic_id)
-        logic_str = logic.logic
-        generated_code = generateJava(logic_str) 
-        code_data = {
-            'code': generated_code,
-            'logic': logic_id,
-            'user': self.request.user,
-            'file': file_id
-        }
-        
-        existing_code = JavaCode.objects.filter(file=file, logic=logic, user=self.request.user).first()
-        
-        if existing_code:
-            serializer = JavaCodeSerializer(existing_code, data=code_data)
-        else:
-            serializer = JavaCodeSerializer(data=code_data)
-        
-        if serializer.is_valid():
-            serializer.save()
-            return serializer.data
-        else:
-            return None
-
-    def get(self, request, file_id, logic_id):
-        file = self.get_object(file_id)
-        logic = self.get_object(file_id, logic_id)
-        code = JavaCode.objects.filter(file=file, logic=logic, user=request.user)
-        serializer = JavaCodeSerializer(code, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, file_id, logic_id):
-        if not file_id:
-            return Response({'error': 'file_id is required'}, status=400)
-
-        try:
-            logic = self.get_object(file_id, logic_id)
-        except FileUpload.DoesNotExist:
-            return Response({'error': 'Logic not generated'}, status=404)
-
-        file = self.get_object(file_id)
-        code_exists = JavaCode.objects.filter(file=file, logic=logic, user=request.user).exists()
-
-        if code_exists:
-            code = JavaCode.objects.filter(file=file, logic=logic, user=request.user).first()
-            serializer = JavaCodeSerializer(code)
-            return Response(serializer.data, status=200)
-
-        new_code_data = self.generate_code(file_id, logic_id)
-
-        if new_code_data:
-            return Response(new_code_data, status=201)
-        else:
-            return Response({'error': 'Failed to generate code'}, status=400)
-
-    def put(self, request, file_id, logic_id):
-        new_code_data = self.generate_code(file_id, logic_id)
-
-        if new_code_data:
-            return Response(new_code_data)
-        else:
-            return Response({'error': 'Failed to generate code'}, status=400)
-
-    def delete(self, request, file_id, logic_id):
-        logic = self.get_object(file_id, logic_id)
-        file = self.get_object(file_id)
-        code = JavaCode.objects.filter(file=file, logic=logic, user=request.user).first()
-        code.delete()
-        return Response(status=204)
-  
-# class MermaidAPIView(APIView):
-#     permission_classes = [CustomIsAuthenticated]
-#     authentication_classes = [TokenAuthentication]
-#     def get_object(self, file_id, logic_id=None):
-#         try:
-#             file = FileUpload.objects.get(fileId=file_id, user=self.request.user)
-#             if logic_id:
-#                 logic = Logic.objects.get(id=logic_id, file=file)
-#                 return logic
-#             return file
-#         except FileUpload.DoesNotExist:
-#             raise Http404
-#         except Logic.DoesNotExist:
-#             raise Http404
-#     def generate_diagrams(self, file_id, logic_id):
-#         file = self.get_object(file_id)
-#         logic = self.get_object(file_id, logic_id)
-#         logic_str = logic.logic
-#         mermaidDiagramClass = generateClassDiagram(logic_str)
-#         mermaidDiagramFlow = generateFlowChart(logic_str)  
-#         diagram_data = {
-#             'classDiagram': mermaidDiagramClass,
-#             'flowChart': mermaidDiagramFlow,
-#             'logic': logic_id,
-#             'user': self.request.user,
-#             'file': file_id
-#         }       
-#         existing_diagram = MermaidDiagrams.objects.filter(file=file, logic=logic, user=self.request.user).first()      
-#         if existing_diagram:
-#             serializer = MermaidDiagramSerializer(existing_diagram, data=diagram_data)
-#         else:
-#             serializer = MermaidDiagramSerializer(data=diagram_data)        
-#         if serializer.is_valid():
-#             serializer.save()
-#             return serializer.data
-#         else:
-#             return None
-#     def get(self, request, file_id, logic_id):
-#         file = self.get_object(file_id)
-#         logic = self.get_object(file_id, logic_id)
-#         diagram = MermaidDiagrams.objects.get(file=file, logic=logic, user=request.user)
-#         serializer = MermaidDiagramSerializer(diagram)
-#         return Response(serializer.data)
-#     def post(self, request, file_id, logic_id):
-#         if not file_id:
-#             return Response({'error': 'file_id is required'}, status=400)
-#         try:
-#             logic = self.get_object(file_id, logic_id)
-#         except FileUpload.DoesNotExist:
-#             return Response({'error': 'Logic not generated'}, status=404)
-#         file = self.get_object(file_id)
-#         logicObj = self.get_object(file_id, logic_id)
-#         try:
-#             diagram = MermaidDiagrams.objects.get(file=file, logic=logicObj, user=request.user)
-#             serializer = MermaidDiagramSerializer(diagram)
-#             return Response(serializer.data)
-#         except MermaidDiagrams.DoesNotExist:
-#             new_diagram_data = self.generate_diagrams(file_id, logic_id)
-#             if new_diagram_data:
-#                 return Response(new_diagram_data, status=201)
-#             else:
-#                 return Response({'error': 'Failed to generate diagrams'}, status=400)
-#     def put(self, request, file_id, logic_id):     
-#         new_diagram_data = self.generate_diagrams(file_id, logic_id)
-#         if new_diagram_data:
-#             return Response(new_diagram_data)
-#         else:
-#             return Response({'error': 'Failed to generate diagrams'}, status=400)  
-#     def delete(self, request, file_id, logic_id):
-#         logic = self.get_object(file_id, logic_id)
-#         file = self.get_object(file_id)
-#         code = MermaidDiagrams.objects.filter(file=file, logic=logic, user=request.user).first()
-#         code.delete()
-#         return Response(status=204)    
-               
-class JavaCompilerView(APIView):
-    permission_classes = [CustomIsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
-    def get(self,request):
-        javaCompiler()
-        return Response(status=200)
-
 class LogicDetailAPIViewNew(APIView):
     permission_classes = [CustomIsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -922,7 +671,6 @@ class GithubAccessView(APIView):
 
 import git
 import tempfile
-import shutil
 import os
 from .models import ClonedRepository
 from urllib.parse import urlparse
@@ -961,35 +709,12 @@ class CloneRepositoryAPIView(APIView):
                         file_upload.save()
                         print('fileUploaded',item)
 
-    # def clone_github_repository(self,repository_url, branch_name, access_token, user_profile, repository_name=None):
-      
-    #     try:
-    #         with tempfile.TemporaryDirectory() as temp_dir:
-    #             git_url = f"https://{access_token}@github.com/{repository_url.split('/')[3]}/{repository_url.split('/')[4]}.git"
-                
-    #             git.Repo.clone_from(git_url, temp_dir, depth=1, branch=branch_name)
-    #             parent_folder = FolderUpload.objects.create(foldername=repository_name, parentFolder=None, user=user_profile)
-
-    #             self.process_folder(temp_dir,parent_folder=parent_folder,user=user_profile)
-    #             if not repository_name:
-    #                 repository_name = self.get_repository_name_from_url(repository_url)
-    #             cloned_repo = ClonedRepository(
-    #                 user=user_profile,
-    #                 repository_name=repository_name,  
-    #                 repository_url=repository_url,
-    #                 branch=branch_name,  
-    #             )
-    #             cloned_repo.save()
-                
-    #         return True
-    #     except git.exc.GitCommandError as e:
-    #         print(f"Error cloning repository: {str(e)}")
-    #         return False
+    
     def user_has_access(self, user_profile, repository_url, branch_name):
         try:
             parts = repository_url.split('/')
             owner = parts[3]
-            repo_name = parts[4].split('.')[0]  # Remove '.git' from repo name
+            repo_name = parts[4].split('.')[0]
             
             access_token = user_profile.access_token  
             
@@ -1899,49 +1624,6 @@ class HigherLevelMermaidFlowchart(APIView):
 from .models import ScaniaBusinessLogic as SBL
 from .serializers import ScaniaLogicSerializer
 import logging
-logging.basicConfig(
-    filename='Scania.log',  
-    level=logging.INFO,   
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
-logger = logging.getLogger(__name__)
-class ScaniaBusinessLogic(APIView):
-    permission_classes = [CustomIsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
-    def get(self, request):
-        user = request.user
-        path = '/Users/vjain/Scania Source Code copy 2/HSSRC.LIB/QRPGLESRC.FILE'
-        if os.path.exists(path):
-            file_list = os.listdir(path)
-            for file_name in file_list:
-                if file_name.endswith('.txt'):
-                    print(file_name)
-                    file_path = os.path.join(path, file_name)
-                    try:
-                        with open(file_path, 'r') as file:
-                            file_content = file.read()
-                            source = 'RPG'
-                            try:
-                                existing_logic = SBL.objects.get(file_name=file_name)
-                            except:
-                                business_logic = code_to_business_logic(file_content, source)
-                                logic_data = {
-                                    'logic': business_logic,
-                                    'user': user,
-                                    'file_name': file_name,
-                                    'folder_name': 'QRPGSRC400.FILE'
-                                }
-                                serializer = ScaniaLogicSerializer(data=logic_data)
-                                if serializer.is_valid():
-                                    serializer.save()
-                                    logger.info(f'File Name: {file_name} processed and saved')
-                                else:
-                                    logger.error(f'Serializer errors for file: {file_name}')
-                    except Exception as e:
-                        logger.error(f'Error processing file: {file_name}, error: {str(e)}')
-        return Response({'Message': 'done'}, status=status.HTTP_201_CREATED)
     
 from .search import get_search_list
 class Search(APIView):

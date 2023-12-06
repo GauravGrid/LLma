@@ -115,12 +115,7 @@ def updated_business_logic(business_logic):
     file=get_file_name(business_logic)
     print(file)
     
-    # S1='The Schema of the database file name PMS is PMS'
-    # S2='The Schema of the database file name ATB is ATB'
-    # S3='The Schema of the database file name PST is PST'
-    # S4='The Schema of the database file name RAZ is RAZ'
-    # S5='The Schema of the database file name TEI is TEI'
-    # S6='The Schema of the database file name ESZPF is ESZPF'
+
 
     S7='''The data defination language of the database file name ERLSTAM is
                 CREATE TABLE HDLDKW.ERLSTAM (
@@ -150,13 +145,7 @@ def updated_business_logic(business_logic):
                 
     '''
 
-    # S9='The Schema of the database file name HSKUKPF is HSKUKPF'
-    # S10='The Schema of the database file name HSFZKPF is HSFZKPF'
-    # S11='The Schema of the database file name HS0017S1 is HS0017S1'
-    # S12='The Schema of the database file name HS0017S2 is HS0017S2'
-    # S13='The Schema of the database file name KUDSTAR is KUDSTAR'
-    # S14='The Schema of the database file name FARSTAR is FARSTAR'
-    # S15='The Schema of the database file name RWADMPF is RWADMPF'
+
 
     S16='''The data defination language of the database file name HSHI12PF is 
                 CREATE TABLE HDLZENTRAL.HSHI12PF (
@@ -281,11 +270,7 @@ def updated_business_logic(business_logic):
             CREATE UNIQUE INDEX HSRAZPF ON HDLZENTRAL.HSRAZPF (RAZ000,RAZ010,RAZ020,RAZ030);
     '''
 
-    # S21='The Schema of the database file name HSHI12S1 is HSHI12S1'
-    # S22='The Schema of the database file name HSHI12S2 is HSHI12S2'
-    # S23='The Schema of the database file name HSHI12S3 is HSHI12S3'
-    # S24='The Schema of the database file name HSHI12S4 is HSHI12S4'
-    # S25='The Schema of the database file name HSBTSLF1 is HSBTSLF1'
+
 
     S26='''The data defination language of the database file name HSPSTPF is 
                     CREATE TABLE HDLDKM.HSPSTPF (
@@ -333,33 +318,23 @@ def updated_business_logic(business_logic):
                     CREATE INDEX HSPSTPF ON HDLDKM.HSPSTPF (PST000,PST010,PST020,PST030,PST060,PST070,PST090,PST100);
     '''
 
-    # S27='The Schema of the database file name SATA00/HSPSTPF is SATA00/HSPSTPF'
 
 
     Schema=[S7,S8,S16,S17,S18,S19,S20,S26]
 
     model = SentenceTransformer("flax-sentence-embeddings/st-codesearch-distilroberta-base")
 
-    # Encode our Schmea into the vector space
     code_emb = model.encode(Schema, convert_to_tensor=True)
 
     for file_name in file:
         query = file_name
         query_emb = model.encode(query, convert_to_tensor=True)
         hits = util.semantic_search(query_emb, code_emb)[0]
-        # print(hits,"<-----hits")
         top_hit = hits[0]
-        # print(top_hit,"file---->",file_name)
         print("Cossim: {:.2f}".format(top_hit['score']))
         
         if(top_hit['score'] > 0.34):
             business_logic = business_logic +'\n'+ f"{Schema[top_hit['corpus_id']]}"
-            # print(business_logic)
-        
-        # else( file_name == 'HSESZPF' ):
-        #     business_logic= business_logic +'\n'+ f"{Schema[top_hit['corpus_id']]}"
-        #     print(business_logic)
-        # print("\n\n")
 
     return business_logic
 
@@ -367,17 +342,4 @@ business = updated_business_logic(business_logic)
 print(business)
 
 
-{
-# from langchain.embeddings import HuggingFaceEmbeddings ,HuggingFaceInferenceAPIEmbeddings
-# embeddings = HuggingFaceEmbeddings()
-# file_name="sql.db2"
-# file_schema=""
-# file = f"This is the schema of the database file named {file_name}: {file_schema}."
-# inference_api_key = "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"
-# from langchain.embeddings import HuggingFaceInferenceAPIEmbeddings
-# embeddings = HuggingFaceInferenceAPIEmbeddings(
-#     api_key=inference_api_key, model_name="sentence-transformers/all-MiniLM-l6-v2"
-# )
-# query_result = embeddings.embed_query(file)
-# query_result[:3]
-}
+

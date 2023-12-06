@@ -34,7 +34,6 @@ urlpatterns = [
     path('codegen/<int:file_id>/<int:logic_id>', views.CodeGenAPIViewNew.as_view(), name ="java"),
     path('mermaid/<int:file_id>', views.MermaidAPIViewNew.as_view(), name ="mermaid"),
     path('mermaid/<int:file_id>/<int:logic_id>', views.MermaidAPIViewNew.as_view(), name ="mermaid"),
-    path('compilejava',views.JavaCompilerView.as_view(), name='compilejava'),
     path('auth/github/callback/', views.github_oauth_callback, name='github_oauth_callback'),
     path('associate-github-token', views.GithubAccessView.as_view(), name='associate_github_token'),
     path('clone-repository/',views.CloneRepositoryAPIView.as_view(),name='clone_repository'),
