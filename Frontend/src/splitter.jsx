@@ -29,6 +29,9 @@ import NewBranchModal from './assets/components/newbranchmodal';
 import SelectFilesModal from './assets/components/selectfilesmodal';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+
 
 //modal
 const styleA= {
@@ -36,11 +39,12 @@ const styleA= {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 600,
+  width: 1000,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
+  
 };
 //modal-end
 
@@ -924,12 +928,24 @@ export default function InteractiveArea(props) {
                                     </p>
                                     <div className='flex h-full w-full'>
                                       <MermaidDiagram mermaidCode={highFlowchartCode} />
-                                      <div className='flex flex-col h-full bg-black w-5' style={{ position: 'relative', top: '25px', right: '30px' }}>
+                                      <div className='flex flex-col h-full bg-black w-5' style={{ position: 'center', top: '25px', right: '30px' }}>
                                         <Fab size='small' sx={{ backgroundColor: '#42a5f5', marginTop: '10px', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateHighMermaidDiagramFlowNew(selectedLogicID)}>
                                           <ReplayOutlined sx={{ color: '#FFF' }} />
                                         </Fab>
+                                        
                                       </div>
                                       </div>
+                                      {/* <p className='ind-tag'>dive into individual level</p> */}
+                                      <Button sx={{marginLeft: '260px', marginBottom:'0px'}} 
+                                         onClick={()=>{
+                                              setMdValue(1);
+                                            }}>
+                                              <ExpandMoreIcon></ExpandMoreIcon>
+                                            </Button>
+                                            <p className='ind-tag'>dive into individual level</p>
+
+                                     
+                                      {/* <ExpandMoreIcon sx={{flexGrow: 1, marginLeft:'260px', marginBottom:'10px'}} onClick={handleOpenModalA}></ExpandMoreIcon> */}
                                     </div>
                         }
                                     <Divider classes={{ root: 'customDivider' }} sx={{ bgcolor: '42a5f5' }} ></Divider>
@@ -940,15 +956,6 @@ export default function InteractiveArea(props) {
                                       
                                          <div style={{display: 'flex', width:'100%'}}>
                                          <Button sx={{flexGrow: 1}} onClick={handleOpenModalA}>Class Diagram</Button>
-                                         <Button sx={{marginLeft: 'auto'}} 
-                                         onClick={()=>{
-                                              // handleope
-                                              console.log(mdvalue);
-                                              setMdValue(1);
-                                            }}>
-
-                                         <ArrowForwardIosIcon ></ArrowForwardIosIcon>
-                                            </Button>
                                          </div>
                                          <Modal 
                                          open={openModalA}
@@ -1015,6 +1022,14 @@ export default function InteractiveArea(props) {
                                         </Fab>
                                       </div>
                                       </div>
+                                      <Button sx={{marginLeft: '260px', marginBottom:'0px'}}
+                                             onClick={()=>{
+                                              setMdValue(0);
+                                            }}>
+
+                                         <ExpandLessIcon></ExpandLessIcon>
+                                            </Button>
+                                            <p className='hig-tag'>go back to high level</p>
                                     </div>
                         }
                                     <Divider classes={{ root: 'customDivider' }} sx={{ bgcolor: '42a5f5' }} ></Divider>
@@ -1024,14 +1039,7 @@ export default function InteractiveArea(props) {
                                         <div className='flex mt-2'>
 
                                           <div style={{ display: 'flex', width: '100%'}}>
-                                            <Button
-                                             onClick={()=>{
-                                              // handleope
-                                              setMdValue(0);
-                                            }}>
-
-                                         <ArrowBackIosIcon></ArrowBackIosIcon>
-                                            </Button>
+                                           
                                          <Button sx={{flexGrow: 1}} onClick={handleOpenModalA}>Class Diagram</Button>
                                          </div>
                                          <Modal 
