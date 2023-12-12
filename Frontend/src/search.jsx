@@ -13,6 +13,8 @@ import Divider from "@mui/material/Divider";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import Chip from '@mui/material/Chip';
+
 //modal
 
 //modal-end
@@ -33,6 +35,12 @@ const data = [
 ];
 
 export default function Search() {
+  //chips
+  const handleClickC= () => {
+    console.info('You clicked the Chip.');
+  };
+
+  //chips-end
 
   const [openAlert, setOpenAlert] = React.useState(false);
 
@@ -284,6 +292,14 @@ const handleClose = () => setOpenModal(false);
               />
               {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
             </div>
+           <div>
+            <Stack  sx={{marginLeft:"140px", marginBottom:"20px"}}direction="row" spacing={1}>
+      <Chip  label="Summary" onClick={handleClickC} />
+      <Chip  label="Business Logic" onClick={handleClickC} />
+      <Chip  label="Title" onClick={handleClickC} />
+     
+    </Stack>
+    </div>
             {tableData.length !== 0 && <MaterialReactTable table={table} />}
             <div>
               <Drawer
