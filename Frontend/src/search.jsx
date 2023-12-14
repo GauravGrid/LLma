@@ -13,9 +13,9 @@ import Divider from "@mui/material/Divider";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
-//modal
+import Chip from '@mui/material/Chip';
 
-//modal-end
+
 const data = [
   {
     fileID: "3f25309c-8fa1-470f-811e-cdb082ab9017", //we'll use this as a unique row id
@@ -33,6 +33,17 @@ const data = [
 ];
 
 export default function Search() {
+  //chips
+  const [cArray,setCarray] = useState([false,false,false])
+  const handleClickC= (index) => {
+    console.info('You clicked the Chip.',cArray[index]);
+    const newCarray = [...cArray];
+  newCarray[index] = !newCarray[index];
+  setCarray(newCarray);
+  };
+ 
+
+  //chips-end
 
   const [openAlert, setOpenAlert] = React.useState(false);
   const [moduleName,setModuleName] = React.useState('')
@@ -83,6 +94,7 @@ export default function Search() {
     right: false,
   });
   //drawer
+  
   const [stateA, setStateA] = React.useState({
     top: false,
     left: false,
@@ -311,6 +323,14 @@ const handleClose = () => setOpenModal(false);
               />
               {/* <p>Recommended: Writing, Writing Prompts, Productivity</p> */}
             </div>
+           <div>
+            <Stack  sx={{marginLeft:"140px", marginBottom:"20px"}}direction="row" spacing={1}>
+      <Chip variant={cArray[0]?'filled':'outlined'} label="Summary"  onClick= {()=>handleClickC(0)} />
+      <Chip  variant={cArray[1]?'filled':'outlined'} label="Business Logic"  onClick= {()=>handleClickC(1)} />
+      <Chip  variant={cArray[2]?'filled':'outlined'} label="Title"  onClick= {()=>handleClickC(2)} />
+     
+    </Stack>
+    </div>
             {tableData.length !== 0 && <MaterialReactTable table={table} />}
             <div>
               <Drawer

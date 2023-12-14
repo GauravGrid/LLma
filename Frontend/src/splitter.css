@@ -144,3 +144,13 @@
 	display: flex;
 	flex-direction: column;
 }
+.ind-tag{
+	margin-left: 220px;
+	margin-bottom: 10px;
+	font-weight: bold;
+}
+.hig-tag{
+	margin-left: 240px;
+	margin-bottom: 10px;
+	font-weight: bold;
+}

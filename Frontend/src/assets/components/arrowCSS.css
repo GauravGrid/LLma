@@ -6,5 +6,6 @@
     display: flex;
     justify-content: center;
     overflow: scroll; 
+    width: 100%;
 
 }
