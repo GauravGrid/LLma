@@ -1632,8 +1632,9 @@ class Search(APIView):
 
     def post(self, request):
         user = request.user
-        query = request.data.get('query') 
-        result = get_search_list(query)
+        query = request.data.get('query')
+        tags = request.data.get('tags')
+        result = get_search_list(query,tags)
         # print(result)
         return Response({'data': result}, status=status.HTTP_201_CREATED)
                         

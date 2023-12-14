@@ -38,8 +38,8 @@ export default function Search() {
   const handleClickC= (index) => {
     console.info('You clicked the Chip.',cArray[index]);
     const newCarray = [...cArray];
-  newCarray[index] = !newCarray[index];
-  setCarray(newCarray);
+    newCarray[index] = !newCarray[index];
+    setCarray(newCarray);
   };
  
 
@@ -212,6 +212,7 @@ const handleClose = () => setOpenModal(false);
     const jwtToken = sessionStorage.getItem("jwt");
     try {
       setIsLoading(() => true);
+      console.log(cArray);
       const response = await fetch(`http://127.0.0.1:8000/search/`, {
         method: "POST",
         headers: {
@@ -220,6 +221,7 @@ const handleClose = () => setOpenModal(false);
         },
         body: JSON.stringify({
           query: value,
+          tags: cArray
         }),
       });
       const data = await response.json();

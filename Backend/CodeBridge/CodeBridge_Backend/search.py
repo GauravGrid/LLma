@@ -99,8 +99,9 @@ def build_inverted_index(documents):
     inverted_index = defaultdict(list)
 
     for doc_id, document in enumerate(documents):
+        print(document,"-->doc")
         text = document['business_logic']
-        tokens = preprocess_c3_m2(text)
+        tokens = preprocess(text)
 
         term_frequency = defaultdict(int)
         for position, token in enumerate(tokens):
@@ -108,7 +109,26 @@ def build_inverted_index(documents):
             inverted_index[token].append((document['id'], term_frequency[token], position))
 
     return inverted_index
+def build_inverted_index_header(documents):
+    inverted_index = defaultdict(list)
 
+    for doc_id, document in enumerate(documents):
+        try:
+            print(document,"-->doc")
+            text = f"""
+            Overall Module:{document['overall_module']}
+            Sub-Module:{document['sub_module']}
+            """
+            tokens = preprocess(text)
+
+            term_frequency = defaultdict(int)
+            for position, token in enumerate(tokens):
+                term_frequency[token] += 1
+                inverted_index[token].append((document['id'], term_frequency[token], position))
+        except Exception as e:
+            print(e)
+
+    return inverted_index
 def search_inverted_index(inverted_index, query_collections):
     search_results = []
     result_dict = {}
@@ -307,6 +327,7 @@ def build_inverted_index_summary(documents):
 
     for doc_id, document in enumerate(documents):
         try:
+            # print(document,"-->doc")
             text = document['summary']
             tokens = preprocess(text)
 
@@ -319,7 +340,7 @@ def build_inverted_index_summary(documents):
 
     return inverted_index
     
-def get_ner_ids_summary(query):
+def get_ner_ids_summary(query,tags):
 
     result_folder_path = '/Users/vjain/Program Grouper/BusinessLogic'
     documents = []
@@ -332,7 +353,7 @@ def get_ner_ids_summary(query):
 
             if result_file_name.endswith('.txt'):
                 with open(result_file_path, 'r') as result_file:
-                    print(f'Extracting content from {result_file_name}')
+                    # print(f'Extracting content from {result_file_name}')
                     content = result_file.read()
                     chunks = content.split('*' * 40)
                     chunks = [chunk.strip() for chunk in chunks if chunk.strip()]
@@ -350,10 +371,10 @@ def get_ner_ids_summary(query):
                         if summary_match:
                             summary_content = summary_match.group(1).strip()
                             document['summary'] = summary_content
-                            print(summary_content)
+                            # print(summary_content)
                         else:
                             print(f"Summary not found in {chunk_id}")
-                            print(f"Chunk content:\n{chunk_content}")
+                            # print(f"Chunk content:\n{chunk_content}")
 
 
                         documents.append(document)
@@ -361,15 +382,30 @@ def get_ner_ids_summary(query):
         print(f'The folder {result_folder_path} does not exist.')
 
     customer_index_summary = build_inverted_index_summary(documents)
+    customer_index_logic = build_inverted_index(documents)
+    customer_index_header = build_inverted_index_header(documents)
     query = getEntities(str(query))
-    print(query)
+    # print(query)
     ner_ids=[]
-    results = search_inverted_index(customer_index_summary, query)
-    for doc_id, score in results:
-        
-        if score > 1:
-            ner_ids.append(doc_id)
-            # print(f"Document ID: {doc_id}, Relevance Score: {score}")
+    #Summary
+    if tags[0] == True:
+        results = search_inverted_index(customer_index_summary, query)
+        for doc_id, score in results:
+            
+            if score > 1:
+                ner_ids.append(doc_id)
+    #Business Logic
+    if tags[1] == True:
+        results = search_inverted_index(customer_index_logic, query)
+        for doc_id, score in results:
+            if score > 1:
+                ner_ids.append(doc_id)
+    #Title
+    if tags[2] == True:
+        results = search_inverted_index(customer_index_header, query)
+        for doc_id, score in results:
+            if score > 1:
+                ner_ids.append(doc_id)
     return ner_ids
 
 def extract_unique_filenames_ordered(data):
@@ -382,17 +418,33 @@ def extract_unique_filenames_ordered(data):
             unique_filenames.append(filename)
     return unique_filenames
 
-def get_search_list(query):
-    ids = get_ner_ids_summary(query)
-    corpus_embedding_openai = get_embedding(getText(preprocess(query)),model='text-embedding-ada-002')
-    matches_preprocessed = index.query(
-        vector = corpus_embedding_openai,
-        top_k = 2033,
-    )
-    result = []
-    print(ids)
-    for match in matches_preprocessed['matches']:
-        if (match['id'] in ids):
+def get_search_list(query,tags=None):
+    print(tags)
+    if True in tags:
+        ids = get_ner_ids_summary(query,tags)
+        corpus_embedding_openai = get_embedding(getText(preprocess(query)),model='text-embedding-ada-002')
+        matches_preprocessed = index.query(
+            vector = corpus_embedding_openai,
+            top_k = 2033,
+        )
+        result = []
+        # print(ids)
+        for match in matches_preprocessed['matches']:
+            if (match['id'] in ids):
+                result.append(match)
+                
+        return extract_unique_filenames_ordered(result)
+
+    else:
+        corpus_embedding_openai = get_embedding(getText(preprocess(query)),model='text-embedding-ada-002')
+        matches_preprocessed = index.query(
+            vector = corpus_embedding_openai,
+            top_k = 2033,
+        )
+        result = []
+        # print(ids)
+        for match in matches_preprocessed['matches']:
             result.append(match)
-            
-    return extract_unique_filenames_ordered(result)
+                
+        return extract_unique_filenames_ordered(result)
+    
