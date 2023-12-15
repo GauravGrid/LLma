@@ -82,7 +82,6 @@ export default function Search() {
     if (reason === 'clickaway') {
       return;
     }
-
     setOpenAlert(false);
   };
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -122,27 +121,21 @@ export default function Search() {
       onKeyDown={toggleDrawer(anchor, false)}
     >
       <Divider />
-
       <div className="drawerDiv">
         <p className="heading">create sub-module</p>
         <p className="sub-heading">sub module name</p>
-     
-      <input className="customer-search" value={moduleName} onChange={handleModuleNameChange} placeholder="customer search"></input>
-      <button onClick={ () => setDrawerOpen(false)} className="close-button">close</button>
-      <button  onClick={handleClick}
-     
-     className="create-button">create</button>
-      <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleCloseA}>
-  <Alert onClose={handleCloseA} severity="success" sx={{ width: '100%' }}>
-    successfully created
-  </Alert>
-</Snackbar> 
-</div>  
+        <input className="customer-search" placeholder="customer search"></input>
+        <button onClick={() => setDrawerOpen(false)} className="close-button">close</button>
+        <button onClick={handleClick}
+          className="create-button">create</button>
+        <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleCloseA}>
+          <Alert onClose={handleCloseA} severity="success" sx={{ width: '100%' }}>
+            successfully created
+          </Alert>
+        </Snackbar>
+      </div>
     </Box>
-   
   );
-
-  //drawer-end
 
   const columns = useMemo(
     //column definitions...
@@ -165,19 +158,18 @@ export default function Search() {
   const [tableData, setTableData] = useState([]);
   const [rowCount, setRowCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  let success=false;
 
   //optionally, you can manage the row selection state yourself
   const [rowSelection, setRowSelection] = useState({});
   const [searchValue, setSearchValue] = useState("");
   //modal
   const [openModal, setOpenModal] = React.useState(false);
-const handleOpen = (value) => {
+  const handleOpen = (value) => {
     console.log(value)
     setOpenModal(true);
-    handleBusinessLogicCall(value)                            
-}
-const handleClose = () => setOpenModal(false);
+    handleBusinessLogicCall(value)
+  }
+  const handleClose = () => setOpenModal(false);
 
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
@@ -203,11 +195,12 @@ const handleClose = () => setOpenModal(false);
       const data = await response.json();
       setBusinessLogic(data.data)
 
-      
+
     } catch (error) {
       console.log(error);
     }
   };
+
   const handleAPICall = async (value) => {
     const jwtToken = sessionStorage.getItem("jwt");
     try {
@@ -236,12 +229,12 @@ const handleClose = () => setOpenModal(false);
       setTableData(() => temp);
       setRowCount(() => temp.length);
       setIsLoading(() => false);
-
       console.log("tableData after set state: ", tableData);
     } catch (error) {
       console.log(error);
     }
   };
+  
   const table = useMaterialReactTable({
     columns,
     data: tableData,
@@ -266,12 +259,11 @@ const handleClose = () => setOpenModal(false);
         </Button>
       </Box>
     ),
-    enableRowActions:true,
+    enableRowActions: true,
     renderRowActionMenuItems: ({ row }) => [
       <MenuItem key="open" onClick={() => handleOpen(row.original.fileName)}>
         open
       </MenuItem>,
-     
     ],
   });
 
@@ -297,10 +289,8 @@ const handleClose = () => setOpenModal(false);
       <>
         <div>
           <Button onClick={handleOpen}>Open modal</Button>
-          
         </div>
-        
-    <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex" }}>
           <SideNav />
           <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <div
@@ -339,15 +329,9 @@ const handleClose = () => setOpenModal(false);
                 anchor={"right"}
                 open={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
-                sx={{
-                //   paddingBottom: "10rem",
-                //   height: "100vh",
-                }}
                 PaperProps={{
                   sx: {
-                    // paddingBottom: "1rem",
                     boxSizing: "border-box",
-                    // height: "100vh",
                   },
                 }}
               >
@@ -356,29 +340,23 @@ const handleClose = () => setOpenModal(false);
             </div>
           </Box>
           <Modal
-          className="modal-box"
+            className="modal-box"
             open={openModal}
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
           >
-            <div className="modal-content h-2/3 overflow-y-scroll p-3"> 
-
+            <div className="modal-content h-2/3 overflow-y-scroll p-3">
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 Business Logic
               </Typography>
               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                 {businessLogic.split(/\n/).map(line => <div key={line}>{line}</div>)}
               </Typography>
-
-              
             </div>
           </Modal>
-                  </Box>
-
+        </Box>
       </>
-      
     </>
-    
   );
 }

@@ -34,7 +34,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 
 //modal
-const styleA= {
+const styleA = {
   position: 'absolute',
   top: '50%',
   left: '50%',
@@ -44,7 +44,7 @@ const styleA= {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
-  
+
 };
 //modal-end
 
@@ -148,7 +148,7 @@ export default function InteractiveArea(props) {
   //modal
   const [openModalA, setOpenModalA] = React.useState(false);
   const handleOpenModalA = () => setOpenModalA(true);
-  const handleCloseModalA= () => setOpenModalA(false);
+  const handleCloseModalA = () => setOpenModalA(false);
   //modal-end
 
 
@@ -265,7 +265,7 @@ export default function InteractiveArea(props) {
   const [javaCode, setJavaCode] = useState('');
   const [gitreplist, setGitreplist] = useState([])
   const [branchlist, setBranchlist] = useState([])
-  const [error, setError] = useState(''); 
+  const [error, setError] = useState('');
 
   useEffect(() => {
 
@@ -640,7 +640,7 @@ export default function InteractiveArea(props) {
         console.log(error)
       }
     }
-    
+
 
 
   };
@@ -932,71 +932,70 @@ export default function InteractiveArea(props) {
                                         <Fab size='small' sx={{ backgroundColor: '#42a5f5', marginTop: '10px', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateHighMermaidDiagramFlowNew(selectedLogicID)}>
                                           <ReplayOutlined sx={{ color: '#FFF' }} />
                                         </Fab>
-                                        
-                                      </div>
-                                      </div>
-                                      {/* <p className='ind-tag'>dive into individual level</p> */}
-                                      <Button sx={{marginLeft: '260px', marginBottom:'0px'}} 
-                                         onClick={()=>{
-                                              setMdValue(1);
-                                            }}>
-                                              <ExpandMoreIcon></ExpandMoreIcon>
-                                            </Button>
-                                            <p className='ind-tag'>dive into individual level</p>
 
-                                     
-                                      {/* <ExpandMoreIcon sx={{flexGrow: 1, marginLeft:'260px', marginBottom:'10px'}} onClick={handleOpenModalA}></ExpandMoreIcon> */}
+                                      </div>
                                     </div>
-                        }
-                                    <Divider classes={{ root: 'customDivider' }} sx={{ bgcolor: '42a5f5' }} ></Divider>
-                                    {
-                                      (classDiagramCode === '') ?
-                                        <></> :
-                                        <div className='flex mt-2'>
-                                      
-                                         <div style={{display: 'flex', width:'100%'}}>
-                                         <Button sx={{flexGrow: 1}} onClick={handleOpenModalA}>Class Diagram</Button>
-                                         </div>
-                                         <Modal 
-                                         open={openModalA}
-                                         onClose={handleCloseModalA}
-                                         aria-labelledby="modal-modal-title"
-                                         aria-describedby="modal-modal-description"
-                                         >
-                                         <Box sx={styleA}>
-          
-                                          <div className='flex'>
+                                    {/* <p className='ind-tag'>dive into individual level</p> */}
+                                    <Button sx={{ marginLeft: '260px', marginBottom: '0px' }}
+                                      onClick={() => {
+                                        setMdValue(1);
+                                      }}>
+                                      <ExpandMoreIcon></ExpandMoreIcon>
+                                    </Button>
+                                    <p className='ind-tag'>dive into individual level</p>
+
+
+                                    {/* <ExpandMoreIcon sx={{flexGrow: 1, marginLeft:'260px', marginBottom:'10px'}} onClick={handleOpenModalA}></ExpandMoreIcon> */}
+                                  </div>
+                              }
+                              <Divider classes={{ root: 'customDivider' }} sx={{ bgcolor: '42a5f5' }} ></Divider>
+                              {
+                                (classDiagramCode === '') ?
+                                  <></> :
+                                  <div className='flex mt-2'>
+
+                                    <div style={{ display: 'flex', width: '100%' }}>
+                                      <Button sx={{ flexGrow: 1 }} onClick={handleOpenModalA}>Class Diagram</Button>
+                                    </div>
+                                    <Modal
+                                      open={openModalA}
+                                      onClose={handleCloseModalA}
+                                      aria-labelledby="modal-modal-title"
+                                      aria-describedby="modal-modal-description"
+                                    >
+                                      <Box sx={styleA}>
+
+                                        <div className='flex'>
                                           <MermaidDiagram mermaidCode={highClassDiagramCode} />
                                           <div className='flex flex-col h-full bg-black w-5' style={{ position: 'relative', top: '25px', right: '30px' }}>
                                             <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateHighMermaidDiagramClassNew(selectedLogicID)}>
                                               <ReplayOutlined sx={{ color: '#FFF' }} />
                                             </Fab>
                                           </div>
-                                          </div>
-                                         </Box>
-                                         </Modal>
-                                        
                                         </div>
-
-
-
-                                    }
-
+                                      </Box>
+                                    </Modal>
 
                                   </div>
-                      <div className='flex flex-col h-full bg-black w-5' style={{ position: 'absolute', top: '25px', right: '30px' }}>
-                        <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} variant='outlined' onClick={() => handleDownload('mmd')}>
-                          <Download sx={{ color: '#FFF' }} />
-                        </Fab>
-                        
-                      </div>
+
+
+
+                              }
 
                             </div>
-                }
+                            <div className='flex flex-col h-full bg-black w-5' style={{ position: 'absolute', top: '25px', right: '30px' }}>
+                              <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} variant='outlined' onClick={() => handleDownload('mmd')}>
+                                <Download sx={{ color: '#FFF' }} />
+                              </Fab>
+
+                            </div>
 
                           </div>
+                      }
 
-            </CustomTabPanel>
+                    </div>
+
+                  </CustomTabPanel>
                   <CustomTabPanel value={mdvalue} index={1}>
                     <div className='flex p-5' style={{ background: 'black', width: '100%', height: '93%' }}>
 
@@ -1021,66 +1020,66 @@ export default function InteractiveArea(props) {
                                           <ReplayOutlined sx={{ color: '#FFF' }} />
                                         </Fab>
                                       </div>
-                                      </div>
-                                      <Button sx={{marginLeft: '260px', marginBottom:'0px'}}
-                                             onClick={()=>{
-                                              setMdValue(0);
-                                            }}>
-
-                                         <ExpandLessIcon></ExpandLessIcon>
-                                            </Button>
-                                            <p className='hig-tag'>go back to high level</p>
                                     </div>
-                        }
-                                    <Divider classes={{ root: 'customDivider' }} sx={{ bgcolor: '42a5f5' }} ></Divider>
-                                    {
-                                      (classDiagramCode === '') ?
-                                        <></> :
-                                        <div className='flex mt-2'>
+                                    <Button sx={{ marginLeft: '260px', marginBottom: '0px' }}
+                                      onClick={() => {
+                                        setMdValue(0);
+                                      }}>
 
-                                          <div style={{ display: 'flex', width: '100%'}}>
-                                           
-                                         <Button sx={{flexGrow: 1}} onClick={handleOpenModalA}>Class Diagram</Button>
-                                         </div>
-                                         <Modal 
-                                         open={openModalA}
-                                         onClose={handleCloseModalA}
-                                         aria-labelledby="modal-modal-title"
-                                         aria-describedby="modal-modal-description"
-                                         >
-                                         <Box sx={styleA}>
-                                         <div className='flex'>
+                                      <ExpandLessIcon></ExpandLessIcon>
+                                    </Button>
+                                    <p className='hig-tag'>go back to high level</p>
+                                  </div>
+                              }
+                              <Divider classes={{ root: 'customDivider' }} sx={{ bgcolor: '42a5f5' }} ></Divider>
+                              {
+                                (classDiagramCode === '') ?
+                                  <></> :
+                                  <div className='flex mt-2'>
+
+                                    <div style={{ display: 'flex', width: '100%' }}>
+
+                                      <Button sx={{ flexGrow: 1 }} onClick={handleOpenModalA}>Class Diagram</Button>
+                                    </div>
+                                    <Modal
+                                      open={openModalA}
+                                      onClose={handleCloseModalA}
+                                      aria-labelledby="modal-modal-title"
+                                      aria-describedby="modal-modal-description"
+                                    >
+                                      <Box sx={styleA}>
+                                        <div className='flex'>
                                           <MermaidDiagram mermaidCode={classDiagramCode} />
                                           <div className='flex flex-col h-full bg-black w-5' style={{ position: 'relative', top: '25px', right: '30px' }}>
                                             <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} onClick={() => generateMermaidDiagramClassNew(selectedLogicID)}>
                                               <ReplayOutlined sx={{ color: '#FFF' }} />
                                             </Fab>
                                           </div>
-                                          </div>
-                                          
-                                         </Box>
-                                         </Modal>
                                         </div>
 
-
-
-                                    }
-
-
+                                      </Box>
+                                    </Modal>
                                   </div>
-                      <div className='flex flex-col h-full bg-black w-5' style={{ position: 'absolute', top: '25px', right: '30px' }}>
-                        <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} variant='outlined' onClick={() => handleDownload('mmd')}>
-                          <Download sx={{ color: '#FFF' }} />
-                        </Fab>
-                        
-                      </div>
+
+
+
+                              }
+
 
                             </div>
-                }
+                            <div className='flex flex-col h-full bg-black w-5' style={{ position: 'absolute', top: '25px', right: '30px' }}>
+                              <Fab size='small' sx={{ backgroundColor: '#42a5f5', ":hover": { backgroundColor: '#64b5f6' } }} variant='outlined' onClick={() => handleDownload('mmd')}>
+                                <Download sx={{ color: '#FFF' }} />
+                              </Fab>
+
+                            </div>
 
                           </div>
+                      }
 
-            </CustomTabPanel>
+                    </div>
+
+                  </CustomTabPanel>
 
                 </div>
 
