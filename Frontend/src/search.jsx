@@ -323,7 +323,7 @@ export default function Search() {
      
     </Stack>
     </div>
-            {tableData.length !== 0 && <MaterialReactTable table={table} />}
+            {(tableData.length !== 0 || isLoading ) && <MaterialReactTable table={table} />}
             <div>
               <Drawer
                 anchor={"right"}
