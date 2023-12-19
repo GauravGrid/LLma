@@ -65,6 +65,18 @@ Follow these instructions to set up and run the backend and frontend servers for
    * Change the folder path in ```def get_ner_ids_summary``` function to the path of the Business Logic Folder
    * Open the views.py file in your preferred text editor.
    * Change the folder path in ```class ScaniaBusinessLogic(APIView)``` function to the path of the User Stories Folder
+
+6. **Setup API keys**:
+   * Create file named ```keys.py``` in Backend/CodeBridge/CodeBridge_Backend.
+   * Add Openai, anthropic, jwt_secret and pinecone key in the following way 
+   ```bash
+   openai_key = "insert key"
+   anthropic_key = "insert key"
+   JWT_SECRET = 'griddynamics'
+   pinecone_key = "insert key"
+
+   ```
+
 7. **Database Setup**: Set up the database and perform migrations:
 
    ```bash
