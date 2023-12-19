@@ -55,14 +55,24 @@ Follow these instructions to set up and run the backend and frontend servers for
    pip install -r requirements.txt
    ```
 
-5. **Database Setup**: Set up the database and perform migrations:
+5. **Install nltk**: Install the required NLTK Libraries:
+
+   ```bash
+   python nltkD.py
+   ```
+6. **Setup Source Files**: (User Stories and Business Logic):
+   * Open the search.py file in your preferred text editor.
+   * Change the folder path in ```def get_ner_ids_summary``` function to the path of the Business Logic Folder
+   * Open the views.py file in your preferred text editor.
+   * Change the folder path in ```class ScaniaBusinessLogic(APIView)``` function to the path of the User Stories Folder
+7. **Database Setup**: Set up the database and perform migrations:
 
    ```bash
    cd CodeBridge
    python manage.py migrate
    ```
 
-6. **Run Server**: Start the Django development server:
+8. **Run Server**: Start the Django development server:
 
    ```bash
    python manage.py runserver

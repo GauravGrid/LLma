@@ -1645,7 +1645,7 @@ class ScaniaBusinessLogic(APIView):
     def post(self, request):
         user = request.user
         filename = request.data.get('filename') 
-        result_folder_path = '/Users/vjain/Program Grouper/BusinessLogic'
+        result_folder_path = '/Users/vjain/Program Grouper/User Stories'
         if os.path.exists(result_folder_path):
             result_file_list = os.listdir(result_folder_path)
 
